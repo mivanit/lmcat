@@ -357,3 +357,143 @@ def test_main_with_nested_lmignore(tmp_path: Path, capsys):
         assert "normal content" in out
     finally:
         os.chdir(original_cwd)
+
+
+@pytest.fixture
+def gitignore_test_root(tmp_path: Path):
+    """Create a sample structure for testing .gitignore + .lmignore interplay."""
+    (tmp_path / "subdirA").mkdir()
+    (tmp_path / "subdirB").mkdir()
+
+    (tmp_path / "subdirA" / "keep.txt").write_text("KEEP A", encoding="utf-8")
+    (tmp_path / "subdirA" / "remove.txt").write_text("REMOVE A", encoding="utf-8")
+
+    (tmp_path / "subdirB" / "keep.dat").write_text("KEEP B", encoding="utf-8")
+    (tmp_path / "subdirB" / "remove.dat").write_text("REMOVE B", encoding="utf-8")
+
+    return tmp_path
+
+def test_gitignore_only_included(gitignore_test_root: Path):
+    """If .gitignore is present and .lmignore is absent, we follow .gitignore rules."""
+    # .gitignore => ignore anything matching *.txt
+    (gitignore_test_root / ".gitignore").write_text("*.txt\n", encoding="utf-8")
+
+    
+    config = LMCatConfig(include_gitignore=True)
+    ignore_dict = load_ignore_patterns(gitignore_test_root, config)
+
+    path_keep = gitignore_test_root / "subdirA" / "keep.txt"
+    assert is_ignored(path_keep, gitignore_test_root, ignore_dict) is True
+
+    path_remove = gitignore_test_root / "subdirB" / "remove.dat"
+    assert is_ignored(path_remove, gitignore_test_root, ignore_dict) is False
+
+def test_gitignore_lmignore_negation(gitignore_test_root: Path):
+    """If .gitignore says ignore *.txt, but .lmignore says !remove.txt, then remove.txt is not ignored."""
+    (gitignore_test_root / ".gitignore").write_text("*.txt\n", encoding="utf-8")
+    # .lmignore => unignore remove.txt
+    (gitignore_test_root / ".lmignore").write_text("!remove.txt\n", encoding="utf-8")
+
+    
+    config = LMCatConfig(include_gitignore=True)
+    ignore_dict = load_ignore_patterns(gitignore_test_root, config)
+
+    # subdirA/keep.txt => ignored by .gitignore
+    path_keep = gitignore_test_root / "subdirA" / "keep.txt"
+    assert is_ignored(path_keep, gitignore_test_root, ignore_dict) is True
+
+    # subdirA/remove.txt => unignored by .lmignore
+    path_remove = gitignore_test_root / "subdirA" / "remove.txt"
+    assert is_ignored(path_remove, gitignore_test_root, ignore_dict) is False
+
+def test_gitignore_lmignore_directory(gitignore_test_root: Path):
+    """If .gitignore says subdirB/, but .lmignore unignores subdirB/remove.dat => that file is not ignored."""
+    (gitignore_test_root / ".gitignore").write_text("subdirB/\n", encoding="utf-8")
+    (gitignore_test_root / ".lmignore").write_text("!remove.dat\n", encoding="utf-8")
+
+    
+    config = LMCatConfig()
+    ignore_dict = load_ignore_patterns(gitignore_test_root, config)
+
+    # subdirB => initially ignored by .gitignore
+    subdirB = gitignore_test_root / "subdirB"
+    assert is_ignored(subdirB, gitignore_test_root, ignore_dict) is True
+
+    # subdirB/remove.dat => unignored by .lmignore's "!remove.dat"
+    path_remove = subdirB / "remove.dat"
+    assert is_ignored(path_remove, gitignore_test_root, ignore_dict) is False
+
+def test_cli_override_no_gitignore(gitignore_test_root: Path, capsys):
+    """If we run with --no-include-gitignore, the .gitignore is ignored entirely."""
+    (gitignore_test_root / ".gitignore").write_text("*.txt\n", encoding="utf-8")
+
+    # We'll invoke the script from command line, capturing output
+    script_content = textwrap.dedent("""\
+        import sys
+        from pathlib import Path
+        from lmcat.lmcat import main
+
+        if __name__ == "__main__":
+            sys.exit(main())
+    """)
+
+    script_path = gitignore_test_root / "runner.py"
+    script_path.write_text(script_content, encoding="utf-8")
+
+    # subdirA/keep.txt => would be ignored if .gitignore is used
+    # but we pass --no-include-gitignore => it won't be ignored
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(gitignore_test_root)
+        proc = subprocess.run(
+            ["python", "runner.py", "--no-include-gitignore"],
+            capture_output=True,
+            text=True
+        )
+        out = proc.stdout
+        # subdirA => present
+        assert "subdirA" in out
+        # subdirA => keep.txt => present
+        assert "keep.txt" in out
+        # content => "KEEP A"
+        assert "KEEP A" in out
+        # .gitignore => not used
+        # no errors
+        assert proc.returncode == 0
+    finally:
+        os.chdir(original_cwd)
+
+def test_cli_override_suppress_contents(gitignore_test_root: Path):
+    """If we run with --suppress-contents, we show the tree only (no file text)."""
+    (gitignore_test_root / ".gitignore").write_text("", encoding="utf-8")  # empty, not relevant
+
+    script_content = textwrap.dedent("""\
+        import sys
+        from pathlib import Path
+        from lmcat.lmcat import main
+
+        if __name__ == "__main__":
+            sys.exit(main())
+    """)
+    script_path = gitignore_test_root / "runner.py"
+    script_path.write_text(script_content, encoding="utf-8")
+
+    # subdirA => keep.txt, remove.txt
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(gitignore_test_root)
+        proc = subprocess.run(
+            ["python", "runner.py", "--suppress-contents"],
+            capture_output=True,
+            text=True
+        )
+        out = proc.stdout
+        # We see the directories/files in the tree
+        assert "subdirA" in out
+        assert "keep.txt" in out
+        # But we do NOT see the file contents
+        assert "KEEP A" not in out
+        assert "REMOVE A" not in out
+        assert proc.returncode == 0
+    finally:
+        os.chdir(original_cwd)

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import fnmatch
 import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
@@ -26,12 +27,16 @@ class LMCatConfig:
      - `indent: str`
      - `file_divider: str`
      - `content_divider: str`
+     - `include_gitignore: bool`     (default True)
+     - `suppress_contents: bool`     (default False)
     """
 
     tree_divider: str = "│   "
     indent: str = "    "
     file_divider: str = "├── "
     content_divider: str = "``````"
+    include_gitignore: bool = True
+    suppress_contents: bool = False
 
     @classmethod
     def load(cls, cfg_data: dict[str, Any]) -> LMCatConfig:
@@ -46,6 +51,13 @@ class LMCatConfig:
         config = cls()
         for key, val in cfg_data.items():
             if key in config.__dataclass_fields__:
+                # Convert booleans if needed
+                if isinstance(getattr(config, key), bool) and isinstance(val, str):
+                    lower_val = val.strip().lower()
+                    if lower_val in ("true", "1", "yes"):
+                        val = True
+                    elif lower_val in ("false", "0", "no"):
+                        val = False
                 setattr(config, key, val)
         return config
 
@@ -87,54 +99,97 @@ class LMCatConfig:
         return cls()
 
 
-def load_ignore_patterns(root_dir: Path) -> dict[Path, list[str]]:
-    """Traverse `root_dir`, collecting `.lmignore` patterns
-
-    # Parameters:
-     - `root_dir: Path`
-
-    # Returns:
-     - `dict[Path, list[str]]`
-       A mapping of directory paths to lists of ignore patterns.
+def load_dir_ignore_patterns(dir_path: Path, config: LMCatConfig) -> list[str]:
     """
-    ignore_dict: dict[Path, list[str]] = {}
-    for current_path, dirs, files in os.walk(root_dir):
-        current_dir = Path(current_path)
-        if ".lmignore" in files:
-            lmignore_path = current_dir / ".lmignore"
-            patterns: list[str] = []
-            with lmignore_path.open("r", encoding="utf-8") as f:
+    Return the combined ignore patterns for `dir_path`:
+      1) .gitignore (if present and config.include_gitignore == True)
+      2) .lmignore (if present)
+
+    .lmignore lines come last, so they override .gitignore if there's a conflict or negation.
+    """
+    patterns: list[str] = []
+
+    if config.include_gitignore:
+        gitignore = dir_path / ".gitignore"
+        if gitignore.is_file():
+            with gitignore.open("r", encoding="utf-8") as f:
                 for line in f:
                     line_stripped = line.strip()
                     if not line_stripped or line_stripped.startswith("#"):
                         continue
                     patterns.append(line_stripped)
-            ignore_dict[current_dir] = patterns
+
+    lmignore = dir_path / ".lmignore"
+    if lmignore.is_file():
+        with lmignore.open("r", encoding="utf-8") as f:
+            for line in f:
+                line_stripped = line.strip()
+                if not line_stripped or line_stripped.startswith("#"):
+                    continue
+                patterns.append(line_stripped)
+
+    return patterns
+
+
+def load_ignore_patterns(root_dir: Path, config: Optional[LMCatConfig] = None) -> dict[Path, list[str]]:
+    """Traverse `root_dir`, collecting `.gitignore` + `.lmignore` patterns for each directory.
+
+    # Parameters:
+     - `root_dir: Path`
+     - `config: LMCatConfig|None`
+
+    # Returns:
+     - `dict[Path, list[str]]`
+       A mapping of directory paths to combined patterns from .gitignore + .lmignore
+    """
+    if config is None:
+        config = LMCatConfig()  # default if none provided
+
+    ignore_dict: dict[Path, list[str]] = {}
+    for current_path, dirs, files in os.walk(root_dir):
+        current_dir = Path(current_path)
+        dir_patterns = load_dir_ignore_patterns(current_dir, config)
+        if dir_patterns:
+            ignore_dict[current_dir] = dir_patterns
     return ignore_dict
 
 
-def should_ignore_path(rel_path: str, pattern: str) -> bool:
+def git_like_match(rel_path: str, pattern: str) -> bool:
     """
-    Decide if rel_path matches a given ignore pattern.
-    If pattern ends with '/', it means ignore a directory (and all contents).
-    Example: 'subdir2/' => ignore subdir2 and anything under it.
+    Return True if rel_path matches 'pattern' in a Git-like manner:
+    - If pattern ends with '/', it means directory match => subdir plus all inside it.
+    - If pattern contains a '/', we match the entire (sub)path (with Unix slashes).
+    - If pattern has no '/', we match only the basename (like Git).
     """
-    # If pattern ends with '/', treat that as "ignore subdir" 
-    # plus everything under it. So if rel_path == 'subdir2'
-    # or rel_path starts with 'subdir2/', we match.
-    if pattern.endswith("/"):
-        dir_pat = pattern.rstrip("/")
-        if rel_path == dir_pat or rel_path.startswith(dir_pat + os.sep):
+    # If pattern ends with '/', strip it for matching but remember directory intent
+    dir_rule = pattern.endswith("/")
+    trimmed = pattern.rstrip("/")
+    # unify path to slash style
+    rel_unix = rel_path.replace("\\", "/")
+    pat_unix = trimmed.replace("\\", "/")
+
+    if dir_rule:
+        # e.g. "subdir/" => ignore "subdir" or anything under "subdir/"
+        # That means either rel_unix == 'subdir' or startswith 'subdir/'
+        if rel_unix == pat_unix or rel_unix.startswith(pat_unix + "/"):
             return True
         return False
+
+    # If pattern has no slash, match only the basename
+    if "/" not in pat_unix:
+        base = os.path.basename(rel_unix)
+        return fnmatch.fnmatch(base, pat_unix)
     else:
-        # Regular fnmatch
-        return fnmatch.fnmatch(rel_path, pattern)
+        # If pattern has slash, match entire path
+        return fnmatch.fnmatch(rel_unix, pat_unix)
 
 
 def is_ignored(path: Path, root_dir: Path, ignore_dict: dict[Path, list[str]]) -> bool:
-    """Check if a file/directory `path` should be ignored,
-    by searching for matching patterns from `.lmignore` files in its ancestry.
+    """Check if `path` is ignored or not, combining .gitignore + .lmignore lines
+    in the order they appear. The last matching pattern wins.
+
+    - If the pattern starts with '!' and matches, we "un-ignore" the path.
+    - Otherwise, if it matches, we "ignore" the path.
 
     # Parameters:
      - `path: Path`
@@ -142,20 +197,29 @@ def is_ignored(path: Path, root_dir: Path, ignore_dict: dict[Path, list[str]]) -
      - `ignore_dict: dict[Path, list[str]]`
 
     # Returns:
-     - `bool`
-       `True` if ignored, `False` otherwise.
+     - `bool` => True if path is currently ignored
     """
     path_abs = path.resolve()
     root_abs = root_dir.resolve()
+    is_ignored_flag = False
 
-    # We'll gather ignore rules from path's ancestry
     current_dir = path_abs.parent
     while True:
         if current_dir in ignore_dict:
             rel_path = str(path_abs.relative_to(current_dir))
+            # We check patterns in order
             for pattern in ignore_dict[current_dir]:
-                if should_ignore_path(rel_path, pattern):
-                    return True
+                negation = pattern.startswith("!")
+                raw_pat = pattern[1:].lstrip() if negation else pattern
+
+                if git_like_match(rel_path, raw_pat):
+                    if negation:
+                        # un-ignore
+                        is_ignored_flag = False
+                    else:
+                        # ignore
+                        is_ignored_flag = True
+
         if current_dir == root_abs:
             break
         parent = current_dir.parent
@@ -163,7 +227,7 @@ def is_ignored(path: Path, root_dir: Path, ignore_dict: dict[Path, list[str]]) -
             break
         current_dir = parent
 
-    return False
+    return is_ignored_flag
 
 
 def sorted_entries(directory: Path) -> list[Path]:
@@ -202,8 +266,8 @@ def walk_dir(
     entries: list[Path] = sorted_entries(directory)
 
     for i, entry in enumerate(entries):
-        # Always skip listing the .lmignore file itself
-        if entry.name == ".lmignore":
+        # Never list .gitignore or .lmignore themselves
+        if entry.name in (".gitignore", ".lmignore"):
             continue
 
         if is_ignored(entry, root_dir, ignore_dict):
@@ -225,19 +289,21 @@ def walk_dir(
     return tree_output, collected_files
 
 
-def walk_and_collect(root_dir: Path, config: LMCatConfig) -> tuple[list[str], list[Path]]:
+def walk_and_collect(root_dir: Path, config: Optional[LMCatConfig] = None) -> tuple[list[str], list[Path]]:
     """Walk the filesystem from `root_dir`, using `config` for formatting,
     and gather a tree listing plus file paths to stitch
 
     # Parameters:
      - `root_dir: Path`
-     - `config: LMCatConfig`
+     - `config: LMCatConfig|None`
 
     # Returns:
      - `tuple[list[str], list[Path]]`
        (tree_output, collected_files)
     """
-    ignore_dict = load_ignore_patterns(root_dir)
+    if config is None:
+        config = LMCatConfig()
+    ignore_dict = load_ignore_patterns(root_dir, config)
     base_name = root_dir.resolve().name
 
     # Start with the top-level name
@@ -257,8 +323,24 @@ def main() -> None:
     # Returns:
      - `None`
     """
+    parser = argparse.ArgumentParser(
+        description="lmcat - list tree and content, combining .gitignore + .lmignore",
+        add_help=False  # We'll parse known args to avoid confusion with Pytest's arguments
+    )
+    parser.add_argument("--no-include-gitignore", action="store_false", dest="include_gitignore",
+                        default=True, help="Do not parse .gitignore files (default: parse them).")
+    parser.add_argument("--suppress-contents", action="store_true",
+                        default=False, help="Only print the tree, not the file contents.")
+
+    # parse_known_args to avoid crashing on e.g. --cov=. tests/
+    args, unknown = parser.parse_known_args()
+
     root_dir = Path(".").resolve()
     config = LMCatConfig.read(root_dir)
+
+    # CLI overrides
+    config.include_gitignore = args.include_gitignore
+    config.suppress_contents = args.suppress_contents
 
     tree_output, collected_files = walk_and_collect(root_dir, config)
 
@@ -266,10 +348,15 @@ def main() -> None:
     for line in tree_output:
         print(line)
 
-    # Print the contents
-    for fpath in collected_files:
-        print()
-        print(config.content_divider)
-        with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
-            print(fobj.read(), end="")
-        print(config.content_divider)
+    # If not suppressing contents, print them
+    if not config.suppress_contents:
+        for fpath in collected_files:
+            print()
+            print(config.content_divider)
+            with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
+                print(fobj.read(), end="")
+            print(config.content_divider)
+
+
+if __name__ == "__main__":
+    main()
