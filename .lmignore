@@ -1,0 +1,10 @@
+.git/
+.github/
+.ruff_cache/
+docs/
+LICENSE
+makefile
+uv.lock
+**/**
+!*.py
+temp.txt
