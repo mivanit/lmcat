@@ -400,10 +400,10 @@ dep: get-cuda-info
 	mkdir -p $(REQ_LOCATION)
 	$(PYTHON) -c "$$EXPORT_SCRIPT" $(PYPROJECT) $(REQ_LOCATION) | sh -x
 	
-	@if [ "$(CUDA_PRESENT)" = "1" ]; then \
-		echo "CUDA is present, installing torch with CUDA $(CUDA_VERSION)"; \
-		uv pip install torch --upgrade --index https://download.pytorch.org/whl/cu$(CUDA_VERSION_SHORT); \
-	fi
+# @if [ "$(CUDA_PRESENT)" = "1" ]; then \
+# 	echo "CUDA is present, installing torch with CUDA $(CUDA_VERSION)"; \
+# 	uv pip install torch --upgrade --index https://download.pytorch.org/whl/cu$(CUDA_VERSION_SHORT); \
+# fi
 	
 
 .PHONY: dep-check
