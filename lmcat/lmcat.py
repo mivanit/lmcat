@@ -28,7 +28,7 @@ class LMCatConfig:
 	 - `file_divider: str`
 	 - `content_divider: str`
 	 - `include_gitignore: bool`     (default True)
-	 - `suppress_contents: bool`     (default False)
+	 - `tree_only: bool`     (default False)
 	"""
 
 	tree_divider: str = "│   "
@@ -36,7 +36,7 @@ class LMCatConfig:
 	file_divider: str = "├── "
 	content_divider: str = "``````"
 	include_gitignore: bool = True
-	suppress_contents: bool = False
+	tree_only: bool = False
 
 	@classmethod
 	def load(cls, cfg_data: dict[str, Any]) -> LMCatConfig:
@@ -342,6 +342,7 @@ def main() -> None:
 		add_help=False,  # We'll parse known args to avoid confusion with Pytest's arguments
 	)
 	parser.add_argument(
+		"-g",
 		"--no-include-gitignore",
 		action="store_false",
 		dest="include_gitignore",
@@ -349,10 +350,22 @@ def main() -> None:
 		help="Do not parse .gitignore files (default: parse them).",
 	)
 	parser.add_argument(
-		"--suppress-contents",
+		"-t",
+		"--tree-only",
 		action="store_true",
 		default=False,
 		help="Only print the tree, not the file contents.",
+	)
+	parser.add_argument(
+		"-o",
+		"--output",
+		action="store",
+		default=None,
+		help="Output file to write the tree and contents to.",
+	)
+	# help
+	parser.add_argument(
+		"-h", "--help", action="help", help="Show this help message and exit."
 	)
 
 	# parse_known_args to avoid crashing on e.g. --cov=. tests/
@@ -363,22 +376,44 @@ def main() -> None:
 
 	# CLI overrides
 	config.include_gitignore = args.include_gitignore
-	config.suppress_contents = args.suppress_contents
+	config.tree_only = args.tree_only
 
 	tree_output, collected_files = walk_and_collect(root_dir, config)
 
+	output: list[str] = list()
+
+	output.append("# File Tree")
+	output.append("\n```")
+
 	# Print the directory tree
 	for line in tree_output:
-		print(line)
+		# print(line)
+		output.append(line)
+
+	output.append("```\n")
+
+	cwd: Path = Path.cwd()
 
 	# If not suppressing contents, print them
-	if not config.suppress_contents:
+	if not config.tree_only:
+		output.append("# File Contents")
+
 		for fpath in collected_files:
-			print()
-			print(config.content_divider)
+			relpath_posix: str = fpath.relative_to(cwd).as_posix()
+			pathspec_start: str = f'{{ path: "{relpath_posix}" }}'
+			pathspec_end: str = f'{{ end_of_file: "{relpath_posix}" }}'
+			output.append("")
+			output.append(config.content_divider + pathspec_start)
 			with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
-				print(fobj.read(), end="")
-			print(config.content_divider)
+				output.append(fobj.read())
+			output.append(config.content_divider + pathspec_end)
+
+	# Write to file if specified
+	if args.output:
+		with open(args.output, "w", encoding="utf-8") as f:
+			f.write("\n".join(output))
+	else:
+		print("\n".join(output))
 
 
 if __name__ == "__main__":
