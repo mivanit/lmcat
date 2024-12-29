@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Git Browser</title>
+    <script src="https://unpkg.com/@isomorphic-git/lightning-fs@4.6.0/dist/lightning-fs.min.js"></script>
+    <script src="https://unpkg.com/isomorphic-git@1.24.0/index.umd.min.js"></script>
+    <script src="https://unpkg.com/isomorphic-git@1.24.0/http/web/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+<body>
+    <div style="margin: 20px;">
+        <label for="url">Repository URL:</label>
+        <input id="url" type="text" value="https://github.com/mivanit/lmcat" style="width: 300px; margin-right: 10px;">
+        <button onclick="process()">Process</button>
+        <div id="status" style="margin-top: 10px; color: gray;"></div>
+    </div>
+    <pre id="output" style="margin: 20px; padding: 10px; background: #f5f5f5;"></pre>
+
+    <script>
+        let fs, pfs, pyodide;
+
+        // Debug function to check available objects
+        function debugGlobals() {
+            console.log('Available globals:');
+            console.log('git:', typeof window.git);
+            console.log('http:', typeof window.http);
+            console.log('GitHttp:', typeof window.GitHttp);
+            console.log('GitHttpClient:', typeof window.GitHttpClient);
+        }
+
+        async function init() {
+            try {
+                fs = new LightningFS('fs');
+                pfs = fs.promises;
+                
+                // Initialize Pyodide
+                pyodide = await loadPyodide();
+                await pyodide.runPythonAsync(`
+                    import os
+                    def list_files(path):
+                        try:
+                            return str(list(os.listdir(path)))
+                        except Exception as e:
+                            return str(e)
+                    def some_string():
+                        return 'Hello from Python!'
+                `);
+
+                // Debug available objects
+                debugGlobals();
+                
+                document.getElementById('status').textContent = 'Initialized successfully';
+            } catch (err) {
+                console.error('Init error:', err);
+                document.getElementById('status').textContent = 'Initialization failed: ' + err.message;
+            }
+        }
+
+        async function process() {
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+            status.textContent = 'Processing...';
+            
+            try {
+                const dir = '/repo';
+                await pfs.rmdir(dir, { recursive: true }).catch(() => {});
+                await pfs.mkdir(dir).catch(() => {});
+                
+                                // Use the GitHttp object that's available globally
+                if (!window.GitHttp) {
+                    throw new Error('GitHttp is not available');
+                }
+
+                status.textContent = 'Cloning repository...';
+                
+                await git.clone({
+                    fs,
+                    http: GitHttp,
+                    dir,
+                    url: document.getElementById('url').value,
+                    depth: 1,
+                    singleBranch: true,
+                    corsProxy: 'https://cors.isomorphic-git.org'
+                });
+
+                status.textContent = 'Listing files...';
+                console.log('Listing files...');
+                const result = await pyodide.runPythonAsync(`list_files('.')`);
+                // const result = await pyodide.runPythonAsync(`some_string()`);
+                console.log('result:', result);
+                output.textContent = JSON.stringify(result, null, 2);
+                status.textContent = 'Done!';
+            } catch (err) {
+                console.error('Process error:', err);
+                status.textContent = 'Error: ' + err.message;
+                output.textContent = err.stack || err.message;
+            }
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

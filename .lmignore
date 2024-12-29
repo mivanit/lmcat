@@ -3,7 +3,6 @@
 .ruff_cache/
 docs/
 LICENSE
-makefile
 uv.lock
 **/**
 !*.py
