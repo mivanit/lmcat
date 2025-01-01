@@ -5,7 +5,7 @@
 # !!! MODIFY AT LEAST THIS PART TO SUIT YOUR PROJECT !!!
 # it assumes that the source is in a directory named the same as the package name
 # this also gets passed to some other places
-PACKAGE_NAME := myproject
+PACKAGE_NAME := lmcat
 
 # for checking you are on the right branch when publishing
 PUBLISH_BRANCH := main
@@ -675,3 +675,9 @@ help: help-targets info
 # custom targets
 # ==================================================
 # (put them down here, or delimit with ~~~~~)
+
+
+.PHONY: demo
+demo:
+	@echo "example of code output"
+	$(PYTHON) -m lmcat -o example_output.md

@@ -4,6 +4,4 @@
 docs/
 LICENSE
 uv.lock
-**/**
-!*.py
 temp.txt
