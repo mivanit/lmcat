@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="pdoc 15.0.1"/>
+    <title>lmcat API documentation</title>
+<link rel="stylesheet" href="resources/bootstrap-reboot.min.css"><link rel="stylesheet" href="resources/syntax-highlighting.css"><link rel="stylesheet" href="resources/theme.css"><link rel="stylesheet" href="resources/layout.css"><link rel="stylesheet" href="resources/content.css"><link rel="stylesheet" href="resources/custom.css"><script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+    };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+    /* Re-invoke MathJax when DOM content changes, for example during search. */
+    document.addEventListener("DOMContentLoaded", () => {
+        new MutationObserver(() => MathJax.typeset()).observe(
+            document.querySelector("main.pdoc").parentNode,
+            {childList: true}
+        );
+    })
+</script>
+<style>
+    mjx-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+</style><style>
+    .pdoc .mermaid-pre {
+        border: none;
+        background: none;
+    }
+</style>
+<script type="module" defer>
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+    /* Re-invoke Mermaid when DOM content changes, for example during search. */
+    document.addEventListener("DOMContentLoaded", () => {
+        new MutationObserver(() => mermaid.run()).observe(
+            document.querySelector("main.pdoc").parentNode,
+            {childList: true}
+        );
+    })
+</script></head>
+<body>
+<div class="package-version">
+    docs for <a href="https://github.com/mivanit/lmcat">lmcat</a> v0.0.1<br>
+</div>
+    <nav class="pdoc">
+        <label id="navtoggle" for="togglestate" class="pdoc-button">
+            <img src="resources/svg/navtoggle.svg" alt="Toggle navigation"> 
+        </label>
+        <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
+        <div>
+
+
+            <h2>Contents</h2>
+            <ul>
+  <li><a href="#lmcat">lmcat</a>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#development">Development</a></li>
+  </ul></li>
+</ul>
+
+
+
+            <h2>API Documentation</h2>
+                <ul class="memberlist">
+            <li>
+                    <a class="function" href="#main">main</a>
+            </li>
+    </ul>
+
+
+
+        <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
+            built with <span class="visually-hidden">pdoc</span>
+            <img src="resources/svg/pdoc-logo.svg" alt="pdoc logo"/>
+        </a>
+</div>
+    </nav>
+    <main class="pdoc">
+            <section class="module-info">
+                        <a class="pdoc-button git-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py">View Source on GitHub</a>
+                    <h1 class="modulename">
+lmcat    </h1>
+
+                        <div class="docstring"><h1 id="lmcat">lmcat</h1>
+
+<p>A Python tool for concatenating files and directory structures into a single document, perfect for sharing code with language models. It respects <code>.gitignore</code> and <code>.lmignore</code> patterns and provides configurable output formatting.</p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+<li>Creates a tree view of your directory structure</li>
+<li>Includes file contents with clear delimiters</li>
+<li>Respects <code>.gitignore</code> patterns (can be disabled)</li>
+<li>Supports custom ignore patterns via <code>.lmignore</code></li>
+<li>Configurable via <code>pyproject.toml</code>, <code>lmcat.toml</code>, or <code>lmcat.json</code></li>
+<li>Python 3.11+ native, with fallback support for older versions</li>
+</ul>
+
+<h2 id="installation">Installation</h2>
+
+<p>Install from PyPI:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>lmcat
+</code></pre>
+</div>
+
+<h2 id="usage">Usage</h2>
+
+<p>Basic usage - concatenate current directory:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>lmcat
+</code></pre>
+</div>
+
+<p>The output will include a directory tree and the contents of each non-ignored file.</p>
+
+<h3 id="command-line-options">Command Line Options</h3>
+
+<ul>
+<li><code>-g</code>, <code>--no-include-gitignore</code>: Ignore <code>.gitignore</code> files (they are included by default)</li>
+<li><code>-t</code>, <code>--tree-only</code>: Only print the directory tree, not file contents</li>
+<li><code>-o</code>, <code>--output</code>: Specify an output file (defaults to stdout)</li>
+<li><code>-h</code>, <code>--help</code>: Show help message</li>
+</ul>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>lmcat can be configured using any of these files (in order of precedence):</p>
+
+<ol>
+<li><code>pyproject.toml</code> (under <code>[tool.lmcat]</code>)</li>
+<li><code>lmcat.toml</code></li>
+<li><code>lmcat.json</code></li>
+</ol>
+
+<p>Configuration options:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="k">[tool.lmcat]</span>
+<span class="n">tree_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;│   &quot;</span><span class="w">    </span><span class="c1"># Used for vertical lines in the tree</span>
+<span class="n">indent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;    &quot;</span><span class="w">          </span><span class="c1"># Used for indentation</span>
+<span class="n">file_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;├── &quot;</span><span class="w">    </span><span class="c1"># Used for file/directory entries</span>
+<span class="n">content_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;``````&quot;</span><span class="w"> </span><span class="c1"># Used to delimit file contents</span>
+<span class="n">include_gitignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c1"># Whether to respect .gitignore files</span>
+<span class="n">tree_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">       </span><span class="c1"># Whether to only show the tree</span>
+</code></pre>
+</div>
+
+<h3 id="ignore-patterns">Ignore Patterns</h3>
+
+<p>lmcat supports two types of ignore files:</p>
+
+<ol>
+<li><code>.gitignore</code> - Standard Git ignore patterns (used by default)</li>
+<li><code>.lmignore</code> - Custom ignore patterns specific to lmcat</li>
+</ol>
+
+<p><code>.lmignore</code> follows the same pattern syntax as <code>.gitignore</code>. Patterns in <code>.lmignore</code> take precedence over <code>.gitignore</code>.</p>
+
+<p>Example <code>.lmignore</code>:</p>
+
+<pre><code># Ignore all .log files
+*.log
+
+# Ignore the build directory and its contents
+build/
+
+# Un-ignore a specific file (overrides previous patterns)
+!important.log
+</code></pre>
+
+<h2 id="development">Development</h2>
+
+<h3 id="setup">Setup</h3>
+
+<ol>
+<li>Clone the repository:</li>
+</ol>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mivanit/lmcat
+<span class="nb">cd</span><span class="w"> </span>lmcat
+</code></pre>
+</div>
+
+<ol start="2">
+<li>Set up the development environment:</li>
+</ol>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>make<span class="w"> </span>setup
+</code></pre>
+</div>
+
+<p>This will:</p>
+
+<ul>
+<li>Create a virtual environment</li>
+<li>Install development dependencies</li>
+<li>Set up pre-commit hooks</li>
+</ul>
+
+<h3 id="development-commands">Development Commands</h3>
+
+<p>The project uses <code>make</code> for common development tasks:</p>
+
+<ul>
+<li><code>make dep</code>: Install/update dependencies</li>
+<li><code>make format</code>: Format code using ruff and pycln</li>
+<li><code>make test</code>: Run tests</li>
+<li><code>make typing</code>: Run type checks</li>
+<li><code>make check</code>: Run all checks (format, test, typing)</li>
+<li><code>make clean</code>: Clean temporary files</li>
+<li><code>make docs</code>: Generate documentation</li>
+<li><code>make build</code>: Build the package</li>
+<li><code>make publish</code>: Publish to PyPI (maintainers only)</li>
+</ul>
+
+<p>Run <code>make help</code> to see all available commands.</p>
+
+<h3 id="running-tests">Running Tests</h3>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>make<span class="w"> </span><span class="nb">test</span>
+</code></pre>
+</div>
+
+<p>For verbose output:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="nv">VERBOSE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>make<span class="w"> </span><span class="nb">test</span>
+</code></pre>
+</div>
+
+<p>For test coverage:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>make<span class="w"> </span>cov
+</code></pre>
+</div>
+
+<h3 id="roadmap">Roadmap</h3>
+
+<ul>
+<li>better tests, I feel like gitignore/lmignore interaction is broken</li>
+<li>llm summarization and caching of those summaries in <code>.lmsummary/</code></li>
+<li>reasonable defaults for file extensions to ignore</li>
+<li>web interface</li>
+</ul>
+</div>
+
+                        <input id="mod-lmcat-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+
+                        <div class="source-button-container">
+            <label class="pdoc-button view-source-button" for="mod-lmcat-view-source"><span>View Source</span></label>
+            <div class="github-button-wrapper">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L0-L6" target="_blank">
+                    <span>View on GitHub</span>
+                </a>
+            </div>
+        </div>
+
+                <br/>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../README.md</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="kn">from</span> <span class="nn">lmcat.lmcat</span> <span class="kn">import</span> <span class="n">main</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;main&quot;</span><span class="p">]</span>
+</span></pre></div>
+
+
+                <br/>
+            </section>
+                <section id="main">
+                            <input id="main-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">main</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+                <div class="source-button-container">
+            <label class="pdoc-button view-source-button" for="main-view-source"><span>View Source</span></label>
+            <div class="github-button-wrapper">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L194-L273" target="_blank">
+                    <span>View on GitHub</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <a class="headerlink" href="#main"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="main-195"><a href="#main-195"><span class="linenos">195</span></a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="main-196"><a href="#main-196"><span class="linenos">196</span></a><span class="w">	</span><span class="sd">&quot;&quot;&quot;Main entry point for the script&quot;&quot;&quot;</span>
+</span><span id="main-197"><a href="#main-197"><span class="linenos">197</span></a>	<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+</span><span id="main-198"><a href="#main-198"><span class="linenos">198</span></a>		<span class="n">description</span><span class="o">=</span><span class="s2">&quot;lmcat - list tree and content, combining .gitignore + .lmignore&quot;</span><span class="p">,</span>
+</span><span id="main-199"><a href="#main-199"><span class="linenos">199</span></a>		<span class="n">add_help</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-200"><a href="#main-200"><span class="linenos">200</span></a>	<span class="p">)</span>
+</span><span id="main-201"><a href="#main-201"><span class="linenos">201</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-202"><a href="#main-202"><span class="linenos">202</span></a>		<span class="s2">&quot;-g&quot;</span><span class="p">,</span>
+</span><span id="main-203"><a href="#main-203"><span class="linenos">203</span></a>		<span class="s2">&quot;--no-include-gitignore&quot;</span><span class="p">,</span>
+</span><span id="main-204"><a href="#main-204"><span class="linenos">204</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+</span><span id="main-205"><a href="#main-205"><span class="linenos">205</span></a>		<span class="n">dest</span><span class="o">=</span><span class="s2">&quot;include_gitignore&quot;</span><span class="p">,</span>
+</span><span id="main-206"><a href="#main-206"><span class="linenos">206</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="main-207"><a href="#main-207"><span class="linenos">207</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not parse .gitignore files, only .lmignore (default: parse them).&quot;</span><span class="p">,</span>
+</span><span id="main-208"><a href="#main-208"><span class="linenos">208</span></a>	<span class="p">)</span>
+</span><span id="main-209"><a href="#main-209"><span class="linenos">209</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-210"><a href="#main-210"><span class="linenos">210</span></a>		<span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+</span><span id="main-211"><a href="#main-211"><span class="linenos">211</span></a>		<span class="s2">&quot;--tree-only&quot;</span><span class="p">,</span>
+</span><span id="main-212"><a href="#main-212"><span class="linenos">212</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+</span><span id="main-213"><a href="#main-213"><span class="linenos">213</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-214"><a href="#main-214"><span class="linenos">214</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only print the tree, not the file contents.&quot;</span><span class="p">,</span>
+</span><span id="main-215"><a href="#main-215"><span class="linenos">215</span></a>	<span class="p">)</span>
+</span><span id="main-216"><a href="#main-216"><span class="linenos">216</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-217"><a href="#main-217"><span class="linenos">217</span></a>		<span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+</span><span id="main-218"><a href="#main-218"><span class="linenos">218</span></a>		<span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+</span><span id="main-219"><a href="#main-219"><span class="linenos">219</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+</span><span id="main-220"><a href="#main-220"><span class="linenos">220</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="main-221"><a href="#main-221"><span class="linenos">221</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to.&quot;</span><span class="p">,</span>
+</span><span id="main-222"><a href="#main-222"><span class="linenos">222</span></a>	<span class="p">)</span>
+</span><span id="main-223"><a href="#main-223"><span class="linenos">223</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-224"><a href="#main-224"><span class="linenos">224</span></a>		<span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show this help message and exit.&quot;</span>
+</span><span id="main-225"><a href="#main-225"><span class="linenos">225</span></a>	<span class="p">)</span>
+</span><span id="main-226"><a href="#main-226"><span class="linenos">226</span></a>
+</span><span id="main-227"><a href="#main-227"><span class="linenos">227</span></a>	<span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+</span><span id="main-228"><a href="#main-228"><span class="linenos">228</span></a>
+</span><span id="main-229"><a href="#main-229"><span class="linenos">229</span></a>	<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+</span><span id="main-230"><a href="#main-230"><span class="linenos">230</span></a>	<span class="n">config</span> <span class="o">=</span> <span class="n">LMCatConfig</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
+</span><span id="main-231"><a href="#main-231"><span class="linenos">231</span></a>
+</span><span id="main-232"><a href="#main-232"><span class="linenos">232</span></a>	<span class="c1"># CLI overrides</span>
+</span><span id="main-233"><a href="#main-233"><span class="linenos">233</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">include_gitignore</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">include_gitignore</span>
+</span><span id="main-234"><a href="#main-234"><span class="linenos">234</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
+</span><span id="main-235"><a href="#main-235"><span class="linenos">235</span></a>
+</span><span id="main-236"><a href="#main-236"><span class="linenos">236</span></a>	<span class="n">tree_output</span><span class="p">,</span> <span class="n">collected_files</span> <span class="o">=</span> <span class="n">walk_and_collect</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</span><span id="main-237"><a href="#main-237"><span class="linenos">237</span></a>
+</span><span id="main-238"><a href="#main-238"><span class="linenos">238</span></a>	<span class="n">output</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="main-239"><a href="#main-239"><span class="linenos">239</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;# File Tree&quot;</span><span class="p">)</span>
+</span><span id="main-240"><a href="#main-240"><span class="linenos">240</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">```&quot;</span><span class="p">)</span>
+</span><span id="main-241"><a href="#main-241"><span class="linenos">241</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tree_output</span><span class="p">)</span>
+</span><span id="main-242"><a href="#main-242"><span class="linenos">242</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="main-243"><a href="#main-243"><span class="linenos">243</span></a>
+</span><span id="main-244"><a href="#main-244"><span class="linenos">244</span></a>	<span class="n">cwd</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+</span><span id="main-245"><a href="#main-245"><span class="linenos">245</span></a>
+</span><span id="main-246"><a href="#main-246"><span class="linenos">246</span></a>	<span class="c1"># Add file contents if not suppressed</span>
+</span><span id="main-247"><a href="#main-247"><span class="linenos">247</span></a>	<span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">tree_only</span><span class="p">:</span>
+</span><span id="main-248"><a href="#main-248"><span class="linenos">248</span></a>		<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;# File Contents&quot;</span><span class="p">)</span>
+</span><span id="main-249"><a href="#main-249"><span class="linenos">249</span></a>
+</span><span id="main-250"><a href="#main-250"><span class="linenos">250</span></a>		<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">collected_files</span><span class="p">:</span>
+</span><span id="main-251"><a href="#main-251"><span class="linenos">251</span></a>			<span class="n">relpath_posix</span> <span class="o">=</span> <span class="n">fpath</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+</span><span id="main-252"><a href="#main-252"><span class="linenos">252</span></a>			<span class="n">pathspec_start</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1"> path: &quot;</span><span class="si">{</span><span class="n">relpath_posix</span><span class="si">}</span><span class="s1">&quot; </span><span class="se">}}</span><span class="s1">&#39;</span>
+</span><span id="main-253"><a href="#main-253"><span class="linenos">253</span></a>			<span class="n">pathspec_end</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1"> end_of_file: &quot;</span><span class="si">{</span><span class="n">relpath_posix</span><span class="si">}</span><span class="s1">&quot; </span><span class="se">}}</span><span class="s1">&#39;</span>
+</span><span id="main-254"><a href="#main-254"><span class="linenos">254</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="main-255"><a href="#main-255"><span class="linenos">255</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">content_divider</span> <span class="o">+</span> <span class="n">pathspec_start</span><span class="p">)</span>
+</span><span id="main-256"><a href="#main-256"><span class="linenos">256</span></a>			<span class="k">with</span> <span class="n">fpath</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+</span><span id="main-257"><a href="#main-257"><span class="linenos">257</span></a>				<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</span><span id="main-258"><a href="#main-258"><span class="linenos">258</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">content_divider</span> <span class="o">+</span> <span class="n">pathspec_end</span><span class="p">)</span>
+</span><span id="main-259"><a href="#main-259"><span class="linenos">259</span></a>
+</span><span id="main-260"><a href="#main-260"><span class="linenos">260</span></a>	<span class="c1"># Write output</span>
+</span><span id="main-261"><a href="#main-261"><span class="linenos">261</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+</span><span id="main-262"><a href="#main-262"><span class="linenos">262</span></a>		<span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="main-263"><a href="#main-263"><span class="linenos">263</span></a>		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="main-264"><a href="#main-264"><span class="linenos">264</span></a>			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+</span><span id="main-265"><a href="#main-265"><span class="linenos">265</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="main-266"><a href="#main-266"><span class="linenos">266</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
+</span><span id="main-267"><a href="#main-267"><span class="linenos">267</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-268"><a href="#main-268"><span class="linenos">268</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-269"><a href="#main-269"><span class="linenos">269</span></a>			<span class="p">)</span>
+</span><span id="main-270"><a href="#main-270"><span class="linenos">270</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-271"><a href="#main-271"><span class="linenos">271</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-272"><a href="#main-272"><span class="linenos">272</span></a>			<span class="p">)</span>
+</span><span id="main-273"><a href="#main-273"><span class="linenos">273</span></a>
+</span><span id="main-274"><a href="#main-274"><span class="linenos">274</span></a>		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Main entry point for the script</p>
+</div>
+
+
+                </section>
+    </main>
+</body>
+</html>
