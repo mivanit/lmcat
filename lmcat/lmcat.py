@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import fnmatch
 import json
 import os
 from dataclasses import dataclass
@@ -10,413 +9,249 @@ from typing import Any, Optional
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
-	import tomllib
+    import tomllib
 except ImportError:
-	try:
-		import tomli as tomllib
-	except ImportError:
-		tomllib = None
+    try:
+        import tomli as tomllib
+    except ImportError:
+        tomllib = None
+
+import igittigitt
 
 
 @dataclass
 class LMCatConfig:
-	"""Configuration dataclass for lmcat
+    """Configuration dataclass for lmcat
 
-	# Parameters:
-	 - `tree_divider: str`
-	 - `indent: str`
-	 - `file_divider: str`
-	 - `content_divider: str`
-	 - `include_gitignore: bool`	 (default True)
-	 - `tree_only: bool`	 (default False)
-	"""
+    # Parameters:
+     - `tree_divider: str`
+     - `indent: str`
+     - `file_divider: str`
+     - `content_divider: str`
+     - `include_gitignore: bool`  (default True)
+     - `tree_only: bool`  (default False)
+    """
 
-	tree_divider: str = "│   "
-	indent: str = " "
-	file_divider: str = "├── "
-	content_divider: str = "``````"
-	include_gitignore: bool = True
-	tree_only: bool = False
+    tree_divider: str = "│   "
+    indent: str = " "
+    file_divider: str = "├── "
+    content_divider: str = "``````"
+    include_gitignore: bool = True
+    tree_only: bool = False
 
-	@classmethod
-	def load(cls, cfg_data: dict[str, Any]) -> LMCatConfig:
-		"""Load an LMCatConfig from a dictionary of config values
+    @classmethod
+    def load(cls, cfg_data: dict[str, Any]) -> LMCatConfig:
+        """Load an LMCatConfig from a dictionary of config values"""
+        config = cls()
+        for key, val in cfg_data.items():
+            if key in config.__dataclass_fields__:
+                # Convert booleans if needed
+                if isinstance(getattr(config, key), bool) and isinstance(val, str):
+                    lower_val = val.strip().lower()
+                    if lower_val in ("true", "1", "yes"):
+                        val = True
+                    elif lower_val in ("false", "0", "no"):
+                        val = False
+                setattr(config, key, val)
+        return config
 
-		# Parameters:
-		 - `cfg_data: dict[str, Any]`
+    @classmethod
+    def read(cls, root_dir: Path) -> LMCatConfig:
+        """Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json."""
+        pyproject_path = root_dir / "pyproject.toml"
+        lmcat_toml_path = root_dir / "lmcat.toml"
+        lmcat_json_path = root_dir / "lmcat.json"
 
-		# Returns:
-		 - `LMCatConfig`
-		"""
-		config = cls()
-		for key, val in cfg_data.items():
-			if key in config.__dataclass_fields__:
-				# Convert booleans if needed
-				if isinstance(getattr(config, key), bool) and isinstance(val, str):
-					lower_val = val.strip().lower()
-					if lower_val in ("true", "1", "yes"):
-						val = True
-					elif lower_val in ("false", "0", "no"):
-						val = False
-				setattr(config, key, val)
-		return config
+        # Try pyproject.toml first
+        if tomllib is not None and pyproject_path.is_file():
+            with pyproject_path.open("rb") as f:
+                pyproject_data = tomllib.load(f)
+            if "tool" in pyproject_data and "lmcat" in pyproject_data["tool"]:
+                return cls.load(pyproject_data["tool"]["lmcat"])
 
-	@classmethod
-	def read(cls, root_dir: Path) -> LMCatConfig:
-		"""Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
-		Fallback to defaults if none found.
+        # Then try lmcat.toml
+        if tomllib is not None and lmcat_toml_path.is_file():
+            with lmcat_toml_path.open("rb") as f:
+                toml_data = tomllib.load(f)
+            return cls.load(toml_data)
 
-		# Parameters:
-		 - `root_dir: Path`
+        # Finally try lmcat.json
+        if lmcat_json_path.is_file():
+            with lmcat_json_path.open("r", encoding="utf-8") as f:
+                json_data = json.load(f)
+            return cls.load(json_data)
 
-		# Returns:
-		 - `LMCatConfig`
-		"""
-		pyproject_path = root_dir / "pyproject.toml"
-		lmcat_toml_path = root_dir / "lmcat.toml"
-		lmcat_json_path = root_dir / "lmcat.json"
-
-		# If tomllib is available (or tomli fallback), try pyproject
-		if tomllib is not None and pyproject_path.is_file():
-			with pyproject_path.open("rb") as f:
-				pyproject_data = tomllib.load(f)
-			if "tool" in pyproject_data and "lmcat" in pyproject_data["tool"]:
-				return cls.load(pyproject_data["tool"]["lmcat"])
-
-		# If tomllib is available (or tomli fallback), try lmcat.toml
-		if tomllib is not None and lmcat_toml_path.is_file():
-			with lmcat_toml_path.open("rb") as f:
-				toml_data = tomllib.load(f)
-			return cls.load(toml_data)
-
-		# Try lmcat.json
-		if lmcat_json_path.is_file():
-			with lmcat_json_path.open("r", encoding="utf-8") as f:
-				json_data = json.load(f)
-			return cls.load(json_data)
-
-		# Fallback to defaults
-		return cls()
+        # Fallback to defaults
+        return cls()
 
 
-def load_dir_ignore_patterns(dir_path: Path, config: LMCatConfig) -> list[str]:
-	"""
-	Return the combined ignore patterns for `dir_path`:
-	  1) .gitignore (if present and config.include_gitignore == True)
-	  2) .lmignore (if present)
-
-	.lmignore lines come last, so they override .gitignore if there's a conflict or negation.
-	"""
-	patterns: list[str] = []
-
-	if config.include_gitignore:
-		gitignore = dir_path / ".gitignore"
-		if gitignore.is_file():
-			with gitignore.open("r", encoding="utf-8") as f:
-				for line in f:
-					line_stripped = line.strip()
-					if not line_stripped or line_stripped.startswith("#"):
-						continue
-					patterns.append(line_stripped)
-
-	lmignore = dir_path / ".lmignore"
-	if lmignore.is_file():
-		with lmignore.open("r", encoding="utf-8") as f:
-			for line in f:
-				line_stripped = line.strip()
-				if not line_stripped or line_stripped.startswith("#"):
-					continue
-				patterns.append(line_stripped)
-
-	return patterns
-
-
-def load_ignore_patterns(
-	root_dir: Path, config: Optional[LMCatConfig] = None
-) -> dict[Path, list[str]]:
-	"""Traverse `root_dir`, collecting `.gitignore` + `.lmignore` patterns for each directory.
-
-	# Parameters:
-	 - `root_dir: Path`
-	 - `config: LMCatConfig|None`
-
-	# Returns:
-	 - `dict[Path, list[str]]`
-	   A mapping of directory paths to combined patterns from .gitignore + .lmignore
-	"""
-	if config is None:
-		config = LMCatConfig()  # default if none provided
-
-	ignore_dict: dict[Path, list[str]] = {}
-	for current_path, dirs, files in os.walk(root_dir):
-		current_dir = Path(current_path)
-		dir_patterns = load_dir_ignore_patterns(current_dir, config)
-		if dir_patterns:
-			ignore_dict[current_dir] = dir_patterns
-	return ignore_dict
-
-
-def git_like_match(rel_path: str, pattern: str) -> bool:
-	"""
-	Return True if rel_path matches 'pattern' in a Git-like manner:
-	- If pattern ends with '/', it means directory match => subdir plus all inside it.
-	- If pattern contains a '/', we match the entire (sub)path (with Unix slashes).
-	- If pattern has no '/', we match only the basename (like Git).
-	"""
-	# If pattern ends with '/', strip it for matching but remember directory intent
-	dir_rule = pattern.endswith("/")
-	trimmed = pattern.rstrip("/")
-	# unify path to slash style
-	rel_unix = rel_path.replace("\\", "/")
-	pat_unix = trimmed.replace("\\", "/")
-
-	# Always strip any leading slashes for consistency
-	rel_unix = rel_unix.lstrip("/")
-	pat_unix = pat_unix.lstrip("/")
-
-	if dir_rule:
-		# For directory matches, either:
-		# 1. The path exactly matches the pattern (without trailing slash)
-		# 2. The path is under the pattern directory
-		return rel_unix == pat_unix or rel_unix.startswith(pat_unix + "/")
-
-	# If pattern has no slash, match only the basename
-	if "/" not in pat_unix:
-		base = rel_unix.split("/")[-1]  # More reliable than os.path.basename for unix paths
-		return fnmatch.fnmatch(base, pat_unix)
-	
-	# If pattern has slash, match entire path
-	return fnmatch.fnmatch(rel_unix, pat_unix)
-
-def is_ignored(path: Path, root_dir: Path, ignore_dict: dict[Path, list[str]]) -> bool:
-	"""Check if `path` is ignored or not, combining .gitignore + .lmignore lines
-	in the order they appear. The last matching pattern wins.
-	- If the pattern starts with '!' and matches, we "un-ignore" the path.
-	- Otherwise, if it matches, we "ignore" the path.
-	"""
-	path_abs = path.resolve()
-	root_abs = root_dir.resolve()
-	is_ignored_flag = False
-
-	# Get relative path from root for consistent pattern matching
-	try:
-		root_relative = path_abs.relative_to(root_abs).as_posix()
-		if path_abs.is_dir():
-			root_relative += "/"
-	except ValueError:
-		# If path is not under root, don't ignore it
-		return False
-
-	# Work up from the specific directory to the root, checking patterns
-	current_dir = path_abs
-	while True:
-		if current_dir in ignore_dict:
-			rel_path = path_abs.relative_to(current_dir).as_posix()
-			if path_abs.is_dir():
-				rel_path += "/"
-
-			# Process each pattern in order
-			for pattern in ignore_dict[current_dir]:
-				negation = pattern.startswith("!")
-				raw_pat = pattern[1:].lstrip() if negation else pattern
-
-				# Try both relative to current dir and relative to root
-				if git_like_match(rel_path, raw_pat) or git_like_match(root_relative, raw_pat):
-					is_ignored_flag = not negation
-
-		if current_dir == root_abs:
-			break
-		parent = current_dir.parent
-		if parent == current_dir:
-			break
-		current_dir = parent
-
-	return is_ignored_flag
+class IgnoreHandler:
+    """Handles all ignore pattern matching using igittigitt"""
+    
+    def __init__(self, root_dir: Path, config: LMCatConfig):
+        self.parser = igittigitt.IgnoreParser()
+        self.root_dir = root_dir
+        self.config = config
+        self._init_parser()
+        
+    def _init_parser(self) -> None:
+        """Initialize the parser with all relevant ignore files"""
+        # If we're including gitignore, let igittigitt handle it natively
+        if self.config.include_gitignore:
+            self.parser.parse_rule_files(self.root_dir, filename=".gitignore")
+            
+        # Add all .lmignore files
+        for current_dir, _, files in os.walk(self.root_dir):
+            current_path = Path(current_dir)
+            lmignore = current_path / ".lmignore"
+            if lmignore.is_file():
+                self.parser.parse_rule_files(current_path, filename=".lmignore")
+                
+    def is_ignored(self, path: Path) -> bool:
+        """Check if a path should be ignored"""
+        # Never ignore the gitignore/lmignore files themselves
+        if path.name in {".gitignore", ".lmignore"}:
+            return True
+            
+        # Use igittigitt's matching
+        return self.parser.match(path)
 
 
 def sorted_entries(directory: Path) -> list[Path]:
-	"""
-	Return the contents of `directory`, with directories first (alphabetically),
-	then files (alphabetically).
-	"""
-	subdirs = sorted(
-		[p for p in directory.iterdir() if p.is_dir()], key=lambda x: x.name
-	)
-	files = sorted(
-		[p for p in directory.iterdir() if p.is_file()], key=lambda x: x.name
-	)
-	return subdirs + files
+    """Return directory contents sorted: directories first, then files"""
+    subdirs = sorted([p for p in directory.iterdir() if p.is_dir()], key=lambda x: x.name)
+    files = sorted([p for p in directory.iterdir() if p.is_file()], key=lambda x: x.name)
+    return subdirs + files
 
 
 def walk_dir(
-	directory: Path,
-	root_dir: Path,
-	ignore_dict: dict[Path, list[str]],
-	config: LMCatConfig,
-	prefix: str = "",
+    directory: Path,
+    ignore_handler: IgnoreHandler,
+    config: LMCatConfig,
+    prefix: str = "",
 ) -> tuple[list[str], list[Path]]:
-	"""Recursively walk a directory, building tree lines and collecting file paths
+    """Recursively walk a directory, building tree lines and collecting file paths"""
+    tree_output: list[str] = []
+    collected_files: list[Path] = []
 
-	# Parameters:
-	 - `directory: Path`
-	 - `root_dir: Path`
-	 - `ignore_dict: dict[Path, list[str]]`
-	 - `config: LMCatConfig`
-	 - `prefix: str` (used for tree indentation)
+    entries = sorted_entries(directory)
+    for i, entry in enumerate(entries):
+        if ignore_handler.is_ignored(entry):
+            continue
 
-	# Returns:
-	 - `tuple[list[str], list[Path]]`
-	   The text lines for the directory structure and the included file paths
-	"""
-	tree_output: list[str] = []
-	collected_files: list[Path] = []
+        is_last = i == len(entries) - 1
+        connector = (
+            config.file_divider if not is_last 
+            else config.file_divider.replace("├", "└")
+        )
 
-	entries: list[Path] = sorted_entries(directory)
+        if entry.is_dir():
+            tree_output.append(f"{prefix}{connector}{entry.name}")
+            extension = config.tree_divider if not is_last else config.indent
+            sub_output, sub_files = walk_dir(
+                entry, ignore_handler, config, prefix + extension
+            )
+            tree_output.extend(sub_output)
+            collected_files.extend(sub_files)
+        else:
+            tree_output.append(f"{prefix}{connector}{entry.name}")
+            collected_files.append(entry)
 
-	for i, entry in enumerate(entries):
-		# Never list .gitignore or .lmignore themselves
-		if entry.name in (".gitignore", ".lmignore"):
-			continue
-
-		if is_ignored(entry, root_dir, ignore_dict):
-			continue
-
-		is_last = i == len(entries) - 1
-		connector = (
-			config.file_divider
-			if not is_last
-			else config.file_divider.replace("├", "└")
-		)
-
-		if entry.is_dir():
-			tree_output.append(f"{prefix}{connector}{entry.name}")
-			extension = config.tree_divider if not is_last else config.indent
-			sub_output, sub_files = walk_dir(
-				entry, root_dir, ignore_dict, config, prefix + extension
-			)
-			tree_output.extend(sub_output)
-			collected_files.extend(sub_files)
-		else:
-			tree_output.append(f"{prefix}{connector}{entry.name}")
-			collected_files.append(entry)
-
-	return tree_output, collected_files
+    return tree_output, collected_files
 
 
 def walk_and_collect(
-	root_dir: Path, config: Optional[LMCatConfig] = None
+    root_dir: Path, config: Optional[LMCatConfig] = None
 ) -> tuple[list[str], list[Path]]:
-	"""Walk the filesystem from `root_dir`, using `config` for formatting,
-	and gather a tree listing plus file paths to stitch
+    """Walk filesystem from root_dir and gather tree listing plus file paths"""
+    if config is None:
+        config = LMCatConfig()
+        
+    ignore_handler = IgnoreHandler(root_dir, config)
+    base_name = root_dir.resolve().name
 
-	# Parameters:
-	 - `root_dir: Path`
-	 - `config: LMCatConfig|None`
+    # Start with root directory name
+    tree_output: list[str] = [base_name]
 
-	# Returns:
-	 - `tuple[list[str], list[Path]]`
-	   (tree_output, collected_files)
-	"""
-	if config is None:
-		config = LMCatConfig()
-	ignore_dict = load_ignore_patterns(root_dir, config)
-	base_name = root_dir.resolve().name
-
-	# Start with the top-level name
-	tree_output: list[str] = [base_name]
-
-	sub_output, sub_files = walk_dir(root_dir, root_dir, ignore_dict, config)
-	tree_output.extend(sub_output)
-	return tree_output, sub_files
+    # Walk the directory tree
+    sub_output, sub_files = walk_dir(root_dir, ignore_handler, config)
+    tree_output.extend(sub_output)
+    
+    return tree_output, sub_files
 
 
 def main() -> None:
-	"""Main entry point for the script
+    """Main entry point for the script"""
+    parser = argparse.ArgumentParser(
+        description="lmcat - list tree and content, combining .gitignore + .lmignore",
+        add_help=False,
+    )
+    parser.add_argument(
+        "-g",
+        "--no-include-gitignore",
+        action="store_false",
+        dest="include_gitignore",
+        default=True,
+        help="Do not parse .gitignore files (default: parse them).",
+    )
+    parser.add_argument(
+        "-t",
+        "--tree-only",
+        action="store_true",
+        default=False,
+        help="Only print the tree, not the file contents.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        action="store",
+        default=None,
+        help="Output file to write the tree and contents to.",
+    )
+    parser.add_argument(
+        "-h", "--help", action="help", help="Show this help message and exit."
+    )
 
-	# Parameters:
-	 - None
+    args, unknown = parser.parse_known_args()
 
-	# Returns:
-	 - `None`
-	"""
-	parser = argparse.ArgumentParser(
-		description="lmcat - list tree and content, combining .gitignore + .lmignore",
-		add_help=False,  # We'll parse known args to avoid confusion with Pytest's arguments
-	)
-	parser.add_argument(
-		"-g",
-		"--no-include-gitignore",
-		action="store_false",
-		dest="include_gitignore",
-		default=True,
-		help="Do not parse .gitignore files (default: parse them).",
-	)
-	parser.add_argument(
-		"-t",
-		"--tree-only",
-		action="store_true",
-		default=False,
-		help="Only print the tree, not the file contents.",
-	)
-	parser.add_argument(
-		"-o",
-		"--output",
-		action="store",
-		default=None,
-		help="Output file to write the tree and contents to.",
-	)
-	# help
-	parser.add_argument(
-		"-h", "--help", action="help", help="Show this help message and exit."
-	)
+    root_dir = Path(".").resolve()
+    config = LMCatConfig.read(root_dir)
 
-	# parse_known_args to avoid crashing on e.g. --cov=. tests/
-	args, unknown = parser.parse_known_args()
+    # CLI overrides
+    config.include_gitignore = args.include_gitignore
+    config.tree_only = args.tree_only
 
-	root_dir = Path(".").resolve()
-	config = LMCatConfig.read(root_dir)
+    tree_output, collected_files = walk_and_collect(root_dir, config)
 
-	# CLI overrides
-	config.include_gitignore = args.include_gitignore
-	config.tree_only = args.tree_only
+    output: list[str] = []
+    output.append("# File Tree")
+    output.append("\n```")
+    output.extend(tree_output)
+    output.append("```\n")
 
-	tree_output, collected_files = walk_and_collect(root_dir, config)
+    cwd = Path.cwd()
 
-	output: list[str] = list()
+    # Add file contents if not suppressed
+    if not config.tree_only:
+        output.append("# File Contents")
 
-	output.append("# File Tree")
-	output.append("\n```")
+        for fpath in collected_files:
+            relpath_posix = fpath.relative_to(cwd).as_posix()
+            pathspec_start = f'{{ path: "{relpath_posix}" }}'
+            pathspec_end = f'{{ end_of_file: "{relpath_posix}" }}'
+            output.append("")
+            output.append(config.content_divider + pathspec_start)
+            with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
+                output.append(fobj.read())
+            output.append(config.content_divider + pathspec_end)
 
-	# Print the directory tree
-	for line in tree_output:
-		# print(line)
-		output.append(line)
-
-	output.append("```\n")
-
-	cwd: Path = Path.cwd()
-
-	# If not suppressing contents, print them
-	if not config.tree_only:
-		output.append("# File Contents")
-
-		for fpath in collected_files:
-			relpath_posix: str = fpath.relative_to(cwd).as_posix()
-			pathspec_start: str = f'{{ path: "{relpath_posix}" }}'
-			pathspec_end: str = f'{{ end_of_file: "{relpath_posix}" }}'
-			output.append("")
-			output.append(config.content_divider + pathspec_start)
-			with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
-				output.append(fobj.read())
-			output.append(config.content_divider + pathspec_end)
-
-	# Write to file if specified
-	if args.output:
-		with open(args.output, "w", encoding="utf-8") as f:
-			f.write("\n".join(output))
-	else:
-		print("\n".join(output))
+    # Write output
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write("\n".join(output))
+    else:
+        print("\n".join(output))
 
 
 if __name__ == "__main__":
-	main()
+    main()
