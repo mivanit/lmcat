@@ -27,12 +27,12 @@ class LMCatConfig:
 	 - `indent: str`
 	 - `file_divider: str`
 	 - `content_divider: str`
-	 - `include_gitignore: bool`     (default True)
-	 - `tree_only: bool`     (default False)
+	 - `include_gitignore: bool`	 (default True)
+	 - `tree_only: bool`	 (default False)
 	"""
 
 	tree_divider: str = "│   "
-	indent: str = "    "
+	indent: str = " "
 	file_divider: str = "├── "
 	content_divider: str = "``````"
 	include_gitignore: bool = True
@@ -170,57 +170,59 @@ def git_like_match(rel_path: str, pattern: str) -> bool:
 	rel_unix = rel_path.replace("\\", "/")
 	pat_unix = trimmed.replace("\\", "/")
 
+	# Always strip any leading slashes for consistency
+	rel_unix = rel_unix.lstrip("/")
+	pat_unix = pat_unix.lstrip("/")
+
 	if dir_rule:
-		# e.g. "subdir/" => ignore "subdir" or anything under "subdir/"
-		# That means either rel_unix == 'subdir' or startswith 'subdir/'
-		if rel_unix == pat_unix or rel_unix.startswith(pat_unix + "/"):
-			return True
-		return False
+		# For directory matches, either:
+		# 1. The path exactly matches the pattern (without trailing slash)
+		# 2. The path is under the pattern directory
+		return rel_unix == pat_unix or rel_unix.startswith(pat_unix + "/")
 
 	# If pattern has no slash, match only the basename
 	if "/" not in pat_unix:
-		base = os.path.basename(rel_unix)
+		base = rel_unix.split("/")[-1]  # More reliable than os.path.basename for unix paths
 		return fnmatch.fnmatch(base, pat_unix)
-	else:
-		# If pattern has slash, match entire path
-		return fnmatch.fnmatch(rel_unix, pat_unix)
-
+	
+	# If pattern has slash, match entire path
+	return fnmatch.fnmatch(rel_unix, pat_unix)
 
 def is_ignored(path: Path, root_dir: Path, ignore_dict: dict[Path, list[str]]) -> bool:
 	"""Check if `path` is ignored or not, combining .gitignore + .lmignore lines
 	in the order they appear. The last matching pattern wins.
-
 	- If the pattern starts with '!' and matches, we "un-ignore" the path.
 	- Otherwise, if it matches, we "ignore" the path.
-
-	# Parameters:
-	 - `path: Path`
-	 - `root_dir: Path`
-	 - `ignore_dict: dict[Path, list[str]]`
-
-	# Returns:
-	 - `bool` => True if path is currently ignored
 	"""
 	path_abs = path.resolve()
 	root_abs = root_dir.resolve()
 	is_ignored_flag = False
 
-	current_dir = path_abs.parent
+	# Get relative path from root for consistent pattern matching
+	try:
+		root_relative = path_abs.relative_to(root_abs).as_posix()
+		if path_abs.is_dir():
+			root_relative += "/"
+	except ValueError:
+		# If path is not under root, don't ignore it
+		return False
+
+	# Work up from the specific directory to the root, checking patterns
+	current_dir = path_abs
 	while True:
 		if current_dir in ignore_dict:
-			rel_path = str(path_abs.relative_to(current_dir))
-			# We check patterns in order
+			rel_path = path_abs.relative_to(current_dir).as_posix()
+			if path_abs.is_dir():
+				rel_path += "/"
+
+			# Process each pattern in order
 			for pattern in ignore_dict[current_dir]:
 				negation = pattern.startswith("!")
 				raw_pat = pattern[1:].lstrip() if negation else pattern
 
-				if git_like_match(rel_path, raw_pat):
-					if negation:
-						# un-ignore
-						is_ignored_flag = False
-					else:
-						# ignore
-						is_ignored_flag = True
+				# Try both relative to current dir and relative to root
+				if git_like_match(rel_path, raw_pat) or git_like_match(root_relative, raw_pat):
+					is_ignored_flag = not negation
 
 		if current_dir == root_abs:
 			break
