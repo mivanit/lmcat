@@ -89,40 +89,44 @@ class LMCatConfig:
 
 class IgnoreHandler:
 	"""Handles all ignore pattern matching using igittigitt"""
-	
+
 	def __init__(self, root_dir: Path, config: LMCatConfig):
 		self.parser: igittigitt.IgnoreParser = igittigitt.IgnoreParser()
 		self.root_dir: Path = root_dir
 		self.config: LMCatConfig = config
 		self._init_parser()
-		
+
 	def _init_parser(self) -> None:
 		"""Initialize the parser with all relevant ignore files"""
 		# If we're including gitignore, let igittigitt handle it natively
 		if self.config.include_gitignore:
 			self.parser.parse_rule_files(self.root_dir, filename=".gitignore")
-			
+
 		# Add all .lmignore files
 		for current_dir, _, files in os.walk(self.root_dir):
 			current_path: Path = Path(current_dir)
 			lmignore: Path = current_path / ".lmignore"
 			if lmignore.is_file():
 				self.parser.parse_rule_files(current_path, filename=".lmignore")
-				
+
 	def is_ignored(self, path: Path) -> bool:
 		"""Check if a path should be ignored"""
 		# Never ignore the gitignore/lmignore files themselves
 		if path.name in {".gitignore", ".lmignore"}:
 			return True
-			
+
 		# Use igittigitt's matching
 		return self.parser.match(path)
 
 
 def sorted_entries(directory: Path) -> list[Path]:
 	"""Return directory contents sorted: directories first, then files"""
-	subdirs: list[Path] = sorted([p for p in directory.iterdir() if p.is_dir()], key=lambda x: x.name)
-	files: list[Path] = sorted([p for p in directory.iterdir() if p.is_file()], key=lambda x: x.name)
+	subdirs: list[Path] = sorted(
+		[p for p in directory.iterdir() if p.is_dir()], key=lambda x: x.name
+	)
+	files: list[Path] = sorted(
+		[p for p in directory.iterdir() if p.is_file()], key=lambda x: x.name
+	)
 	return subdirs + files
 
 
@@ -141,16 +145,18 @@ def walk_dir(
 		if ignore_handler.is_ignored(entry):
 			continue
 
-		is_last: bool = (i == len(entries) - 1)
+		is_last: bool = i == len(entries) - 1
 		connector: str = (
-			config.file_divider if not is_last 
+			config.file_divider
+			if not is_last
 			else config.file_divider.replace("├", "└")
 		)
 
 		if entry.is_dir():
 			tree_output.append(f"{prefix}{connector}{entry.name}")
 			extension: str = config.tree_divider if not is_last else config.indent
-			sub_output: list[str]; sub_files: list[Path]
+			sub_output: list[str]
+			sub_files: list[Path]
 			sub_output, sub_files = walk_dir(
 				entry, ignore_handler, config, prefix + extension
 			)
@@ -169,7 +175,7 @@ def walk_and_collect(
 	"""Walk filesystem from root_dir and gather tree listing plus file paths"""
 	if config is None:
 		config = LMCatConfig()
-		
+
 	ignore_handler: IgnoreHandler = IgnoreHandler(root_dir, config)
 	base_name: str = root_dir.resolve().name
 
@@ -177,10 +183,11 @@ def walk_and_collect(
 	tree_output: list[str] = [base_name]
 
 	# Walk the directory tree
-	sub_output: list[str]; sub_files: list[Path]
+	sub_output: list[str]
+	sub_files: list[Path]
 	sub_output, sub_files = walk_dir(root_dir, ignore_handler, config)
 	tree_output.extend(sub_output)
-	
+
 	return tree_output, sub_files
 
 
@@ -251,13 +258,18 @@ def main() -> None:
 
 	# Write output
 	if args.output:
+		Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 		with open(args.output, "w", encoding="utf-8") as f:
 			f.write("\n".join(output))
 	else:
 		if sys.platform == "win32":
-			sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-			sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-	
+			sys.stdout = io.TextIOWrapper(
+				sys.stdout.buffer, encoding="utf-8", errors="replace"
+			)
+			sys.stderr = io.TextIOWrapper(
+				sys.stderr.buffer, encoding="utf-8", errors="replace"
+			)
+
 		print("\n".join(output))
 
 
