@@ -510,8 +510,11 @@ cov:
 	rm -rf $(COVERAGE_REPORTS_DIR)/html/.gitignore
 
 # runs the coverage report, then the docs, then the combined docs
+# ~~~~~~~~~~~~~~~~~~~~
+# demo also created for docs
+# ~~~~~~~~~~~~~~~~~~~~
 .PHONY: docs
-docs: cov docs-html docs-combined
+docs: demo cov docs-html docs-combined
 	@echo "generate all documentation and coverage reports"
 
 # removed all generated documentation files, but leaves the templates and the `docs/make_docs.py` script
@@ -681,3 +684,8 @@ help: help-targets info
 demo:
 	@echo "example of code output"
 	$(PYTHON) -m lmcat -o example_output.md
+
+.PHONY: demo-tree
+demo-tree:
+	@echo "example of code output, tree direct to console"
+	$(PYTHON) -m lmcat -t
