@@ -5,7 +5,7 @@ attrs==24.3.0
 bracex==2.5.post1
 cli-exit-tools==1.2.7
 click==8.1.8
-colorama==0.4.6 ; platform_system == 'Windows' or sys_platform == 'win32'
+colorama==0.4.6 ; sys_platform == 'win32'
 coverage==7.6.10
 coverage-badge==1.1.2
 igittigitt==2.1.5

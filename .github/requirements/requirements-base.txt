@@ -5,7 +5,7 @@ attrs==24.3.0
 bracex==2.5.post1
 cli-exit-tools==1.2.7
 click==8.1.8
-colorama==0.4.6 ; platform_system == 'Windows'
+colorama==0.4.6 ; sys_platform == 'win32'
 igittigitt==2.1.5
 lib-detect-testenv==2.0.8
 wcmatch==10.0
