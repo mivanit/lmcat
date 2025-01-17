@@ -232,6 +232,13 @@ def main() -> None:
 	parser.add_argument(
 		"-h", "--help", action="help", help="Show this help message and exit."
 	)
+	parser.add_argument(
+		"--tokenizer",
+		action="store",
+		default=None,
+		type=str,
+		help="Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If passed and `tokenizers` not installed, will throw exception.",
+	)
 
 	args, unknown = parser.parse_known_args()
 
@@ -274,9 +281,12 @@ def main() -> None:
 		"chars": len(output_joined),
 	}
 	if TOKENIZERS_PRESENT:
-		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained("gpt2")
+		tokenizer_name: str = args.tokenizer or "gpt2"
+		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained(tokenizer_name)
 		n_tokens: int = len(tokenizer.encode(output_joined).tokens)
-		stats_dict_ints["tokens"] = n_tokens
+		stats_dict_ints[f"`{tokenizer_name}` tokens"] = n_tokens
+	else:
+		assert args.tokenizer is None, "Tokenizers not installed, cannot tokenize."
 
 
 	stats_header: list[str] = ["# Stats"]
