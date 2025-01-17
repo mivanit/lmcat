@@ -8,4 +8,5 @@ click==8.1.8
 colorama==0.4.6 ; sys_platform == 'win32'
 igittigitt==2.1.5
 lib-detect-testenv==2.0.8
+muutils==0.6.21
 wcmatch==10.0
