@@ -7,7 +7,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 import sys
-from typing import Any, Optional
+from typing import Any, NamedTuple, Optional
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
@@ -140,11 +140,47 @@ def sorted_entries(directory: Path) -> list[Path]:
 	return subdirs + files
 
 
+@dataclass
+class FileStats:
+    """Statistics for a single file"""
+    lines: int
+    chars: int
+    tokens: Optional[int] = None
+
+    @classmethod
+    def from_file(path: Path, tokenizer: Optional[tokenizers.Tokenizer] = None) -> FileStats:
+        """Get statistics for a single file
+        
+        # Parameters:
+        - `path : Path`
+            Path to the file to analyze
+        - `tokenizer : Optional[tokenizers.Tokenizer]`
+            Tokenizer to use for counting tokens, if any
+            
+        # Returns:
+        - `FileStats`
+            Statistics for the file
+        """
+        with path.open('r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+            lines = len(content.splitlines())
+            chars = len(content)
+            tokens = len(tokenizer.encode(content).tokens) if tokenizer else None
+            return FileStats(lines=lines, chars=chars, tokens=tokens)
+
+class TreeEntry(NamedTuple):
+    """Entry in the tree output with optional stats"""
+    line: str
+    stats: Optional[FileStats] = None
+
+
+
 def walk_dir(
 	directory: Path,
 	ignore_handler: IgnoreHandler,
 	config: LMCatConfig,
 	prefix: str = "",
+	tokenizer: Optional[tokenizers.Tokenizer] = None,
 ) -> tuple[list[str], list[Path]]:
 	"""Recursively walk a directory, building tree lines and collecting file paths"""
 	tree_output: list[str] = []
@@ -178,6 +214,51 @@ def walk_dir(
 
 	return tree_output, collected_files
 
+
+def format_tree_with_stats(entries: list[TreeEntry], show_tokens: bool = False) -> list[str]:
+    """Format tree entries with aligned statistics
+    
+    # Parameters:
+     - `entries : list[TreeEntry]`
+        List of tree entries with optional stats
+     - `show_tokens : bool`
+        Whether to show token counts
+        
+    # Returns:
+     - `list[str]`
+        Formatted tree lines with aligned stats
+    """
+    # Find max widths for alignment
+    max_line_len: int = max(len(entry.line) for entry in entries)
+    max_lines: int = max(
+        (len(f"{entry.stats.lines:,}") if entry.stats else 0)
+        for entry in entries
+    )
+    max_chars: int = max(
+        (len(f"{entry.stats.chars:,}") if entry.stats else 0)
+        for entry in entries
+    )
+    max_tokens: int = max(
+        (len(f"{entry.stats.tokens:,}") if entry.stats and entry.stats.tokens else 0)
+        for entry in entries
+    ) if show_tokens else 0
+    
+    formatted: list[str] = []
+    for entry in entries:
+        line: str = entry.line.ljust(max_line_len + 2)
+        if entry.stats:
+            lines_str: str = f"{entry.stats.lines:,}L".rjust(max_lines + 1)
+            chars_str: str = f"{entry.stats.chars:,}C".rjust(max_chars + 1)
+            stats_str: str = f"[{lines_str} {chars_str}"
+            if show_tokens and entry.stats.tokens is not None:
+                tokens_str: str = f"{entry.stats.tokens:,}T".rjust(max_tokens + 1)
+                stats_str += f" {tokens_str}"
+            stats_str += "]"
+            formatted.append(f"{line}{stats_str}")
+        else:
+            formatted.append(line)
+    
+    return formatted
 
 def walk_and_collect(
 	root_dir: Path, config: Optional[LMCatConfig] = None
