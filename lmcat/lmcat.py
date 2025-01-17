@@ -18,7 +18,17 @@ except ImportError:
 	except ImportError:
 		tomllib = None # type: ignore[assignment]
 
+
+# tokenizers (optional dep)
+TOKENIZERS_PRESENT: bool = False
+try:
+    import tokenizers
+    TOKENIZERS_PRESENT = True
+except ImportError:
+    pass
+
 import igittigitt
+from muutils.misc import shorten_numerical_to_str
 
 
 @dataclass
@@ -256,11 +266,35 @@ def main() -> None:
 				output.append(fobj.read())
 			output.append(config.content_divider + pathspec_end)
 
+	output_joined: str = "\n".join(output)
+
+	stats_dict_ints: dict[str, int] = {
+		"files": len(collected_files),
+		"lines": len(output),
+		"chars": len(output_joined),
+	}
+	if TOKENIZERS_PRESENT:
+		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained("gpt2")
+		n_tokens: int = len(tokenizer.encode(output_joined).tokens)
+		stats_dict_ints["tokens"] = n_tokens
+
+
+	stats_header: list[str] = ["# Stats"]
+	for key, val in stats_dict_ints.items():
+		val_str: str = str(val)
+		val_short: str = shorten_numerical_to_str(val)
+		if val_str != val_short:
+			stats_header.append(f"- {val} ({val_short}) {key}")
+		else:
+			stats_header.append(f"- {val} {key}")
+
+	output_complete: str = "\n".join(stats_header) + "\n\n" + output_joined
+
 	# Write output
 	if args.output:
 		Path(args.output).parent.mkdir(parents=True, exist_ok=True)
 		with open(args.output, "w", encoding="utf-8") as f:
-			f.write("\n".join(output))
+			f.write(output_complete)
 	else:
 		if sys.platform == "win32":
 			sys.stdout = io.TextIOWrapper(
@@ -270,7 +304,7 @@ def main() -> None:
 				sys.stderr.buffer, encoding="utf-8", errors="replace"
 			)
 
-		print("\n".join(output))
+		print(output_complete)
 
 
 if __name__ == "__main__":
