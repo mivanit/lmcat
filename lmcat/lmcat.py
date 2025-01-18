@@ -142,7 +142,7 @@ def walk_dir(
 	prefix: str = "",
 ) -> tuple[list[TreeEntry], list[Path]]:
 	"""Recursively walk a directory, building tree lines and collecting file paths"""
-	tree_output: list[str] = []
+	tree_output: list[TreeEntry] = []
 	collected_files: list[Path] = []
 
 	entries: list[Path] = sorted_entries(directory)
@@ -160,7 +160,7 @@ def walk_dir(
 		if entry.is_dir():
 			tree_output.append(TreeEntry(f"{prefix}{connector}{entry.name}", None))
 			extension: str = config.tree_divider if not is_last else config.tree_indent
-			sub_output: list[str]
+			sub_output: list[TreeEntry]
 			sub_files: list[Path]
 			sub_output, sub_files = walk_dir(
 				directory=entry,

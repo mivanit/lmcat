@@ -15,7 +15,7 @@ except ImportError:
 # tokenizers (optional dep)
 TOKENIZERS_PRESENT: bool = False
 try:
-	import tokenizers
+	import tokenizers  # type: ignore[import-untyped]
 
 	TOKENIZERS_PRESENT = True
 except ImportError:
@@ -39,6 +39,7 @@ class TokenizerWrapper:
 		if self.use_fallback:
 			return len(text.split())
 		else:
+			assert self.tokenizer is not None
 			return len(self.tokenizer.encode(text).tokens)
 
 
