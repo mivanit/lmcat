@@ -32,6 +32,25 @@ import igittigitt  # noqa: E402
 from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
+class TokenizerWrapper:
+	"""tokenizer wrapper. stores name and provides `n_tokens` method.
+	
+	uses splitting by whitespace as a fallback -- `whitespace-split`"""
+
+	def __init__(self, name: str = "whitespace-split") -> None:
+		self.name: str = name
+		self.use_fallback: bool = (name == "whitespace-split")
+		self.tokenizer: Optional[tokenizers.Tokenizer] = (
+			None if self.use_fallback else tokenizers.Tokenizer.from_pretrained(name)
+		)
+
+	def n_tokens(self, text: str) -> int:
+		"""Return number of tokens in text"""
+		if self.use_fallback:
+			return len(text.split())
+		else:
+			return len(self.tokenizer.encode(text).tokens)
+
 @dataclass
 class LMCatConfig:
 	"""Configuration dataclass for lmcat
@@ -157,13 +176,13 @@ class FileStats:
 
 		# Parameters:
 		- `path : Path`
-		    Path to the file to analyze
+			Path to the file to analyze
 		- `tokenizer : Optional[tokenizers.Tokenizer]`
-		    Tokenizer to use for counting tokens, if any
+			Tokenizer to use for counting tokens, if any
 
 		# Returns:
 		- `FileStats`
-		    Statistics for the file
+			Statistics for the file
 		"""
 		with path.open("r", encoding="utf-8", errors="ignore") as f:
 			content = f.read()
@@ -186,7 +205,7 @@ def walk_dir(
 	config: LMCatConfig,
 	prefix: str = "",
 	tokenizer: Optional[tokenizers.Tokenizer] = None,
-) -> tuple[list[str], list[Path]]:
+) -> tuple[list[TreeEntry], list[Path]]:
 	"""Recursively walk a directory, building tree lines and collecting file paths"""
 	tree_output: list[str] = []
 	collected_files: list[Path] = []
@@ -204,7 +223,7 @@ def walk_dir(
 		)
 
 		if entry.is_dir():
-			tree_output.append(f"{prefix}{connector}{entry.name}")
+			tree_output.append(TreeEntry(f"{prefix}{connector}{entry.name}", None))
 			extension: str = config.tree_divider if not is_last else config.indent
 			sub_output: list[str]
 			sub_files: list[Path]
@@ -214,7 +233,8 @@ def walk_dir(
 			tree_output.extend(sub_output)
 			collected_files.extend(sub_files)
 		else:
-			tree_output.append(f"{prefix}{connector}{entry.name}")
+			stats: FileStats = FileStats.from_file(entry, tokenizer)
+			tree_output.append(TreeEntry(f"{prefix}{connector}{entry.name}", stats))
 			collected_files.append(entry)
 
 	return tree_output, collected_files
@@ -227,13 +247,13 @@ def format_tree_with_stats(
 
 	# Parameters:
 	 - `entries : list[TreeEntry]`
-	    List of tree entries with optional stats
+		List of tree entries with optional stats
 	 - `show_tokens : bool`
-	    Whether to show token counts
+		Whether to show token counts
 
 	# Returns:
 	 - `list[str]`
-	    Formatted tree lines with aligned stats
+		Formatted tree lines with aligned stats
 	"""
 	# Find max widths for alignment
 	max_line_len: int = max(len(entry.line) for entry in entries)
@@ -275,25 +295,28 @@ def format_tree_with_stats(
 
 
 def walk_and_collect(
-	root_dir: Path, config: Optional[LMCatConfig] = None
+	root_dir: Path, 
+	config: Optional[LMCatConfig] = None,
+	tokenizer: Optional[tokenizers.Tokenizer] = None,  # Add this param
 ) -> tuple[list[str], list[Path]]:
 	"""Walk filesystem from root_dir and gather tree listing plus file paths"""
 	if config is None:
 		config = LMCatConfig()
 
-	ignore_handler: IgnoreHandler = IgnoreHandler(root_dir, config)
-	base_name: str = root_dir.resolve().name
+	ignore_handler = IgnoreHandler(root_dir, config)
+	base_name = root_dir.resolve().name
 
 	# Start with root directory name
-	tree_output: list[str] = [base_name]
+	tree_output = [TreeEntry(base_name)]
 
 	# Walk the directory tree
-	sub_output: list[str]
-	sub_files: list[Path]
-	sub_output, sub_files = walk_dir(root_dir, ignore_handler, config)
+	sub_output, sub_files = walk_dir(root_dir, ignore_handler, config, tokenizer=tokenizer)
 	tree_output.extend(sub_output)
 
-	return tree_output, sub_files
+	# Format tree with stats
+	formatted_tree = format_tree_with_stats(tree_output, show_tokens=tokenizer is not None)
+
+	return formatted_tree, sub_files
 
 
 def main() -> None:
@@ -344,16 +367,27 @@ def main() -> None:
 	config.include_gitignore = args.include_gitignore
 	config.tree_only = args.tree_only
 
-	tree_output, collected_files = walk_and_collect(root_dir, config)
+	# set up tokenizer if available
+	tokenizer_name: str|None
+	if TOKENIZERS_PRESENT:
+		 = args.tokenizer or "gpt2"
+		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained(
+			tokenizer_name
+		)
+	else:
+		assert args.tokenizer is None, "Tokenizers not installed, cannot tokenize."
+
+	tokenizer = None
+	if TOKENIZERS_PRESENT and args.tokenizer:
+		tokenizer = tokenizers.Tokenizer.from_pretrained(args.tokenizer)
+
+	tree_output, collected_files = walk_and_collect(root_dir, config, tokenizer)
 
 	output: list[str] = []
 	output.append("# File Tree")
 	output.append("\n```")
 	output.extend(tree_output)
 	output.append("```\n")
-
-	cwd = Path.cwd()
-
 	# Add file contents if not suppressed
 	if not config.tree_only:
 		output.append("# File Contents")
@@ -375,15 +409,10 @@ def main() -> None:
 		"lines": len(output),
 		"chars": len(output_joined),
 	}
-	if TOKENIZERS_PRESENT:
-		tokenizer_name: str = args.tokenizer or "gpt2"
-		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained(
-			tokenizer_name
-		)
+
 		n_tokens: int = len(tokenizer.encode(output_joined).tokens)
 		stats_dict_ints[f"`{tokenizer_name}` tokens"] = n_tokens
-	else:
-		assert args.tokenizer is None, "Tokenizers not installed, cannot tokenize."
+	
 
 	stats_header: list[str] = ["# Stats"]
 	for key, val in stats_dict_ints.items():
