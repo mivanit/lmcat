@@ -38,8 +38,8 @@ class LMCatConfig:
 
 	# Parameters:
 	 - `tree_divider: str`
-	 - `indent: str`
-	 - `file_divider: str`
+	 - `tree_indent: str`
+	 - `tree_file_divider: str`
 	 - `content_divider: str`
 	 - `include_gitignore: bool`  (default True)
 	 - `tree_only: bool`  (default False)
@@ -48,6 +48,7 @@ class LMCatConfig:
 	tree_divider: str = "│   "
 	tree_file_divider: str = "├── "
 	tree_indent: str = " "
+	
 	content_divider: str = "``````"
 	include_gitignore: bool = True
 	tree_only: bool = False
@@ -145,8 +146,8 @@ def walk_dir(
 	directory: Path,
 	ignore_handler: IgnoreHandler,
 	config: LMCatConfig,
+	tokenizer: TokenizerWrapper,
 	prefix: str = "",
-	tokenizer: Optional[tokenizers.Tokenizer] = None,
 ) -> tuple[list[TreeEntry], list[Path]]:
 	"""Recursively walk a directory, building tree lines and collecting file paths"""
 	tree_output: list[str] = []
@@ -170,7 +171,11 @@ def walk_dir(
 			sub_output: list[str]
 			sub_files: list[Path]
 			sub_output, sub_files = walk_dir(
-				entry, ignore_handler, config, prefix + extension
+				directory=entry,
+				ignore_handler=ignore_handler,
+				config=config,
+				tokenizer=tokenizer,
+				prefix=prefix + extension,
 			)
 			tree_output.extend(sub_output)
 			collected_files.extend(sub_files)
@@ -238,8 +243,8 @@ def format_tree_with_stats(
 
 def walk_and_collect(
 	root_dir: Path,
-	config: Optional[LMCatConfig] = None,
-	tokenizer: Optional[tokenizers.Tokenizer] = None,  # Add this param
+	config: LMCatConfig,
+	tokenizer: TokenizerWrapper,
 ) -> tuple[list[str], list[Path]]:
 	"""Walk filesystem from root_dir and gather tree listing plus file paths"""
 	if config is None:
@@ -253,7 +258,11 @@ def walk_and_collect(
 
 	# Walk the directory tree
 	sub_output, sub_files = walk_dir(
-		root_dir, ignore_handler, config, tokenizer=tokenizer
+		directory=root_dir,
+		ignore_handler=ignore_handler,
+		config=config,
+		tokenizer=tokenizer,
+		prefix="",
 	)
 	tree_output.extend(sub_output)
 
@@ -318,7 +327,9 @@ def main() -> None:
 		"gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
 	)
 
-	tree_output, collected_files = walk_and_collect(root_dir, config, tokenizer)
+	tree_output, collected_files = walk_and_collect(
+		root_dir=root_dir, config=config, tokenizer=tokenizer,
+	)
 
 	output: list[str] = []
 	output.append("# File Tree")

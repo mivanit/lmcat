@@ -52,7 +52,9 @@ class FileStats:
 
 	@classmethod
 	def from_file(
-		path: Path, tokenizer: Optional[tokenizers.Tokenizer] = None
+		cls,
+		path: Path,
+		tokenizer: TokenizerWrapper,
 	) -> "FileStats":
 		"""Get statistics for a single file
 
@@ -67,10 +69,10 @@ class FileStats:
 			Statistics for the file
 		"""
 		with path.open("r", encoding="utf-8", errors="ignore") as f:
-			content = f.read()
-			lines = len(content.splitlines())
-			chars = len(content)
-			tokens = len(tokenizer.encode(content).tokens) if tokenizer else None
+			content: str = f.read()
+			lines: int = len(content.splitlines())
+			chars: int = len(content)
+			tokens: int = tokenizer.n_tokens(content)
 			return FileStats(lines=lines, chars=chars, tokens=tokens)
 
 

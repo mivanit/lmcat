@@ -4,6 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from lmcat.file_stats import TokenizerWrapper
 from lmcat.lmcat import (
 	LMCatConfig,
 	IgnoreHandler,
@@ -43,8 +44,8 @@ def test_lmcat_config_load_partial():
 def test_lmcat_config_load_all():
 	data = {
 		"tree_divider": "XX",
-		"indent": "YY",
-		"file_divider": "ZZ",
+		"tree_indent": "YY",
+		"tree_file_divider": "ZZ",
 		"content_divider": "@@@",
 	}
 	config = LMCatConfig.load(data)
@@ -178,8 +179,8 @@ def test_walk_dir_basic():
 	config = LMCatConfig()
 	handler = IgnoreHandler(test_dir, config)
 
-	tree_output, files = walk_dir(test_dir, handler, config)
-	joined_output = "\n".join(tree_output)
+	tree_output, files = walk_dir(test_dir, handler, config, TokenizerWrapper())
+	joined_output = "\n".join([x.line for x in tree_output])
 
 	# Check output contains all entries
 	assert "subdir1" in joined_output
@@ -212,8 +213,8 @@ def test_walk_dir_with_ignore():
 	config = LMCatConfig()
 	handler = IgnoreHandler(test_dir, config)
 
-	tree_output, files = walk_dir(test_dir, handler, config)
-	joined_output = "\n".join(tree_output)
+	tree_output, files = walk_dir(test_dir, handler, config, TokenizerWrapper())
+	joined_output = "\n".join([x.line for x in tree_output])
 
 	# Check output excludes .log file
 	assert "file2.log" not in joined_output
@@ -245,7 +246,7 @@ def test_walk_and_collect_complex():
 	(test_dir / "subdir2/.lmignore").write_text("nested/\n")
 
 	config = LMCatConfig()
-	tree_output, files = walk_and_collect(test_dir, config)
+	tree_output, files = walk_and_collect(test_dir, config, TokenizerWrapper())
 	joined_output = "\n".join(tree_output)
 
 	# Check correct files are excluded
