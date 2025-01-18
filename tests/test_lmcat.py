@@ -26,8 +26,8 @@ def ensure_clean_dir(dirpath: Path) -> None:
 def test_lmcat_config_defaults():
 	config = LMCatConfig()
 	assert config.tree_divider == "│   "
-	assert config.indent == " "
-	assert config.file_divider == "├── "
+	assert config.tree_indent == " "
+	assert config.tree_file_divider == "├── "
 	assert config.content_divider == "``````"
 
 
@@ -35,8 +35,8 @@ def test_lmcat_config_load_partial():
 	data = {"tree_divider": "|---"}
 	config = LMCatConfig.load(data)
 	assert config.tree_divider == "|---"
-	assert config.indent == " "
-	assert config.file_divider == "├── "
+	assert config.tree_indent == " "
+	assert config.tree_file_divider == "├── "
 	assert config.content_divider == "``````"
 
 
@@ -49,8 +49,8 @@ def test_lmcat_config_load_all():
 	}
 	config = LMCatConfig.load(data)
 	assert config.tree_divider == "XX"
-	assert config.indent == "YY"
-	assert config.file_divider == "ZZ"
+	assert config.tree_indent == "YY"
+	assert config.tree_file_divider == "ZZ"
 	assert config.content_divider == "@@@"
 
 

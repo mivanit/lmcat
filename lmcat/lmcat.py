@@ -5,7 +5,9 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 import sys
-from typing import Any, NamedTuple, Optional
+from typing import Any, Optional
+
+from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
@@ -30,8 +32,6 @@ import igittigitt  # noqa: E402
 from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
-
-
 @dataclass
 class LMCatConfig:
 	"""Configuration dataclass for lmcat
@@ -46,14 +46,14 @@ class LMCatConfig:
 	"""
 
 	tree_divider: str = "│   "
-	indent: str = " "
-	file_divider: str = "├── "
+	tree_file_divider: str = "├── "
+	tree_indent: str = " "
 	content_divider: str = "``````"
 	include_gitignore: bool = True
 	tree_only: bool = False
 
 	@classmethod
-	def load(cls, cfg_data: dict[str, Any]) -> LMCatConfig:
+	def load(cls, cfg_data: dict[str, Any]) -> "LMCatConfig":
 		"""Load an LMCatConfig from a dictionary of config values"""
 		config = cls()
 		for key, val in cfg_data.items():
@@ -69,7 +69,7 @@ class LMCatConfig:
 		return config
 
 	@classmethod
-	def read(cls, root_dir: Path) -> LMCatConfig:
+	def read(cls, root_dir: Path) -> "LMCatConfig":
 		"""Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json."""
 		pyproject_path = root_dir / "pyproject.toml"
 		lmcat_toml_path = root_dir / "lmcat.toml"
@@ -141,8 +141,6 @@ def sorted_entries(directory: Path) -> list[Path]:
 	return subdirs + files
 
 
-
-
 def walk_dir(
 	directory: Path,
 	ignore_handler: IgnoreHandler,
@@ -161,14 +159,14 @@ def walk_dir(
 
 		is_last: bool = i == len(entries) - 1
 		connector: str = (
-			config.file_divider
+			config.tree_file_divider
 			if not is_last
-			else config.file_divider.replace("├", "└")
+			else config.tree_file_divider.replace("├", "└")
 		)
 
 		if entry.is_dir():
 			tree_output.append(TreeEntry(f"{prefix}{connector}{entry.name}", None))
-			extension: str = config.tree_divider if not is_last else config.indent
+			extension: str = config.tree_divider if not is_last else config.tree_indent
 			sub_output: list[str]
 			sub_files: list[Path]
 			sub_output, sub_files = walk_dir(
@@ -239,7 +237,7 @@ def format_tree_with_stats(
 
 
 def walk_and_collect(
-	root_dir: Path, 
+	root_dir: Path,
 	config: Optional[LMCatConfig] = None,
 	tokenizer: Optional[tokenizers.Tokenizer] = None,  # Add this param
 ) -> tuple[list[str], list[Path]]:
@@ -254,11 +252,15 @@ def walk_and_collect(
 	tree_output = [TreeEntry(base_name)]
 
 	# Walk the directory tree
-	sub_output, sub_files = walk_dir(root_dir, ignore_handler, config, tokenizer=tokenizer)
+	sub_output, sub_files = walk_dir(
+		root_dir, ignore_handler, config, tokenizer=tokenizer
+	)
 	tree_output.extend(sub_output)
 
 	# Format tree with stats
-	formatted_tree = format_tree_with_stats(tree_output, show_tokens=tokenizer is not None)
+	formatted_tree = format_tree_with_stats(
+		tree_output, show_tokens=tokenizer is not None
+	)
 
 	return formatted_tree, sub_files
 
@@ -299,7 +301,7 @@ def main() -> None:
 		action="store",
 		default=None,
 		type=str,
-		help="Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If passed and `tokenizers` not installed, will throw exception.",
+		help="Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If passed and `tokenizers` not installed, will throw exception. pass fallback `whitespace-split` to split by whitespace to avoid exception.",
 	)
 
 	args, unknown = parser.parse_known_args()
@@ -312,18 +314,9 @@ def main() -> None:
 	config.tree_only = args.tree_only
 
 	# set up tokenizer if available
-	tokenizer_name: str|None
-	if TOKENIZERS_PRESENT:
-		 = args.tokenizer or "gpt2"
-		tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained(
-			tokenizer_name
-		)
-	else:
-		assert args.tokenizer is None, "Tokenizers not installed, cannot tokenize."
-
-	tokenizer = None
-	if TOKENIZERS_PRESENT and args.tokenizer:
-		tokenizer = tokenizers.Tokenizer.from_pretrained(args.tokenizer)
+	tokenizer: TokenizerWrapper = TokenizerWrapper(
+		"gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
+	)
 
 	tree_output, collected_files = walk_and_collect(root_dir, config, tokenizer)
 
@@ -332,6 +325,9 @@ def main() -> None:
 	output.append("\n```")
 	output.extend(tree_output)
 	output.append("```\n")
+
+	cwd: Path = Path.cwd()
+
 	# Add file contents if not suppressed
 	if not config.tree_only:
 		output.append("# File Contents")
@@ -354,9 +350,8 @@ def main() -> None:
 		"chars": len(output_joined),
 	}
 
-		n_tokens: int = len(tokenizer.encode(output_joined).tokens)
-		stats_dict_ints[f"`{tokenizer_name}` tokens"] = n_tokens
-	
+	n_tokens: int = tokenizer.n_tokens(output_joined)
+	stats_dict_ints[f"`{tokenizer.name}` tokens"] = n_tokens
 
 	stats_header: list[str] = ["# Stats"]
 	for key, val in stats_dict_ints.items():

@@ -1,11 +1,6 @@
-import argparse
-import io
-import json
-import os
 from dataclasses import dataclass
 from pathlib import Path
-import sys
-from typing import Any, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
@@ -26,17 +21,15 @@ try:
 except ImportError:
 	pass
 
-import igittigitt  # noqa: E402
-from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 class TokenizerWrapper:
 	"""tokenizer wrapper. stores name and provides `n_tokens` method.
-	
+
 	uses splitting by whitespace as a fallback -- `whitespace-split`"""
 
 	def __init__(self, name: str = "whitespace-split") -> None:
 		self.name: str = name
-		self.use_fallback: bool = (name == "whitespace-split")
+		self.use_fallback: bool = name == "whitespace-split"
 		self.tokenizer: Optional[tokenizers.Tokenizer] = (
 			None if self.use_fallback else tokenizers.Tokenizer.from_pretrained(name)
 		)
@@ -60,7 +53,7 @@ class FileStats:
 	@classmethod
 	def from_file(
 		path: Path, tokenizer: Optional[tokenizers.Tokenizer] = None
-	) -> FileStats:
+	) -> "FileStats":
 		"""Get statistics for a single file
 
 		# Parameters:
