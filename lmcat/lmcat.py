@@ -5,9 +5,8 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 import sys
-from typing import Any, Optional
+from typing import Any
 
-from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry
 
 # Handle Python 3.11+ vs older Python for TOML parsing
 try:
@@ -18,18 +17,11 @@ except ImportError:
 	except ImportError:
 		tomllib = None  # type: ignore[assignment]
 
-
-# tokenizers (optional dep)
-TOKENIZERS_PRESENT: bool = False
-try:
-	import tokenizers
-
-	TOKENIZERS_PRESENT = True
-except ImportError:
-	pass
-
 import igittigitt  # noqa: E402
 from muutils.misc import shorten_numerical_to_str  # noqa: E402
+
+
+from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
 
 
 @dataclass
@@ -48,7 +40,7 @@ class LMCatConfig:
 	tree_divider: str = "│   "
 	tree_file_divider: str = "├── "
 	tree_indent: str = " "
-	
+
 	content_divider: str = "``````"
 	include_gitignore: bool = True
 	tree_only: bool = False
@@ -328,7 +320,9 @@ def main() -> None:
 	)
 
 	tree_output, collected_files = walk_and_collect(
-		root_dir=root_dir, config=config, tokenizer=tokenizer,
+		root_dir=root_dir,
+		config=config,
+		tokenizer=tokenizer,
 	)
 
 	output: list[str] = []
