@@ -105,6 +105,7 @@ def makefile_processor(path: Path) -> str:
 					output_lines.append(lines[i + 1])
 
 				output_lines.append('	...')
+				output_lines.append('')
 			
 		i += 1
 	

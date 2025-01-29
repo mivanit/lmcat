@@ -348,16 +348,20 @@ def assemble_summary(
 			# get the path
 			relpath_posix: str = fpath.relative_to(root_dir).as_posix()
 
+			# process the contents
+			f_contents: str
+			p_name: str|None
+			f_contents, p_name = processing_pipeline.process_file(fpath)
+			processed_with: str = f'processed_with="{p_name}"' if p_name else ''
+
 			# start of file marker
-			pathspec_start: str = f'{{ path="{relpath_posix}" }}'
+			pathspec_start: str = f'{{ path="{relpath_posix}" {processed_with} }}'
 			pathspec_end: str = f'{{ end_of_file="{relpath_posix}" }}'
 			output.append("")
 			output.append(config.content_divider + pathspec_start)
 
 			# process the actual contents of the file with the pipeline, and append
-			output.append(
-				processing_pipeline.process_file(fpath)
-			)
+			output.append(f_contents)
 
 			# add the end of file marker
 			output.append(config.content_divider + pathspec_end)

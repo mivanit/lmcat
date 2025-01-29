@@ -131,7 +131,7 @@ class ProcessingPipeline:
 		
 		return processors
 
-	def process_file(self, path: Path) -> str:
+	def process_file(self, path: Path) -> tuple[str, str|None]:
 		"""Process a file through the pipeline.
 		
 		# Parameters:
@@ -139,34 +139,41 @@ class ProcessingPipeline:
 			Path to process the content of
 			
 		# Returns:
-		 - `str`
-			Processed content, which will be `path.read_text()` if no processors are found
-			
-		# Raises:
-		 - `ValueError`
-			If a processor is not found
+		 - `tuple[str, str]`
+			Processed content and the processor name
+			if no processor is found, will be `(path.read_text(), None)`
 		"""
 		# Get all applicable processors
 		processors: list[ProcessorFunc] = self.get_processors_for_path(path)
 		
 		# Early return if no processors
+		selected_processor: ProcessorFunc|None
+
 		if len(processors) == 0:
-			return path.read_text(encoding="utf-8")
+			selected_processor = None
 		elif len(processors) == 1:
 			# Apply single processor
-			return processors[0](path)
+			selected_processor = processors[0]
 		else:
 			match self.on_multiple_processors:
 				case "warn":
 					warnings.warn(f"Multiple processors for {path.name}: {processors}")
+					selected_processor = processors[0]
 				case "except":
 					raise ValueError(f"Multiple processors for {path.name}: {processors}")
 				case "do_first":
-					return processors[0](path)
+					selected_processor = processors[0]
 				case "do_last":
-					return processors[-1](path)
+					selected_processor = processors[-1]
 				case "skip":
-					return path.read_text(encoding="utf-8")
+					selected_processor = None
 				case _:
 					raise ValueError(f"Invalid on_multiple_processors: {self.on_multiple_processors = }")
+				
+
+		# Process the file and return
+		if selected_processor is None:
+			return path.read_text(encoding="utf-8", errors="surrogateescape"), None
+		else:
+			return selected_processor(path), selected_processor.__name__
 	

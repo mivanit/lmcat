@@ -1,8 +1,8 @@
 # Stats
 - 12 files
 - 67 lines
-- 54585 (55K) chars
-- 20692 (21K) `gpt2` tokens
+- 55159 (55K) chars
+- 20904 (21K) `gpt2` tokens
 
 # File Tree
 
@@ -13,9 +13,9 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [462L 13,356C 4,968T]
-│   ├── processing_pipeline.py  [172L  4,957C 1,893T]
-│   └── processors.py           [111L  2,979C 1,067T]
+│   ├── lmcat.py                [466L 13,537C 5,041T]
+│   ├── processing_pipeline.py  [179L  5,243C 1,970T]
+│   └── processors.py           [112L  3,007C 1,080T]
 ├── tests                       
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
 │   └── test_lmcat_2.py         [148L  4,192C 1,586T]
@@ -26,7 +26,7 @@ lmcat
 
 # File Contents
 
-``````{ path="lmcat/__init__.py" }
+``````{ path="lmcat/__init__.py"  }
 """
 .. include:: ../README.md
 """
@@ -37,7 +37,7 @@ __all__ = ["main"]
 
 ``````{ end_of_file="lmcat/__init__.py" }
 
-``````{ path="lmcat/__main__.py" }
+``````{ path="lmcat/__main__.py"  }
 from lmcat import main
 
 if __name__ == "__main__":
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 ``````{ end_of_file="lmcat/__main__.py" }
 
-``````{ path="lmcat/file_stats.py" }
+``````{ path="lmcat/file_stats.py"  }
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple, Optional
@@ -133,7 +133,7 @@ class TreeEntry(NamedTuple):
 
 ``````{ end_of_file="lmcat/file_stats.py" }
 
-``````{ path="lmcat/index.html" }
+``````{ path="lmcat/index.html"  }
 <!DOCTYPE html>
 <html>
 <head>
@@ -240,7 +240,7 @@ class TreeEntry(NamedTuple):
 </html>
 ``````{ end_of_file="lmcat/index.html" }
 
-``````{ path="lmcat/lmcat.py" }
+``````{ path="lmcat/lmcat.py"  }
 import argparse
 import io
 import json
@@ -591,16 +591,20 @@ def assemble_summary(
 			# get the path
 			relpath_posix: str = fpath.relative_to(root_dir).as_posix()
 
+			# process the contents
+			f_contents: str
+			p_name: str|None
+			f_contents, p_name = processing_pipeline.process_file(fpath)
+			processed_with: str = f'processed_with="{p_name}"' if p_name else ''
+
 			# start of file marker
-			pathspec_start: str = f'{{ path="{relpath_posix}" }}'
+			pathspec_start: str = f'{{ path="{relpath_posix}" {processed_with} }}'
 			pathspec_end: str = f'{{ end_of_file="{relpath_posix}" }}'
 			output.append("")
 			output.append(config.content_divider + pathspec_start)
 
 			# process the actual contents of the file with the pipeline, and append
-			output.append(
-				processing_pipeline.process_file(fpath)
-			)
+			output.append(f_contents)
 
 			# add the end of file marker
 			output.append(config.content_divider + pathspec_end)
@@ -706,7 +710,7 @@ if __name__ == "__main__":
 
 ``````{ end_of_file="lmcat/lmcat.py" }
 
-``````{ path="lmcat/processing_pipeline.py" }
+``````{ path="lmcat/processing_pipeline.py"  }
 from importlib.util import spec_from_file_location, module_from_spec
 import sys
 from pathlib import Path
@@ -840,7 +844,7 @@ class ProcessingPipeline:
 		
 		return processors
 
-	def process_file(self, path: Path) -> str:
+	def process_file(self, path: Path) -> tuple[str, str|None]:
 		"""Process a file through the pipeline.
 		
 		# Parameters:
@@ -848,41 +852,48 @@ class ProcessingPipeline:
 			Path to process the content of
 			
 		# Returns:
-		 - `str`
-			Processed content, which will be `path.read_text()` if no processors are found
-			
-		# Raises:
-		 - `ValueError`
-			If a processor is not found
+		 - `tuple[str, str]`
+			Processed content and the processor name
+			if no processor is found, will be `(path.read_text(), None)`
 		"""
 		# Get all applicable processors
 		processors: list[ProcessorFunc] = self.get_processors_for_path(path)
 		
 		# Early return if no processors
+		selected_processor: ProcessorFunc|None
+
 		if len(processors) == 0:
-			return path.read_text(encoding="utf-8")
+			selected_processor = None
 		elif len(processors) == 1:
 			# Apply single processor
-			return processors[0](path)
+			selected_processor = processors[0]
 		else:
 			match self.on_multiple_processors:
 				case "warn":
 					warnings.warn(f"Multiple processors for {path.name}: {processors}")
+					selected_processor = processors[0]
 				case "except":
 					raise ValueError(f"Multiple processors for {path.name}: {processors}")
 				case "do_first":
-					return processors[0](path)
+					selected_processor = processors[0]
 				case "do_last":
-					return processors[-1](path)
+					selected_processor = processors[-1]
 				case "skip":
-					return path.read_text(encoding="utf-8")
+					selected_processor = None
 				case _:
 					raise ValueError(f"Invalid on_multiple_processors: {self.on_multiple_processors = }")
+				
+
+		# Process the file and return
+		if selected_processor is None:
+			return path.read_text(encoding="utf-8", errors="surrogateescape"), None
+		else:
+			return selected_processor(path), selected_processor.__name__
 	
 
 ``````{ end_of_file="lmcat/processing_pipeline.py" }
 
-``````{ path="lmcat/processors.py" }
+``````{ path="lmcat/processors.py"  }
 from typing import Callable, Sequence
 from pathlib import Path
 
@@ -990,13 +1001,14 @@ def makefile_processor(path: Path) -> str:
 					output_lines.append(lines[i + 1])
 
 				output_lines.append('	...')
+				output_lines.append('')
 			
 		i += 1
 	
 	return '\n'.join(output_lines)
 ``````{ end_of_file="lmcat/processors.py" }
 
-``````{ path="tests/test_lmcat.py" }
+``````{ path="tests/test_lmcat.py"  }
 import sys
 import os
 import shutil
@@ -1327,7 +1339,7 @@ def test_cli_tree_only():
 
 ``````{ end_of_file="tests/test_lmcat.py" }
 
-``````{ path="tests/test_lmcat_2.py" }
+``````{ path="tests/test_lmcat_2.py"  }
 import os
 from pathlib import Path
 
@@ -1479,7 +1491,7 @@ def test_error_handling():
 
 ``````{ end_of_file="tests/test_lmcat_2.py" }
 
-``````{ path="README.md" }
+``````{ path="README.md"  }
 # lmcat
 
 A Python tool for concatenating files and directory structures into a single document, perfect for sharing code with language models. It respects `.gitignore` and `.lmignore` patterns and provides configurable output formatting.
@@ -1620,11 +1632,12 @@ make cov
 - web interface
 ``````{ end_of_file="README.md" }
 
-``````{ path="makefile" }
+``````{ path="makefile" processed_with="makefile_processor" }
 # first/default target is help
 .PHONY: default
 default: help
 	...
+
 # this recipe is weird. we need it because:
 # - a one liner for getting the version with toml is unwieldy, and using regex is fragile
 # - using $$GET_VERSION_SCRIPT within $(shell ...) doesn't work because of escaping issues
@@ -1633,11 +1646,13 @@ default: help
 .PHONY: write-proj-version
 write-proj-version:
 	...
+
 # gets version info from $(PYPROJECT), last version from $(LAST_VERSION_FILE), and python version
 # uses just `python` for everything except getting the python version. no echo here, because this is "private"
 .PHONY: gen-version-info
 gen-version-info: write-proj-version
 	...
+
 # getting commit log since the tag specified in $(LAST_VERSION_FILE)
 # will write to $(COMMIT_LOG_FILE)
 # when publishing, the contents of $(COMMIT_LOG_FILE) will be used as the tag description (but can be edited during the process)
@@ -1645,45 +1660,55 @@ gen-version-info: write-proj-version
 .PHONY: gen-commit-log
 gen-commit-log: gen-version-info
 	...
+
 # force the version info to be read, printing it out
 # also force the commit log to be generated, and cat it out
 .PHONY: version
 version: gen-commit-log
 	@echo "Current version is $(VERSION), last auto-uploaded version is $(LAST_VERSION)"
 	...
+
 .PHONY: setup
 setup: dep-check
 	@echo "install and update via uv"
 	...
+
 .PHONY: get-cuda-info
 get-cuda-info:
 	...
+
 .PHONY: dep-check-torch
 dep-check-torch:
 	@echo "see if torch is installed, and which CUDA version and devices it sees"
 	...
+
 .PHONY: dep
 dep: get-cuda-info
 	@echo "Exporting dependencies as per $(PYPROJECT) section 'tool.uv-exports.exports'"
 	...
+
 .PHONY: dep-check
 dep-check:
 	@echo "Checking that exported requirements are up to date"
 	...
+
 .PHONY: dep-clean
 dep-clean:
 	@echo "clean up lock files, .venv, and requirements files"
 	...
+
 # runs ruff and pycln to format the code
 .PHONY: format
 format:
 	@echo "format the source code"
 	...
+
 # runs ruff and pycln to check if the code is formatted correctly
 .PHONY: format-check
 format-check:
 	@echo "check if the source code is formatted correctly"
 	...
+
 # runs type checks with mypy
 # at some point, need to add back --check-untyped-defs to mypy call
 # but it complains when we specify arguments by keyword where positional is fine
@@ -1692,20 +1717,24 @@ format-check:
 typing: clean
 	@echo "running type checks"
 	...
+
 .PHONY: test
 test: clean
 	@echo "running tests"
 	...
+
 .PHONY: check
 check: clean format-check test typing
 	@echo "run format checks, tests, and typing checks"
 	...
+
 # generates a whole tree of documentation in html format.
 # see `docs/make_docs.py` and the templates in `docs/templates/html/` for more info
 .PHONY: docs-html
 docs-html:
 	@echo "generate html docs"
 	...
+
 # instead of a whole website, generates a single markdown file with all docs using the templates in `docs/templates/markdown/`.
 # this is useful if you want to have a copy that you can grep/search, but those docs are much messier.
 # docs-combined will use pandoc to convert them to other formats.
@@ -1713,6 +1742,7 @@ docs-html:
 docs-md:
 	@echo "generate combined (single-file) docs in markdown"
 	...
+
 # after running docs-md, this will convert the combined markdown file to other formats:
 # gfm (github-flavored markdown), plain text, and html
 # requires pandoc in path, pointed to by $(PANDOC)
@@ -1721,6 +1751,7 @@ docs-md:
 docs-combined: docs-md
 	@echo "generate combined (single-file) docs in markdown and convert to other formats"
 	...
+
 # generates coverage reports as html and text with `pytest-cov`, and a badge with `coverage-badge`
 # if `.coverage` is not found, will run tests first
 # also removes the `.gitignore` file that `coverage html` creates, since we count that as part of the docs
@@ -1728,6 +1759,7 @@ docs-combined: docs-md
 cov:
 	@echo "generate coverage reports"
 	...
+
 # runs the coverage report, then the docs, then the combined docs
 # ~~~~~~~~~~~~~~~~~~~~
 # demo also created for docs
@@ -1736,22 +1768,26 @@ cov:
 docs: demo cov docs-html docs-combined
 	@echo "generate all documentation and coverage reports"
 	...
+
 # removed all generated documentation files, but leaves the templates and the `docs/make_docs.py` script
 # distinct from `make clean`
 .PHONY: docs-clean
 docs-clean:
 	@echo "remove generated docs"
 	...
+
 # verifies that the current branch is $(PUBLISH_BRANCH) and that git is clean
 # used before publishing
 .PHONY: verify-git
 verify-git: 
 	@echo "checking git status"
 	...
+
 .PHONY: build
 build: 
 	@echo "build the package"
 	...
+
 # gets the commit log, checks everything, builds, and then publishes with twine
 # will ask the user to confirm the new version number (and this allows for editing the tag info)
 # will also print the contents of $(PYPI_TOKEN_FILE) to the console for the user to copy and paste in when prompted by twine
@@ -1759,6 +1795,7 @@ build:
 publish: gen-commit-log check build verify-git version gen-version-info
 	@echo "run all checks, build, and then publish"
 	...
+
 # cleans up temp files from formatter, type checking, tests, coverage
 # removes all built files
 # removes $(TESTS_TEMP_DIR) to remove temporary test files
@@ -1768,34 +1805,41 @@ publish: gen-commit-log check build verify-git version gen-version-info
 clean:
 	@echo "clean up temporary files"
 	...
+
 .PHONY: clean-all
 clean-all: clean dep-clean docs-clean
 	@echo "clean up all temporary files, dep files, venv, and generated docs"
 	...
+
 .PHONY: info
 info: gen-version-info get-cuda-info
 	@echo "# makefile variables"
 	...
+
 .PHONY: info-long
 info-long: info
 	@echo "# other variables"
 	...
+
 # immediately print out the help targets, and then local variables (but those take a bit longer)
 .PHONY: help
 help: help-targets info
 	@echo -n ""
 	...
+
 .PHONY: demo
 demo:
 	@echo "example of code output"
 	...
+
 .PHONY: demo-tree
 demo-tree:
 	@echo "example of code output, tree direct to console"
 	...
+
 ``````{ end_of_file="makefile" }
 
-``````{ path="pyproject.toml" }
+``````{ path="pyproject.toml"  }
 [project]
 name = "lmcat"
 version = "0.0.1"
