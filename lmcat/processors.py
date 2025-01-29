@@ -133,28 +133,29 @@ def makefile_recipes(path: Path) -> str:
 
 	return "\n".join(output_lines)
 
+
 @register_processor
 def csv_preview_5_lines(path: Path) -> str:
-    """Preview first few lines of a CSV file (up to 5)
-    
-    Reads only first 1024 bytes and splits into lines.
-    Does not attempt to parse CSV structure.
-    
-    # Parameters:
-    - `path : Path`
-        Path to CSV file
-        
-    # Returns:
-    - `str`
-        First few lines of the file"""
-    try:
-        with path.open('r', encoding='utf-8') as f:
-            content = f.read(1024)
-        
-        lines = content.splitlines()[:5]
-        if len(content) == 1024:
-            lines.append("... (truncated)")
-            
-        return "\n".join(lines)
-    except Exception as e:
-        return f"Error previewing CSV: {str(e)}"
+	"""Preview first few lines of a CSV file (up to 5)
+
+	Reads only first 1024 bytes and splits into lines.
+	Does not attempt to parse CSV structure.
+
+	# Parameters:
+	- `path : Path`
+	    Path to CSV file
+
+	# Returns:
+	- `str`
+	    First few lines of the file"""
+	try:
+		with path.open("r", encoding="utf-8") as f:
+			content = f.read(1024)
+
+		lines = content.splitlines()[:5]
+		if len(content) == 1024:
+			lines.append("... (truncated)")
+
+		return "\n".join(lines)
+	except Exception as e:
+		return f"Error previewing CSV: {str(e)}"

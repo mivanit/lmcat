@@ -108,7 +108,6 @@ class ProcessingPipeline:
 				f"Invalid glob processor:\n{e}\n{PROCESSORS.keys() = }\n{self.glob_process_keys = }"
 			) from e
 
-
 	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
 		"""Get all applicable processors for a given path.
 
@@ -131,7 +130,6 @@ class ProcessingPipeline:
 		for glob_pattern, processor in self.glob_process.items():
 			if glob_pattern.match(path.name):
 				processors.append(processor)
-
 
 		return processors
 
