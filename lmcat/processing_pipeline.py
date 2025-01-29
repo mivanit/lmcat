@@ -1,7 +1,7 @@
 from importlib.util import spec_from_file_location, module_from_spec
 import sys
 from pathlib import Path
-from typing import Callable, Literal, Optional
+from typing import Literal
 import re
 import warnings
 
@@ -16,13 +16,14 @@ from lmcat.processors import (
 
 OnMultipleProcessors = Literal["warn", "except", "do_first", "do_last", "skip"]
 
+
 def _compile_glob(pattern: str) -> re.Pattern:
 	"""Convert a glob pattern to a regex pattern.
-	
+
 	# Parameters:
 		- `pattern : str`
 		Glob pattern to compile
-	
+
 	# Returns:
 		- `re.Pattern`
 		Compiled regex pattern
@@ -32,31 +33,32 @@ def _compile_glob(pattern: str) -> re.Pattern:
 
 
 def load_plugins(plugins_file: Path) -> None:
-    """Load plugins from a Python file.
-    
-    # Parameters:
-     - `plugins_file : Path`
-        Path to plugins file
-    """
-    if not plugins_file.exists():
-        return
-        
-    try:
-        # Load module
-        spec = spec_from_file_location("lmcat_plugins", plugins_file)
-        if spec is None or spec.loader is None:
-            return
-            
-        module = module_from_spec(spec)
-        # Add to sys.modules so imports work properly
-        sys.modules["lmcat_plugins"] = module
-        spec.loader.exec_module(module)
-    except Exception as e:
-        print(f"Error loading plugins: {e}", file=sys.stderr)
+	"""Load plugins from a Python file.
+
+	# Parameters:
+	 - `plugins_file : Path`
+	    Path to plugins file
+	"""
+	if not plugins_file.exists():
+		return
+
+	try:
+		# Load module
+		spec = spec_from_file_location("lmcat_plugins", plugins_file)
+		if spec is None or spec.loader is None:
+			return
+
+		module = module_from_spec(spec)
+		# Add to sys.modules so imports work properly
+		sys.modules["lmcat_plugins"] = module
+		spec.loader.exec_module(module)
+	except Exception as e:
+		print(f"Error loading plugins: {e}", file=sys.stderr)
+
 
 class ProcessingPipeline:
 	"""Manages the processing pipeline for files.
-	
+
 	# Attributes:
 	 - `glob_process : dict[str, ProcessorName]`
 		Maps glob patterns to processor names
@@ -65,18 +67,20 @@ class ProcessingPipeline:
 	 - `_compiled_globs : dict[str, re.Pattern]`
 		Cached compiled glob patterns for performance
 	"""
-	
+
 	def __init__(
-			self,
-			plugins_file: Path|None,
-			glob_process_keys: dict[str, ProcessorName],
-			decider_process_keys: dict[DeciderName, ProcessorName],
-			on_multiple_processors: OnMultipleProcessors,
-		):
+		self,
+		plugins_file: Path | None,
+		glob_process_keys: dict[str, ProcessorName],
+		decider_process_keys: dict[DeciderName, ProcessorName],
+		on_multiple_processors: OnMultipleProcessors,
+	):
 		# store the vars
-		self.plugins_file: Path|None = plugins_file
+		self.plugins_file: Path | None = plugins_file
 		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
-		self.decider_process_keys: dict[DeciderName, ProcessorName] = decider_process_keys
+		self.decider_process_keys: dict[DeciderName, ProcessorName] = (
+			decider_process_keys
+		)
 		self.on_multiple_processors: OnMultipleProcessors = on_multiple_processors
 
 		# load the plugins file
@@ -104,40 +108,38 @@ class ProcessingPipeline:
 				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
 			) from e
 
-
-
 	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
 		"""Get all applicable processors for a given path.
-		
+
 		# Parameters:
 		 - `path : Path`
 			Path to get processors for
-			
+
 		# Returns:
 		 - `list[ProcessorFunc]`
 			List of applicable path processors
 		"""
 		processors: list[ProcessorFunc] = []
-		
+
 		# Check glob patterns
 		for glob_pattern, processor in self.glob_process.items():
 			if glob_pattern.match(path.name):
 				processors.append(processor)
-		
+
 		# Check deciders
 		for decider, processor in self.decider_process.items():
 			if decider(path):
 				processors.append(processor)
-		
+
 		return processors
 
-	def process_file(self, path: Path) -> tuple[str, str|None]:
+	def process_file(self, path: Path) -> tuple[str, str | None]:
 		"""Process a file through the pipeline.
-		
+
 		# Parameters:
 		 - `path : Path`
 			Path to process the content of
-			
+
 		# Returns:
 		 - `tuple[str, str]`
 			Processed content and the processor name
@@ -145,9 +147,9 @@ class ProcessingPipeline:
 		"""
 		# Get all applicable processors
 		processors: list[ProcessorFunc] = self.get_processors_for_path(path)
-		
+
 		# Early return if no processors
-		selected_processor: ProcessorFunc|None
+		selected_processor: ProcessorFunc | None
 
 		if len(processors) == 0:
 			selected_processor = None
@@ -160,7 +162,9 @@ class ProcessingPipeline:
 					warnings.warn(f"Multiple processors for {path.name}: {processors}")
 					selected_processor = processors[0]
 				case "except":
-					raise ValueError(f"Multiple processors for {path.name}: {processors}")
+					raise ValueError(
+						f"Multiple processors for {path.name}: {processors}"
+					)
 				case "do_first":
 					selected_processor = processors[0]
 				case "do_last":
@@ -168,12 +172,12 @@ class ProcessingPipeline:
 				case "skip":
 					selected_processor = None
 				case _:
-					raise ValueError(f"Invalid on_multiple_processors: {self.on_multiple_processors = }")
-				
+					raise ValueError(
+						f"Invalid on_multiple_processors: {self.on_multiple_processors = }"
+					)
 
 		# Process the file and return
 		if selected_processor is None:
 			return path.read_text(encoding="utf-8", errors="surrogateescape"), None
 		else:
 			return selected_processor(path), selected_processor.__name__
-	

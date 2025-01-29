@@ -5,7 +5,6 @@ import json
 # from dataclasses import dataclass, field
 from pathlib import Path
 import sys
-from typing import Literal
 
 from lmcat.processing_pipeline import ProcessingPipeline
 
@@ -30,7 +29,7 @@ from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
 from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
-from lmcat.processing_pipeline import OnMultipleProcessors, ProcessingPipeline
+from lmcat.processing_pipeline import OnMultipleProcessors
 
 
 @serializable_dataclass(kw_only=True)
@@ -61,14 +60,14 @@ class LMCatConfig(SerializableDataclass):
 	# with one of the `register_*` decorators, they will be added to the functions
 	# which can be used in the processing pipeline
 	# --allow-plugins is a command line only option and must be set to true for this to work
-	plugins_file: Path|None = serializable_field(
+	plugins_file: Path | None = serializable_field(
 		default=None,
 		serialization_fn=lambda x: x.as_posix() if x else None,
 		deserialize_fn=lambda x: Path(x) if x else None,
 	)
 	allow_plugins: bool = serializable_field(
 		default=False,
-		deserialize_fn=lambda x: False, # this can only be overriden through the command line
+		deserialize_fn=lambda x: False,  # this can only be overriden through the command line
 	)
 
 	# processing pipeline
@@ -78,7 +77,6 @@ class LMCatConfig(SerializableDataclass):
 		default="except",
 		assert_type=False,
 	)
-	
 
 	# tokenization
 	tokenizer: str = serializable_field(
@@ -94,11 +92,10 @@ class LMCatConfig(SerializableDataclass):
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
 		return TokenizerWrapper(self.tokenizer)
-	
 
 	def get_processing_pipeline(self) -> ProcessingPipeline:
 		"""Get the processing pipeline object"""
-		plugins_file: Path|None = self.plugins_file if self.allow_plugins else None
+		plugins_file: Path | None = self.plugins_file if self.allow_plugins else None
 		return ProcessingPipeline(
 			plugins_file=plugins_file,
 			glob_process_keys=self.glob_process,
@@ -350,9 +347,9 @@ def assemble_summary(
 
 			# process the contents
 			f_contents: str
-			p_name: str|None
+			p_name: str | None
 			f_contents, p_name = processing_pipeline.process_file(fpath)
-			processed_with: str = f'processed_with="{p_name}"' if p_name else ''
+			processed_with: str = f'processed_with="{p_name}"' if p_name else ""
 
 			# start of file marker
 			pathspec_start: str = f'{{ path="{relpath_posix}" {processed_with} }}'
