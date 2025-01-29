@@ -1,4 +1,4 @@
-  docs for lmcat v0.1.0
+  docs for lmcat v0.1.1
 
 Contents
 
@@ -275,7 +275,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.0
+  docs for lmcat v0.1.1
 
 API Documentation
 
@@ -383,7 +383,7 @@ Inherited Members
 -   index
 -   count
 
-  docs for lmcat v0.1.0
+  docs for lmcat v0.1.1
 
 API Documentation
 
@@ -623,7 +623,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.0
+  docs for lmcat v0.1.1
 
 API Documentation
 
@@ -718,7 +718,7 @@ Returns:
 -   tuple[str, str] Processed content and the processor name if no
     processor is found, will be (path.read_text(), None)
 
-  docs for lmcat v0.1.0
+  docs for lmcat v0.1.1
 
 API Documentation
 
