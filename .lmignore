@@ -6,4 +6,3 @@ LICENSE
 uv.lock
 temp.txt
 example_output.md
-makefile

@@ -1,30 +1,32 @@
 # Stats
-- 10 files
-- 57 lines
-- 39463 (39K) chars
-- 15431 (15K) `gpt2` tokens
+- 12 files
+- 67 lines
+- 54585 (55K) chars
+- 20692 (21K) `gpt2` tokens
 
 # File Tree
 
 ```
-lmcat                    
-├── lmcat                
-│   ├── __init__.py      [  7L     84C    35T]
-│   ├── __main__.py      [  4L     59C    23T]
-│   ├── file_stats.py    [ 84L  2,032C   721T]
-│   ├── index.html       [104L  4,125C 2,152T]
-│   ├── lmcat.py         [420L 11,906C 4,511T]
-│   └── processors.py    [ 27L    758C   248T]
-├── tests                
-│   ├── test_lmcat.py    [327L  9,778C 3,605T]
-│   └── test_lmcat_2.py  [148L  4,192C 1,586T]
-├── README.md            [138L  3,320C 1,021T]
-├── pyproject.toml       [ 82L  1,824C   744T]
+lmcat                           
+├── lmcat                       
+│   ├── __init__.py             [  7L     84C    35T]
+│   ├── __main__.py             [  4L     59C    23T]
+│   ├── file_stats.py           [ 84L  2,032C   721T]
+│   ├── index.html              [104L  4,125C 2,152T]
+│   ├── lmcat.py                [462L 13,356C 4,968T]
+│   ├── processing_pipeline.py  [172L  4,957C 1,893T]
+│   └── processors.py           [111L  2,979C 1,067T]
+├── tests                       
+│   ├── test_lmcat.py           [327L  9,778C 3,605T]
+│   └── test_lmcat_2.py         [148L  4,192C 1,586T]
+├── README.md                   [138L  3,320C 1,021T]
+├── makefile                    [691L 23,553C 8,387T]
+├── pyproject.toml              [ 90L  1,985C   814T]
 ```
 
 # File Contents
 
-``````{ path: "lmcat/__init__.py" }
+``````{ path="lmcat/__init__.py" }
 """
 .. include:: ../README.md
 """
@@ -33,17 +35,17 @@ from lmcat.lmcat import main
 
 __all__ = ["main"]
 
-``````{ end_of_file: "lmcat/__init__.py" }
+``````{ end_of_file="lmcat/__init__.py" }
 
-``````{ path: "lmcat/__main__.py" }
+``````{ path="lmcat/__main__.py" }
 from lmcat import main
 
 if __name__ == "__main__":
 	main()
 
-``````{ end_of_file: "lmcat/__main__.py" }
+``````{ end_of_file="lmcat/__main__.py" }
 
-``````{ path: "lmcat/file_stats.py" }
+``````{ path="lmcat/file_stats.py" }
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple, Optional
@@ -129,9 +131,9 @@ class TreeEntry(NamedTuple):
 	line: str
 	stats: Optional[FileStats] = None
 
-``````{ end_of_file: "lmcat/file_stats.py" }
+``````{ end_of_file="lmcat/file_stats.py" }
 
-``````{ path: "lmcat/index.html" }
+``````{ path="lmcat/index.html" }
 <!DOCTYPE html>
 <html>
 <head>
@@ -236,9 +238,9 @@ class TreeEntry(NamedTuple):
     </script>
 </body>
 </html>
-``````{ end_of_file: "lmcat/index.html" }
+``````{ end_of_file="lmcat/index.html" }
 
-``````{ path: "lmcat/lmcat.py" }
+``````{ path="lmcat/lmcat.py" }
 import argparse
 import io
 import json
@@ -246,6 +248,9 @@ import json
 # from dataclasses import dataclass, field
 from pathlib import Path
 import sys
+from typing import Literal
+
+from lmcat.processing_pipeline import ProcessingPipeline
 
 
 # Handle Python 3.11+ vs older Python for TOML parsing
@@ -268,6 +273,7 @@ from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
 from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
+from lmcat.processing_pipeline import OnMultipleProcessors, ProcessingPipeline
 
 
 @serializable_dataclass(kw_only=True)
@@ -297,15 +303,25 @@ class LMCatConfig(SerializableDataclass):
 	# this file will be imported, and if the functions in it are decorated
 	# with one of the `register_*` decorators, they will be added to the functions
 	# which can be used in the processing pipeline
-	plugins_file: Path = serializable_field(
-		default=Path("lmcat_plugins.py"),
-		serialization_fn=lambda x: x.as_posix(),
-		deserialize_fn=lambda x: Path(x),
+	# --allow-plugins is a command line only option and must be set to true for this to work
+	plugins_file: Path|None = serializable_field(
+		default=None,
+		serialization_fn=lambda x: x.as_posix() if x else None,
+		deserialize_fn=lambda x: Path(x) if x else None,
+	)
+	allow_plugins: bool = serializable_field(
+		default=False,
+		deserialize_fn=lambda x: False, # this can only be overriden through the command line
 	)
 
 	# processing pipeline
 	glob_process: dict[str, str] = serializable_field(default_factory=dict)
 	decider_process: dict[str, str] = serializable_field(default_factory=dict)
+	on_multiple_processors: OnMultipleProcessors = serializable_field(
+		default="except",
+		assert_type=False,
+	)
+	
 
 	# tokenization
 	tokenizer: str = serializable_field(
@@ -321,6 +337,17 @@ class LMCatConfig(SerializableDataclass):
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
 		return TokenizerWrapper(self.tokenizer)
+	
+
+	def get_processing_pipeline(self) -> ProcessingPipeline:
+		"""Get the processing pipeline object"""
+		plugins_file: Path|None = self.plugins_file if self.allow_plugins else None
+		return ProcessingPipeline(
+			plugins_file=plugins_file,
+			glob_process_keys=self.glob_process,
+			decider_process_keys=self.decider_process,
+			on_multiple_processors=self.on_multiple_processors,
+		)
 
 	@classmethod
 	def read(cls, root_dir: Path) -> "LMCatConfig":
@@ -541,6 +568,8 @@ def assemble_summary(
 ) -> str:
 	"""Assemble the summary output and return"""
 
+	processing_pipeline: ProcessingPipeline = config.get_processing_pipeline()
+
 	tree_output: list[str]
 	collected_files: list[Path]
 	tree_output, collected_files = walk_and_collect(
@@ -559,13 +588,21 @@ def assemble_summary(
 		output.append("# File Contents")
 
 		for fpath in collected_files:
-			relpath_posix = fpath.relative_to(root_dir).as_posix()
-			pathspec_start = f'{{ path: "{relpath_posix}" }}'
-			pathspec_end = f'{{ end_of_file: "{relpath_posix}" }}'
+			# get the path
+			relpath_posix: str = fpath.relative_to(root_dir).as_posix()
+
+			# start of file marker
+			pathspec_start: str = f'{{ path="{relpath_posix}" }}'
+			pathspec_end: str = f'{{ end_of_file="{relpath_posix}" }}'
 			output.append("")
 			output.append(config.content_divider + pathspec_start)
-			with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
-				output.append(fobj.read())
+
+			# process the actual contents of the file with the pipeline, and append
+			output.append(
+				processing_pipeline.process_file(fpath)
+			)
+
+			# add the end of file marker
 			output.append(config.content_divider + pathspec_end)
 
 	output_joined: str = "\n".join(output)
@@ -624,6 +661,12 @@ def main() -> None:
 		default=False,
 		help="Print the configuration as json and exit.",
 	)
+	arg_parser.add_argument(
+		"--allow-plugins",
+		action="store_true",
+		default=False,
+		help="Allow plugins to be loaded from the plugins file. WARNING: this will execute arbitrary code found in the file pointed to by `config.plugins_file`, and **is a security risk**.",
+	)
 
 	args: argparse.Namespace = arg_parser.parse_known_args()[0]
 	root_dir: Path = Path(".").resolve()
@@ -631,6 +674,7 @@ def main() -> None:
 
 	# CLI overrides
 	config.tree_only = args.tree_only
+	config.allow_plugins = args.allow_plugins
 
 	# print cfg and exit if requested
 	if args.print_cfg:
@@ -660,40 +704,299 @@ def main() -> None:
 if __name__ == "__main__":
 	main()
 
-``````{ end_of_file: "lmcat/lmcat.py" }
+``````{ end_of_file="lmcat/lmcat.py" }
 
-``````{ path: "lmcat/processors.py" }
-from typing import Callable
+``````{ path="lmcat/processing_pipeline.py" }
+from importlib.util import spec_from_file_location, module_from_spec
+import sys
+from pathlib import Path
+from typing import Callable, Literal, Optional
+import re
+import warnings
+
+from lmcat.processors import (
+	ProcessorName,
+	DeciderName,
+	ProcessorFunc,
+	DeciderFunc,
+	PROCESSORS,
+	DECIDERS,
+)
+
+OnMultipleProcessors = Literal["warn", "except", "do_first", "do_last", "skip"]
+
+def _compile_glob(pattern: str) -> re.Pattern:
+	"""Convert a glob pattern to a regex pattern.
+	
+	# Parameters:
+		- `pattern : str`
+		Glob pattern to compile
+	
+	# Returns:
+		- `re.Pattern`
+		Compiled regex pattern
+	"""
+	regex_str: str = pattern.replace(".", r"\.").replace("*", ".*").replace("?", ".")
+	return re.compile(f"^{regex_str}$")
+
+
+def load_plugins(plugins_file: Path) -> None:
+    """Load plugins from a Python file.
+    
+    # Parameters:
+     - `plugins_file : Path`
+        Path to plugins file
+    """
+    if not plugins_file.exists():
+        return
+        
+    try:
+        # Load module
+        spec = spec_from_file_location("lmcat_plugins", plugins_file)
+        if spec is None or spec.loader is None:
+            return
+            
+        module = module_from_spec(spec)
+        # Add to sys.modules so imports work properly
+        sys.modules["lmcat_plugins"] = module
+        spec.loader.exec_module(module)
+    except Exception as e:
+        print(f"Error loading plugins: {e}", file=sys.stderr)
+
+class ProcessingPipeline:
+	"""Manages the processing pipeline for files.
+	
+	# Attributes:
+	 - `glob_process : dict[str, ProcessorName]`
+		Maps glob patterns to processor names
+	 - `decider_process : dict[DeciderName, ProcessorName]`
+		Maps decider names to processor names
+	 - `_compiled_globs : dict[str, re.Pattern]`
+		Cached compiled glob patterns for performance
+	"""
+	
+	def __init__(
+			self,
+			plugins_file: Path|None,
+			glob_process_keys: dict[str, ProcessorName],
+			decider_process_keys: dict[DeciderName, ProcessorName],
+			on_multiple_processors: OnMultipleProcessors,
+		):
+		# store the vars
+		self.plugins_file: Path|None = plugins_file
+		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
+		self.decider_process_keys: dict[DeciderName, ProcessorName] = decider_process_keys
+		self.on_multiple_processors: OnMultipleProcessors = on_multiple_processors
+
+		# load the plugins file
+		if self.plugins_file is not None:
+			load_plugins(self.plugins_file)
+
+		# try to get the glob and decider processor functions
+		try:
+			self.glob_process: dict[re.Pattern, ProcessorFunc] = {
+				_compile_glob(glob_pattern): PROCESSORS[processor_name]
+				for glob_pattern, processor_name in self.glob_process_keys.items()
+			}
+		except KeyError as e:
+			raise ValueError(
+				f"Invalid glob processor:\n{e}\n{PROCESSORS.keys() = }\n{self.glob_process_keys = }"
+			) from e
+
+		try:
+			self.decider_process: dict[DeciderFunc, ProcessorFunc] = {
+				DECIDERS[decider_name]: PROCESSORS[processor_name]
+				for decider_name, processor_name in self.decider_process_keys.items()
+			}
+		except KeyError as e:
+			raise ValueError(
+				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
+			) from e
+
+
+
+	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
+		"""Get all applicable processors for a given path.
+		
+		# Parameters:
+		 - `path : Path`
+			Path to get processors for
+			
+		# Returns:
+		 - `list[ProcessorFunc]`
+			List of applicable path processors
+		"""
+		processors: list[ProcessorFunc] = []
+		
+		# Check glob patterns
+		for glob_pattern, processor in self.glob_process.items():
+			if glob_pattern.match(path.name):
+				processors.append(processor)
+		
+		# Check deciders
+		for decider, processor in self.decider_process.items():
+			if decider(path):
+				processors.append(processor)
+		
+		return processors
+
+	def process_file(self, path: Path) -> str:
+		"""Process a file through the pipeline.
+		
+		# Parameters:
+		 - `path : Path`
+			Path to process the content of
+			
+		# Returns:
+		 - `str`
+			Processed content, which will be `path.read_text()` if no processors are found
+			
+		# Raises:
+		 - `ValueError`
+			If a processor is not found
+		"""
+		# Get all applicable processors
+		processors: list[ProcessorFunc] = self.get_processors_for_path(path)
+		
+		# Early return if no processors
+		if len(processors) == 0:
+			return path.read_text(encoding="utf-8")
+		elif len(processors) == 1:
+			# Apply single processor
+			return processors[0](path)
+		else:
+			match self.on_multiple_processors:
+				case "warn":
+					warnings.warn(f"Multiple processors for {path.name}: {processors}")
+				case "except":
+					raise ValueError(f"Multiple processors for {path.name}: {processors}")
+				case "do_first":
+					return processors[0](path)
+				case "do_last":
+					return processors[-1](path)
+				case "skip":
+					return path.read_text(encoding="utf-8")
+				case _:
+					raise ValueError(f"Invalid on_multiple_processors: {self.on_multiple_processors = }")
+	
+
+``````{ end_of_file="lmcat/processing_pipeline.py" }
+
+``````{ path="lmcat/processors.py" }
+from typing import Callable, Sequence
 from pathlib import Path
 
-
-PATH_PROCESSORS: dict[str, Callable[[Path], str]] = dict()
-
-TEXT_PROCESSORS: dict[str, Callable[[str], str]] = dict()
-
-DECIDERS: dict[str, Callable[[Path], bool]] = dict()
+ProcessorName = str
+DeciderName = str
 
 
-def register_path_processor(func: Callable[[Path], str]) -> Callable[[Path], str]:
+ProcessorFunc = Callable[[Path], str]
+DeciderFunc = Callable[[Path], bool]
+
+PROCESSORS: dict[ProcessorName, ProcessorFunc] = dict()
+
+DECIDERS: dict[DeciderName, DeciderFunc] = dict()
+
+
+def register_processor(func: ProcessorFunc) -> ProcessorFunc:
 	"""Register a function as a path processor"""
-	PATH_PROCESSORS[func.__name__] = func
+	PROCESSORS[ProcessorName(func.__name__)] = func
 	return func
 
-
-def register_text_processor(func: Callable[[str], str]) -> Callable[[str], str]:
-	"""Register a function as a text processor"""
-	TEXT_PROCESSORS[func.__name__] = func
-	return func
-
-
-def register_decider(func: Callable[[Path], bool]) -> Callable[[Path], bool]:
+def register_decider(func: DeciderFunc) -> DeciderFunc:
 	"""Register a function as a decider"""
-	DECIDERS[func.__name__] = func
+	DECIDERS[DeciderName(func.__name__)] = func
 	return func
 
-``````{ end_of_file: "lmcat/processors.py" }
 
-``````{ path: "tests/test_lmcat.py" }
+@register_processor
+def remove_comments(path: Path) -> str:
+	"""Remove single-line comments from code."""
+	lines = path.read_text().splitlines()
+	processed = [line for line in lines if not line.strip().startswith('#')]
+	return '\n'.join(processed)
+
+@register_processor
+def compress_whitespace(path: Path) -> str:
+	"""Compress multiple whitespace characters into single spaces."""
+	return ' '.join(path.read_text().split())
+
+@register_processor
+def to_relative_path(path: Path) -> str:
+	"""return the path to the file as a string"""
+	return path.as_posix()
+
+@register_decider
+def is_python_file(path: Path) -> bool:
+	"""Check if file is a Python source file."""
+	return path.suffix == '.py'
+
+@register_decider
+def is_documentation(path: Path) -> bool:
+	"""Check if file is documentation."""
+	return path.suffix in {'.md', '.rst', '.txt'}
+
+
+@register_processor
+def makefile_processor(path: Path) -> str:
+	"""Process a Makefile to show only target descriptions and basic structure.
+	
+	Preserves:
+	- Comments above .PHONY targets up to first empty line
+	- The .PHONY line and target line
+	- First line after target if it starts with @echo
+	
+	# Parameters:
+	 - `path : Path`
+		Path to the Makefile to process
+	
+	# Returns:
+	 - `str`
+		Processed Makefile content
+	"""
+	lines: Sequence[str] = path.read_text().splitlines()
+	output_lines: list[str] = []
+	
+	i: int = 0
+	while i < len(lines):
+		line: str = lines[i]
+		
+		# Look for .PHONY lines
+		if line.strip().startswith('.PHONY:'):
+			# Store target name for later matching
+			target_name: str = line.split(':')[1].strip()
+			
+			# Collect comments above until empty line
+			comment_lines: list[str] = []
+			look_back: int = i - 1
+			while look_back >= 0 and lines[look_back].strip():
+				if lines[look_back].strip().startswith('#'):
+					comment_lines.insert(0, lines[look_back])
+				look_back -= 1
+			
+			# Add collected comments
+			output_lines.extend(comment_lines)
+			
+			# Add .PHONY line
+			output_lines.append(line)
+			
+			# Add target line (should be next)
+			if i + 1 < len(lines) and lines[i + 1].startswith(f'{target_name}:'):
+				output_lines.append(lines[i + 1])
+				i += 1
+				
+				# Check for @echo on next line
+				if i + 1 < len(lines) and lines[i + 1].strip().startswith('@echo'):
+					output_lines.append(lines[i + 1])
+
+				output_lines.append('	...')
+			
+		i += 1
+	
+	return '\n'.join(output_lines)
+``````{ end_of_file="lmcat/processors.py" }
+
+``````{ path="tests/test_lmcat.py" }
 import sys
 import os
 import shutil
@@ -1022,9 +1325,9 @@ def test_cli_tree_only():
 	finally:
 		os.chdir(original_cwd)
 
-``````{ end_of_file: "tests/test_lmcat.py" }
+``````{ end_of_file="tests/test_lmcat.py" }
 
-``````{ path: "tests/test_lmcat_2.py" }
+``````{ path="tests/test_lmcat_2.py" }
 import os
 from pathlib import Path
 
@@ -1174,9 +1477,9 @@ def test_error_handling():
 	except OSError:
 		pass
 
-``````{ end_of_file: "tests/test_lmcat_2.py" }
+``````{ end_of_file="tests/test_lmcat_2.py" }
 
-``````{ path: "README.md" }
+``````{ path="README.md" }
 # lmcat
 
 A Python tool for concatenating files and directory structures into a single document, perfect for sharing code with language models. It respects `.gitignore` and `.lmignore` patterns and provides configurable output formatting.
@@ -1315,9 +1618,184 @@ make cov
 - llm summarization and caching of those summaries in `.lmsummary/`
 - reasonable defaults for file extensions to ignore
 - web interface
-``````{ end_of_file: "README.md" }
+``````{ end_of_file="README.md" }
 
-``````{ path: "pyproject.toml" }
+``````{ path="makefile" }
+# first/default target is help
+.PHONY: default
+default: help
+	...
+# this recipe is weird. we need it because:
+# - a one liner for getting the version with toml is unwieldy, and using regex is fragile
+# - using $$GET_VERSION_SCRIPT within $(shell ...) doesn't work because of escaping issues
+# - trying to write to the file inside the `gen-version-info` recipe doesn't work, 
+# 	shell eval happens before our `python -c ...` gets run and `cat` doesn't see the new file
+.PHONY: write-proj-version
+write-proj-version:
+	...
+# gets version info from $(PYPROJECT), last version from $(LAST_VERSION_FILE), and python version
+# uses just `python` for everything except getting the python version. no echo here, because this is "private"
+.PHONY: gen-version-info
+gen-version-info: write-proj-version
+	...
+# getting commit log since the tag specified in $(LAST_VERSION_FILE)
+# will write to $(COMMIT_LOG_FILE)
+# when publishing, the contents of $(COMMIT_LOG_FILE) will be used as the tag description (but can be edited during the process)
+# no echo here, because this is "private"
+.PHONY: gen-commit-log
+gen-commit-log: gen-version-info
+	...
+# force the version info to be read, printing it out
+# also force the commit log to be generated, and cat it out
+.PHONY: version
+version: gen-commit-log
+	@echo "Current version is $(VERSION), last auto-uploaded version is $(LAST_VERSION)"
+	...
+.PHONY: setup
+setup: dep-check
+	@echo "install and update via uv"
+	...
+.PHONY: get-cuda-info
+get-cuda-info:
+	...
+.PHONY: dep-check-torch
+dep-check-torch:
+	@echo "see if torch is installed, and which CUDA version and devices it sees"
+	...
+.PHONY: dep
+dep: get-cuda-info
+	@echo "Exporting dependencies as per $(PYPROJECT) section 'tool.uv-exports.exports'"
+	...
+.PHONY: dep-check
+dep-check:
+	@echo "Checking that exported requirements are up to date"
+	...
+.PHONY: dep-clean
+dep-clean:
+	@echo "clean up lock files, .venv, and requirements files"
+	...
+# runs ruff and pycln to format the code
+.PHONY: format
+format:
+	@echo "format the source code"
+	...
+# runs ruff and pycln to check if the code is formatted correctly
+.PHONY: format-check
+format-check:
+	@echo "check if the source code is formatted correctly"
+	...
+# runs type checks with mypy
+# at some point, need to add back --check-untyped-defs to mypy call
+# but it complains when we specify arguments by keyword where positional is fine
+# not sure how to fix this
+.PHONY: typing
+typing: clean
+	@echo "running type checks"
+	...
+.PHONY: test
+test: clean
+	@echo "running tests"
+	...
+.PHONY: check
+check: clean format-check test typing
+	@echo "run format checks, tests, and typing checks"
+	...
+# generates a whole tree of documentation in html format.
+# see `docs/make_docs.py` and the templates in `docs/templates/html/` for more info
+.PHONY: docs-html
+docs-html:
+	@echo "generate html docs"
+	...
+# instead of a whole website, generates a single markdown file with all docs using the templates in `docs/templates/markdown/`.
+# this is useful if you want to have a copy that you can grep/search, but those docs are much messier.
+# docs-combined will use pandoc to convert them to other formats.
+.PHONY: docs-md
+docs-md:
+	@echo "generate combined (single-file) docs in markdown"
+	...
+# after running docs-md, this will convert the combined markdown file to other formats:
+# gfm (github-flavored markdown), plain text, and html
+# requires pandoc in path, pointed to by $(PANDOC)
+# pdf output would be nice but requires other deps
+.PHONY: docs-combined
+docs-combined: docs-md
+	@echo "generate combined (single-file) docs in markdown and convert to other formats"
+	...
+# generates coverage reports as html and text with `pytest-cov`, and a badge with `coverage-badge`
+# if `.coverage` is not found, will run tests first
+# also removes the `.gitignore` file that `coverage html` creates, since we count that as part of the docs
+.PHONY: cov
+cov:
+	@echo "generate coverage reports"
+	...
+# runs the coverage report, then the docs, then the combined docs
+# ~~~~~~~~~~~~~~~~~~~~
+# demo also created for docs
+# ~~~~~~~~~~~~~~~~~~~~
+.PHONY: docs
+docs: demo cov docs-html docs-combined
+	@echo "generate all documentation and coverage reports"
+	...
+# removed all generated documentation files, but leaves the templates and the `docs/make_docs.py` script
+# distinct from `make clean`
+.PHONY: docs-clean
+docs-clean:
+	@echo "remove generated docs"
+	...
+# verifies that the current branch is $(PUBLISH_BRANCH) and that git is clean
+# used before publishing
+.PHONY: verify-git
+verify-git: 
+	@echo "checking git status"
+	...
+.PHONY: build
+build: 
+	@echo "build the package"
+	...
+# gets the commit log, checks everything, builds, and then publishes with twine
+# will ask the user to confirm the new version number (and this allows for editing the tag info)
+# will also print the contents of $(PYPI_TOKEN_FILE) to the console for the user to copy and paste in when prompted by twine
+.PHONY: publish
+publish: gen-commit-log check build verify-git version gen-version-info
+	@echo "run all checks, build, and then publish"
+	...
+# cleans up temp files from formatter, type checking, tests, coverage
+# removes all built files
+# removes $(TESTS_TEMP_DIR) to remove temporary test files
+# recursively removes all `__pycache__` directories and `*.pyc` or `*.pyo` files
+# distinct from `make docs-clean`, which only removes generated documentation files
+.PHONY: clean
+clean:
+	@echo "clean up temporary files"
+	...
+.PHONY: clean-all
+clean-all: clean dep-clean docs-clean
+	@echo "clean up all temporary files, dep files, venv, and generated docs"
+	...
+.PHONY: info
+info: gen-version-info get-cuda-info
+	@echo "# makefile variables"
+	...
+.PHONY: info-long
+info-long: info
+	@echo "# other variables"
+	...
+# immediately print out the help targets, and then local variables (but those take a bit longer)
+.PHONY: help
+help: help-targets info
+	@echo -n ""
+	...
+.PHONY: demo
+demo:
+	@echo "example of code output"
+	...
+.PHONY: demo-tree
+demo-tree:
+	@echo "example of code output, tree direct to console"
+	...
+``````{ end_of_file="makefile" }
+
+``````{ path="pyproject.toml" }
 [project]
 name = "lmcat"
 version = "0.0.1"
@@ -1401,4 +1879,11 @@ exports = [
 ]
 
 
-``````{ end_of_file: "pyproject.toml" }
+[tool.lmcat]
+ignore_patterns_files = [".lmignore", ".gitignore"]
+
+[tool.lmcat.glob_process]
+"[mM]akefile" = "makefile_processor"
+
+# [tool.lmcat.decider_process]
+``````{ end_of_file="pyproject.toml" }

@@ -80,3 +80,11 @@ exports = [
 	{ name = "all", groups = true, options = ["--all-extras"] },
 ]
 
+
+[tool.lmcat]
+ignore_patterns_files = [".lmignore", ".gitignore"]
+
+[tool.lmcat.glob_process]
+"[mM]akefile" = "makefile_processor"
+
+# [tool.lmcat.decider_process]

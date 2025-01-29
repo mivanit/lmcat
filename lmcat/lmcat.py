@@ -5,6 +5,9 @@ import json
 # from dataclasses import dataclass, field
 from pathlib import Path
 import sys
+from typing import Literal
+
+from lmcat.processing_pipeline import ProcessingPipeline
 
 
 # Handle Python 3.11+ vs older Python for TOML parsing
@@ -27,6 +30,7 @@ from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
 from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
+from lmcat.processing_pipeline import OnMultipleProcessors, ProcessingPipeline
 
 
 @serializable_dataclass(kw_only=True)
@@ -56,15 +60,25 @@ class LMCatConfig(SerializableDataclass):
 	# this file will be imported, and if the functions in it are decorated
 	# with one of the `register_*` decorators, they will be added to the functions
 	# which can be used in the processing pipeline
-	plugins_file: Path = serializable_field(
-		default=Path("lmcat_plugins.py"),
-		serialization_fn=lambda x: x.as_posix(),
-		deserialize_fn=lambda x: Path(x),
+	# --allow-plugins is a command line only option and must be set to true for this to work
+	plugins_file: Path|None = serializable_field(
+		default=None,
+		serialization_fn=lambda x: x.as_posix() if x else None,
+		deserialize_fn=lambda x: Path(x) if x else None,
+	)
+	allow_plugins: bool = serializable_field(
+		default=False,
+		deserialize_fn=lambda x: False, # this can only be overriden through the command line
 	)
 
 	# processing pipeline
 	glob_process: dict[str, str] = serializable_field(default_factory=dict)
 	decider_process: dict[str, str] = serializable_field(default_factory=dict)
+	on_multiple_processors: OnMultipleProcessors = serializable_field(
+		default="except",
+		assert_type=False,
+	)
+	
 
 	# tokenization
 	tokenizer: str = serializable_field(
@@ -80,6 +94,17 @@ class LMCatConfig(SerializableDataclass):
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
 		return TokenizerWrapper(self.tokenizer)
+	
+
+	def get_processing_pipeline(self) -> ProcessingPipeline:
+		"""Get the processing pipeline object"""
+		plugins_file: Path|None = self.plugins_file if self.allow_plugins else None
+		return ProcessingPipeline(
+			plugins_file=plugins_file,
+			glob_process_keys=self.glob_process,
+			decider_process_keys=self.decider_process,
+			on_multiple_processors=self.on_multiple_processors,
+		)
 
 	@classmethod
 	def read(cls, root_dir: Path) -> "LMCatConfig":
@@ -300,6 +325,8 @@ def assemble_summary(
 ) -> str:
 	"""Assemble the summary output and return"""
 
+	processing_pipeline: ProcessingPipeline = config.get_processing_pipeline()
+
 	tree_output: list[str]
 	collected_files: list[Path]
 	tree_output, collected_files = walk_and_collect(
@@ -318,13 +345,21 @@ def assemble_summary(
 		output.append("# File Contents")
 
 		for fpath in collected_files:
-			relpath_posix = fpath.relative_to(root_dir).as_posix()
-			pathspec_start = f'{{ path: "{relpath_posix}" }}'
-			pathspec_end = f'{{ end_of_file: "{relpath_posix}" }}'
+			# get the path
+			relpath_posix: str = fpath.relative_to(root_dir).as_posix()
+
+			# start of file marker
+			pathspec_start: str = f'{{ path="{relpath_posix}" }}'
+			pathspec_end: str = f'{{ end_of_file="{relpath_posix}" }}'
 			output.append("")
 			output.append(config.content_divider + pathspec_start)
-			with fpath.open("r", encoding="utf-8", errors="ignore") as fobj:
-				output.append(fobj.read())
+
+			# process the actual contents of the file with the pipeline, and append
+			output.append(
+				processing_pipeline.process_file(fpath)
+			)
+
+			# add the end of file marker
 			output.append(config.content_divider + pathspec_end)
 
 	output_joined: str = "\n".join(output)
@@ -383,6 +418,12 @@ def main() -> None:
 		default=False,
 		help="Print the configuration as json and exit.",
 	)
+	arg_parser.add_argument(
+		"--allow-plugins",
+		action="store_true",
+		default=False,
+		help="Allow plugins to be loaded from the plugins file. WARNING: this will execute arbitrary code found in the file pointed to by `config.plugins_file`, and **is a security risk**.",
+	)
 
 	args: argparse.Namespace = arg_parser.parse_known_args()[0]
 	root_dir: Path = Path(".").resolve()
@@ -390,6 +431,7 @@ def main() -> None:
 
 	# CLI overrides
 	config.tree_only = args.tree_only
+	config.allow_plugins = args.allow_plugins
 
 	# print cfg and exit if requested
 	if args.print_cfg:
