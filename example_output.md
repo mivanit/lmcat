@@ -1,8 +1,8 @@
 # Stats
 - 14 files
-- 2204 (2.2K) lines
-- 62055 (62K) chars
-- 23204 (23K) `gpt2` tokens
+- 2202 (2.2K) lines
+- 62033 (62K) chars
+- 23193 (23K) `gpt2` tokens
 
 # File Tree
 
@@ -15,9 +15,9 @@ lmcat
 │   ├── index.html              [104L  4,125C 2,152T]
 │   ├── lmcat.py                [463L 13,513C 5,033T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
-│   └── processors.py           [182L  4,445C 1,517T]
+│   └── processors.py           [181L  4,442C 1,512T]
 ├── tests                       
-│   ├── demo_notebook.ipynb     [ 33L    505C   236T]
+│   ├── demo_notebook.ipynb     [ 32L    477C   223T]
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
 │   ├── test_lmcat_2.py         [148L  4,192C 1,586T]
 │   └── test_lmcat_3.py         [184L  5,156C 1,764T]
@@ -978,7 +978,7 @@ def to_relative_path(path: Path) -> str:
 def ipynb_to_md(path: Path) -> str:
 	"""Convert an IPython notebook to markdown."""
 	nb_contents: dict = json.loads(path.read_text())
-	
+
 	output: list[str] = []
 
 	for cell in nb_contents["cells"]:
@@ -989,9 +989,8 @@ def ipynb_to_md(path: Path) -> str:
 			output.append("```python\n")
 			output.extend(cell["source"])
 			output.append("\n```\n\n")
-	
-	return "".join(output)
 
+	return "".join(output)
 
 
 @register_processor
@@ -1090,7 +1089,6 @@ and this is all in a markdown cell
 ```python
 # this is a code cell
 
-import numpy as np
 
 print("Hello, world!")
 ```
