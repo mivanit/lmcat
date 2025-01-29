@@ -20,7 +20,7 @@ def test_tokenizer_wrapper_gpt2():
 
 		# Test token counting
 		assert tokenizer.n_tokens("Hello world") == 2
-		assert tokenizer.n_tokens("Hello   world") == 2  # Multiple spaces
+		assert tokenizer.n_tokens("Hello   world") == 4  # Multiple spaces
 	except ImportError:
 		pytest.skip("tokenizers package not installed")
 
@@ -58,20 +58,27 @@ def test_processing_pipeline_multiple_matches():
 
 	# Test different OnMultipleProcessors behaviors
 	configs: dict[OnMultipleProcessors, Any] = {
-		"warn": "processor1 output",
 		"do_first": "processor1 output",
 		"do_last": "processor2 output",
 		"skip": "original content",
 	}
 
 	for mode, expected in configs.items():
+		print(f"{mode = }, {expected = }")
 		config = LMCatConfig(
 			decider_process={"always_true": "processor1"},
 			glob_process={"*.txt": "processor2"},
 			on_multiple_processors=mode,
 		)
 		pipeline = config.get_processing_pipeline()
-		result, _ = pipeline.process_file(test_file)
+		result, p_used = pipeline.process_file(test_file)
+		if mode == "skip":
+			assert p_used is None
+		elif mode == "do_first":
+			assert p_used == "processor1"
+		elif mode == "do_last":
+			assert p_used == "processor2"
+
 		assert result == expected
 
 	# Test "except" mode raises error

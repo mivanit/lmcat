@@ -98,8 +98,8 @@ class LMCatConfig(SerializableDataclass):
 		plugins_file: Path | None = self.plugins_file if self.allow_plugins else None
 		return ProcessingPipeline(
 			plugins_file=plugins_file,
-			glob_process_keys=self.glob_process,
 			decider_process_keys=self.decider_process,
+			glob_process_keys=self.glob_process,
 			on_multiple_processors=self.on_multiple_processors,
 		)
 

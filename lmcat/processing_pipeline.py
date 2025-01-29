@@ -71,16 +71,16 @@ class ProcessingPipeline:
 	def __init__(
 		self,
 		plugins_file: Path | None,
-		glob_process_keys: dict[str, ProcessorName],
 		decider_process_keys: dict[DeciderName, ProcessorName],
+		glob_process_keys: dict[str, ProcessorName],
 		on_multiple_processors: OnMultipleProcessors,
 	):
 		# store the vars
 		self.plugins_file: Path | None = plugins_file
-		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
 		self.decider_process_keys: dict[DeciderName, ProcessorName] = (
 			decider_process_keys
 		)
+		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
 		self.on_multiple_processors: OnMultipleProcessors = on_multiple_processors
 
 		# load the plugins file
@@ -88,6 +88,16 @@ class ProcessingPipeline:
 			load_plugins(self.plugins_file)
 
 		# try to get the glob and decider processor functions
+		try:
+			self.decider_process: dict[DeciderFunc, ProcessorFunc] = {
+				DECIDERS[decider_name]: PROCESSORS[processor_name]
+				for decider_name, processor_name in self.decider_process_keys.items()
+			}
+		except KeyError as e:
+			raise ValueError(
+				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
+			) from e
+
 		try:
 			self.glob_process: dict[re.Pattern, ProcessorFunc] = {
 				_compile_glob(glob_pattern): PROCESSORS[processor_name]
@@ -98,15 +108,6 @@ class ProcessingPipeline:
 				f"Invalid glob processor:\n{e}\n{PROCESSORS.keys() = }\n{self.glob_process_keys = }"
 			) from e
 
-		try:
-			self.decider_process: dict[DeciderFunc, ProcessorFunc] = {
-				DECIDERS[decider_name]: PROCESSORS[processor_name]
-				for decider_name, processor_name in self.decider_process_keys.items()
-			}
-		except KeyError as e:
-			raise ValueError(
-				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
-			) from e
 
 	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
 		"""Get all applicable processors for a given path.
@@ -121,15 +122,16 @@ class ProcessingPipeline:
 		"""
 		processors: list[ProcessorFunc] = []
 
+		# Check deciders
+		for decider, processor in self.decider_process.items():
+			if decider(path):
+				processors.append(processor)
+
 		# Check glob patterns
 		for glob_pattern, processor in self.glob_process.items():
 			if glob_pattern.match(path.name):
 				processors.append(processor)
 
-		# Check deciders
-		for decider, processor in self.decider_process.items():
-			if decider(path):
-				processors.append(processor)
 
 		return processors
 

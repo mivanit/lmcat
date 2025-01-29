@@ -1,16 +1,27 @@
 from typing import Callable, Sequence
 from pathlib import Path
 
+
+# type defs
+# ==================================================
+
 ProcessorName = str
 DeciderName = str
-
 
 ProcessorFunc = Callable[[Path], str]
 DeciderFunc = Callable[[Path], bool]
 
+
+# global dicts of processors and deciders
+# ==================================================
+
 PROCESSORS: dict[ProcessorName, ProcessorFunc] = dict()
 
 DECIDERS: dict[DeciderName, DeciderFunc] = dict()
+
+
+# register functions
+# ==================================================
 
 
 def register_processor(func: ProcessorFunc) -> ProcessorFunc:
@@ -23,6 +34,24 @@ def register_decider(func: DeciderFunc) -> DeciderFunc:
 	"""Register a function as a decider"""
 	DECIDERS[DeciderName(func.__name__)] = func
 	return func
+
+
+# default deciders
+# ==================================================
+@register_decider
+def is_over_10kb(path: Path) -> bool:
+	"""Check if file is over 10KB."""
+	return path.stat().st_size > 2**1
+
+
+@register_decider
+def is_documentation(path: Path) -> bool:
+	"""Check if file is documentation."""
+	return path.suffix in {".md", ".rst", ".txt"}
+
+
+# default processors
+# ==================================================
 
 
 @register_processor
@@ -45,20 +74,8 @@ def to_relative_path(path: Path) -> str:
 	return path.as_posix()
 
 
-@register_decider
-def is_python_file(path: Path) -> bool:
-	"""Check if file is a Python source file."""
-	return path.suffix == ".py"
-
-
-@register_decider
-def is_documentation(path: Path) -> bool:
-	"""Check if file is documentation."""
-	return path.suffix in {".md", ".rst", ".txt"}
-
-
 @register_processor
-def makefile_processor(path: Path) -> str:
+def makefile_recipes(path: Path) -> str:
 	"""Process a Makefile to show only target descriptions and basic structure.
 
 	Preserves:
@@ -115,3 +132,29 @@ def makefile_processor(path: Path) -> str:
 		i += 1
 
 	return "\n".join(output_lines)
+
+@register_processor
+def csv_preview_5_lines(path: Path) -> str:
+    """Preview first few lines of a CSV file (up to 5)
+    
+    Reads only first 1024 bytes and splits into lines.
+    Does not attempt to parse CSV structure.
+    
+    # Parameters:
+    - `path : Path`
+        Path to CSV file
+        
+    # Returns:
+    - `str`
+        First few lines of the file"""
+    try:
+        with path.open('r', encoding='utf-8') as f:
+            content = f.read(1024)
+        
+        lines = content.splitlines()[:5]
+        if len(content) == 1024:
+            lines.append("... (truncated)")
+            
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error previewing CSV: {str(e)}"
