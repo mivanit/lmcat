@@ -79,7 +79,7 @@ def to_relative_path(path: Path) -> str:
 def ipynb_to_md(path: Path) -> str:
 	"""Convert an IPython notebook to markdown."""
 	nb_contents: dict = json.loads(path.read_text())
-	
+
 	output: list[str] = []
 
 	for cell in nb_contents["cells"]:
@@ -90,9 +90,8 @@ def ipynb_to_md(path: Path) -> str:
 			output.append("```python\n")
 			output.extend(cell["source"])
 			output.append("\n```\n\n")
-	
-	return "".join(output)
 
+	return "".join(output)
 
 
 @register_processor
