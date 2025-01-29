@@ -955,7 +955,7 @@ def is_documentation(path: Path) -> bool:
 
 
 @register_processor
-def makefile_processor(path: Path) -> str:
+def makefile_recipes(path: Path) -> str:
 	"""Process a Makefile to show only target descriptions and basic structure.
 
 	Preserves:
@@ -1639,7 +1639,7 @@ make cov
 - web interface
 ``````{ end_of_file="README.md" }
 
-``````{ path="makefile" processed_with="makefile_processor" }
+``````{ path="makefile" processed_with="makefile_recipes" }
 # first/default target is help
 .PHONY: default
 default: help
@@ -1934,7 +1934,7 @@ exports = [
 ignore_patterns_files = [".lmignore", ".gitignore"]
 
 [tool.lmcat.glob_process]
-"[mM]akefile" = "makefile_processor"
+"[mM]akefile" = "makefile_recipes"
 
 # [tool.lmcat.decider_process]
 ``````{ end_of_file="pyproject.toml" }

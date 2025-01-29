@@ -85,6 +85,6 @@ exports = [
 ignore_patterns_files = [".lmignore", ".gitignore"]
 
 [tool.lmcat.glob_process]
-"[mM]akefile" = "makefile_processor"
+"[mM]akefile" = "makefile_recipes"
 
 # [tool.lmcat.decider_process]
