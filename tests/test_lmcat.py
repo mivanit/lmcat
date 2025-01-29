@@ -156,7 +156,7 @@ def test_ignore_handler_gitignore_disabled():
 	(test_dir / "file1.txt").write_text("content1")
 	(test_dir / ".gitignore").write_text("*.txt\n")
 
-	config = LMCatConfig(include_gitignore=False)
+	config = LMCatConfig(ignore_patterns_files=list())
 	handler = IgnoreHandler(test_dir, config)
 
 	# File should not be ignored since gitignore is disabled
@@ -246,7 +246,7 @@ def test_walk_and_collect_complex():
 	(test_dir / "subdir2/.lmignore").write_text("nested/\n")
 
 	config = LMCatConfig()
-	tree_output, files = walk_and_collect(test_dir, config, TokenizerWrapper())
+	tree_output, files = walk_and_collect(test_dir, config)
 	joined_output = "\n".join(tree_output)
 
 	# Check correct files are excluded
