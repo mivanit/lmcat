@@ -2,7 +2,7 @@ import argparse
 import io
 import json
 import os
-from dataclasses import dataclass
+# from dataclasses import dataclass, field
 from pathlib import Path
 import sys
 from typing import Any
@@ -18,14 +18,16 @@ except ImportError:
 		tomllib = None  # type: ignore[assignment]
 
 import igittigitt  # noqa: E402
+
+from muutils.json_serialize import SerializableDataclass, serializable_dataclass, serializable_field
 from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
 from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
 
 
-@dataclass
-class LMCatConfig:
+@serializable_dataclass(kw_only=True)
+class LMCatConfig(SerializableDataclass):
 	"""Configuration dataclass for lmcat
 
 	# Parameters:
@@ -37,36 +39,57 @@ class LMCatConfig:
 	 - `tree_only: bool`  (default False)
 	"""
 
+
+	content_divider: str = "``````"
+	tree_only: bool = False
+
+	# ignoring
+	ignore_patterns: list[str] = serializable_field(default_factory=list)
+	ignore_patterns_files: list[Path] = serializable_field(
+		default_factory=lambda: [Path(".gitignore"), Path(".lmignore")],
+		serialization_fn=lambda x: [p.as_posix() for p in x],
+		deserialize_fn=lambda x: [Path(p) for p in x],
+	)
+
+	# this file will be imported, and if the functions in it are decorated
+	# with one of the `register_*` decorators, they will be added to the functions
+	# which can be used in the processing pipeline
+	plugins_file: Path = serializable_field(
+		default=Path("lmcat_plugins.py"),
+		serialization_fn=lambda x: x.as_posix(),
+		deserialize_fn=lambda x: Path(x),
+	)
+
+	# processing pipeline
+	glob_process: dict[str, str] = serializable_field(default_factory=dict)
+	decider_process: dict[str, str] = serializable_field(default_factory=dict)
+
+	# tokenization
+	tokenizer: str = "gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
+	"Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If specified and `tokenizers` not installed, will throw exception. fallback `whitespace-split` used to avoid exception when `tokenizers` not installed."
+
+	# tree formatting
 	tree_divider: str = "│   "
 	tree_file_divider: str = "├── "
 	tree_indent: str = " "
 
-	content_divider: str = "``````"
-	include_gitignore: bool = True
-	tree_only: bool = False
-
-	@classmethod
-	def load(cls, cfg_data: dict[str, Any]) -> "LMCatConfig":
-		"""Load an LMCatConfig from a dictionary of config values"""
-		config = cls()
-		for key, val in cfg_data.items():
-			if key in config.__dataclass_fields__:
-				# Convert booleans if needed
-				if isinstance(getattr(config, key), bool) and isinstance(val, str):
-					lower_val = val.strip().lower()
-					if lower_val in ("true", "1", "yes"):
-						val = True
-					elif lower_val in ("false", "0", "no"):
-						val = False
-				setattr(config, key, val)
-		return config
+	@property
+	def get_tokenizer_obj(self) -> TokenizerWrapper:
+		"""Get the tokenizer object"""
+		return TokenizerWrapper(self.tokenizer)
 
 	@classmethod
 	def read(cls, root_dir: Path) -> "LMCatConfig":
 		"""Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json."""
-		pyproject_path = root_dir / "pyproject.toml"
-		lmcat_toml_path = root_dir / "lmcat.toml"
-		lmcat_json_path = root_dir / "lmcat.json"
+		pyproject_path: Path = root_dir / "pyproject.toml"
+		lmcat_toml_path: Path = root_dir / "lmcat.toml"
+		lmcat_json_path: Path = root_dir / "lmcat.json"
+
+
+		if sum(int(p.is_file()) for p in (pyproject_path, lmcat_toml_path, lmcat_json_path)) > 1:
+			raise ValueError(
+				"Multiple configuration files found. Please only use one of pyproject.toml, lmcat.toml, or lmcat.json."
+			)
 
 		# Try pyproject.toml first
 		if tomllib is not None and pyproject_path.is_file():
@@ -95,30 +118,26 @@ class IgnoreHandler:
 	"""Handles all ignore pattern matching using igittigitt"""
 
 	def __init__(self, root_dir: Path, config: LMCatConfig):
-		self.parser: igittigitt.IgnoreParser = igittigitt.IgnoreParser()
 		self.root_dir: Path = root_dir
 		self.config: LMCatConfig = config
-		self._init_parser()
+		
+		# set up parser
+		self.parser: igittigitt.IgnoreParser = igittigitt.IgnoreParser()
 
-	def _init_parser(self) -> None:
-		"""Initialize the parser with all relevant ignore files"""
-		# If we're including gitignore, let igittigitt handle it natively
-		if self.config.include_gitignore:
-			self.parser.parse_rule_files(self.root_dir, filename=".gitignore")
+		# first from the files
+		for ignore_file in self.config.ignore_patterns_files:
+			self.parser.parse_rule_files(self.root_dir, filename=ignore_file.name)
 
-		# Add all .lmignore files
-		for current_dir, _, files in os.walk(self.root_dir):
-			current_path: Path = Path(current_dir)
-			lmignore: Path = current_path / ".lmignore"
-			if lmignore.is_file():
-				self.parser.parse_rule_files(current_path, filename=".lmignore")
+		# then from the config itself
+		for pattern in self.config.ignore_patterns:
+			self.parser.add_rule(pattern)
 
 	def is_ignored(self, path: Path) -> bool:
 		"""Check if a path should be ignored"""
 		# Never ignore the gitignore/lmignore files themselves
 		if path.name in {".gitignore", ".lmignore"}:
 			return True
-
+		
 		# Use igittigitt's matching
 		return self.parser.match(path)
 
@@ -236,11 +255,13 @@ def format_tree_with_stats(
 def walk_and_collect(
 	root_dir: Path,
 	config: LMCatConfig,
-	tokenizer: TokenizerWrapper,
 ) -> tuple[list[str], list[Path]]:
 	"""Walk filesystem from root_dir and gather tree listing plus file paths"""
 	if config is None:
 		config = LMCatConfig()
+
+
+	tokenizer: TokenizerWrapper = config.get_tokenizer_obj()
 
 	ignore_handler = IgnoreHandler(root_dir, config)
 	base_name = root_dir.resolve().name
@@ -266,63 +287,18 @@ def walk_and_collect(
 	return formatted_tree, sub_files
 
 
-def main() -> None:
-	"""Main entry point for the script"""
-	parser = argparse.ArgumentParser(
-		description="lmcat - list tree and content, combining .gitignore + .lmignore",
-		add_help=False,
-	)
-	parser.add_argument(
-		"-g",
-		"--no-include-gitignore",
-		action="store_false",
-		dest="include_gitignore",
-		default=True,
-		help="Do not parse .gitignore files, only .lmignore (default: parse them).",
-	)
-	parser.add_argument(
-		"-t",
-		"--tree-only",
-		action="store_true",
-		default=False,
-		help="Only print the tree, not the file contents.",
-	)
-	parser.add_argument(
-		"-o",
-		"--output",
-		action="store",
-		default=None,
-		help="Output file to write the tree and contents to.",
-	)
-	parser.add_argument(
-		"-h", "--help", action="help", help="Show this help message and exit."
-	)
-	parser.add_argument(
-		"--tokenizer",
-		action="store",
-		default=None,
-		type=str,
-		help="Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If passed and `tokenizers` not installed, will throw exception. pass fallback `whitespace-split` to split by whitespace to avoid exception.",
-	)
 
-	args, unknown = parser.parse_known_args()
+def assemble_summary(
+	root_dir: Path,
+	config: LMCatConfig,
+) -> str:
+	"""Assemble the summary output and return"""
 
-	root_dir = Path(".").resolve()
-	config = LMCatConfig.read(root_dir)
-
-	# CLI overrides
-	config.include_gitignore = args.include_gitignore
-	config.tree_only = args.tree_only
-
-	# set up tokenizer if available
-	tokenizer: TokenizerWrapper = TokenizerWrapper(
-		"gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
-	)
-
+	tree_output: list[str]
+	collected_files: list[Path]
 	tree_output, collected_files = walk_and_collect(
 		root_dir=root_dir,
 		config=config,
-		tokenizer=tokenizer,
 	)
 
 	output: list[str] = []
@@ -355,6 +331,8 @@ def main() -> None:
 		"chars": len(output_joined),
 	}
 
+	tokenizer: TokenizerWrapper = config.get_tokenizer_obj()
+
 	n_tokens: int = tokenizer.n_tokens(output_joined)
 	stats_dict_ints[f"`{tokenizer.name}` tokens"] = n_tokens
 
@@ -369,11 +347,60 @@ def main() -> None:
 
 	output_complete: str = "\n".join(stats_header) + "\n\n" + output_joined
 
+	return output_complete
+
+
+def main() -> None:
+	"""Main entry point for the script"""
+	arg_parser = argparse.ArgumentParser(
+		description="lmcat - list tree and content, combining .gitignore + .lmignore",
+		add_help=False,
+	)
+	arg_parser.add_argument(
+		"-t",
+		"--tree-only",
+		action="store_true",
+		default=False,
+		help="Only print the tree, not the file contents.",
+	)
+	arg_parser.add_argument(
+		"-o",
+		"--output",
+		action="store",
+		default=None,
+		help="Output file to write the tree and contents to.",
+	)
+	arg_parser.add_argument(
+		"-h", "--help", action="help", help="Show this help message and exit."
+	)
+	arg_parser.add_argument(
+		"--print-cfg",
+		action="store_true",
+		default=False,
+		help="Print the configuration as json and exit.",
+	)
+
+	args: argparse.Namespace = arg_parser.parse_known_args()[0]
+	root_dir: Path = Path(".").resolve()
+	config: LMCatConfig = LMCatConfig.read(root_dir)
+
+	# CLI overrides
+	config.tree_only = args.tree_only
+	
+
+	# print cfg and exit if requested
+	if args.print_cfg:
+		print(json.dumps(config.serialize(), indent="\t"))
+		return
+
+	# assemble summary
+	summary: str = assemble_summary(root_dir=root_dir, config=config)
+
 	# Write output
 	if args.output:
-		Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-		with open(args.output, "w", encoding="utf-8") as f:
-			f.write(output_complete)
+		output_path: Path = Path(args.output)
+		output_path.parent.mkdir(parents=True, exist_ok=True)
+		output_path.write_text(summary, encoding="utf-8")
 	else:
 		if sys.platform == "win32":
 			sys.stdout = io.TextIOWrapper(
@@ -383,7 +410,8 @@ def main() -> None:
 				sys.stderr.buffer, encoding="utf-8", errors="replace"
 			)
 
-		print(output_complete)
+		print(summary)
+
 
 
 if __name__ == "__main__":
