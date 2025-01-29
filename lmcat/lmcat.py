@@ -73,7 +73,6 @@ class LMCatConfig(SerializableDataclass):
 	tree_file_divider: str = serializable_field(default="├── ")
 	tree_indent: str = serializable_field(default=" ")
 
-	@property
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
 		return TokenizerWrapper(self.tokenizer)
