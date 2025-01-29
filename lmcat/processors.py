@@ -78,7 +78,7 @@ def to_relative_path(path: Path) -> str:
 @register_processor
 def ipynb_to_md(path: Path) -> str:
 	"""Convert an IPython notebook to markdown."""
-	nb_contents: dict = json.loads(path.read_text())
+	nb_contents: dict = json.loads(path.read_text(encoding="utf-8"))
 
 	output: list[str] = []
 
