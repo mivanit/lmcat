@@ -40,8 +40,8 @@ class LMCatConfig(SerializableDataclass):
 	"""
 
 
-	content_divider: str = "``````"
-	tree_only: bool = False
+	content_divider: str = serializable_field(default="``````")
+	tree_only: bool = serializable_field(default=False)
 
 	# ignoring
 	ignore_patterns: list[str] = serializable_field(default_factory=list)
@@ -65,13 +65,13 @@ class LMCatConfig(SerializableDataclass):
 	decider_process: dict[str, str] = serializable_field(default_factory=dict)
 
 	# tokenization
-	tokenizer: str = "gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
+	tokenizer: str = serializable_field(default="gpt2" if TOKENIZERS_PRESENT else "whitespace-split")
 	"Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If specified and `tokenizers` not installed, will throw exception. fallback `whitespace-split` used to avoid exception when `tokenizers` not installed."
 
 	# tree formatting
-	tree_divider: str = "│   "
-	tree_file_divider: str = "├── "
-	tree_indent: str = " "
+	tree_divider: str = serializable_field(default="│   ")
+	tree_file_divider: str = serializable_field(default="├── ")
+	tree_indent: str = serializable_field(default=" ")
 
 	@property
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
