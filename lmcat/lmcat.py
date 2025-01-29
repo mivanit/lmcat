@@ -1,11 +1,10 @@
 import argparse
 import io
 import json
-import os
+
 # from dataclasses import dataclass, field
 from pathlib import Path
 import sys
-from typing import Any
 
 
 # Handle Python 3.11+ vs older Python for TOML parsing
@@ -19,7 +18,11 @@ except ImportError:
 
 import igittigitt  # noqa: E402
 
-from muutils.json_serialize import SerializableDataclass, serializable_dataclass, serializable_field
+from muutils.json_serialize import (
+	SerializableDataclass,
+	serializable_dataclass,
+	serializable_field,
+)
 from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
@@ -38,7 +41,6 @@ class LMCatConfig(SerializableDataclass):
 	 - `include_gitignore: bool`  (default True)
 	 - `tree_only: bool`  (default False)
 	"""
-
 
 	content_divider: str = serializable_field(default="``````")
 	tree_only: bool = serializable_field(default=False)
@@ -65,7 +67,9 @@ class LMCatConfig(SerializableDataclass):
 	decider_process: dict[str, str] = serializable_field(default_factory=dict)
 
 	# tokenization
-	tokenizer: str = serializable_field(default="gpt2" if TOKENIZERS_PRESENT else "whitespace-split")
+	tokenizer: str = serializable_field(
+		default="gpt2" if TOKENIZERS_PRESENT else "whitespace-split"
+	)
 	"Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokenizers.Tokenizer.from_pretrained()`. If specified and `tokenizers` not installed, will throw exception. fallback `whitespace-split` used to avoid exception when `tokenizers` not installed."
 
 	# tree formatting
@@ -84,8 +88,13 @@ class LMCatConfig(SerializableDataclass):
 		lmcat_toml_path: Path = root_dir / "lmcat.toml"
 		lmcat_json_path: Path = root_dir / "lmcat.json"
 
-
-		if sum(int(p.is_file()) for p in (pyproject_path, lmcat_toml_path, lmcat_json_path)) > 1:
+		if (
+			sum(
+				int(p.is_file())
+				for p in (pyproject_path, lmcat_toml_path, lmcat_json_path)
+			)
+			> 1
+		):
 			raise ValueError(
 				"Multiple configuration files found. Please only use one of pyproject.toml, lmcat.toml, or lmcat.json."
 			)
@@ -119,7 +128,7 @@ class IgnoreHandler:
 	def __init__(self, root_dir: Path, config: LMCatConfig):
 		self.root_dir: Path = root_dir
 		self.config: LMCatConfig = config
-		
+
 		# set up parser
 		self.parser: igittigitt.IgnoreParser = igittigitt.IgnoreParser()
 
@@ -136,7 +145,7 @@ class IgnoreHandler:
 		# Never ignore the gitignore/lmignore files themselves
 		if path.name in {".gitignore", ".lmignore"}:
 			return True
-		
+
 		# Use igittigitt's matching
 		return self.parser.match(path)
 
@@ -259,7 +268,6 @@ def walk_and_collect(
 	if config is None:
 		config = LMCatConfig()
 
-
 	tokenizer: TokenizerWrapper = config.get_tokenizer_obj()
 
 	ignore_handler = IgnoreHandler(root_dir, config)
@@ -284,7 +292,6 @@ def walk_and_collect(
 	)
 
 	return formatted_tree, sub_files
-
 
 
 def assemble_summary(
@@ -385,7 +392,6 @@ def main() -> None:
 
 	# CLI overrides
 	config.tree_only = args.tree_only
-	
 
 	# print cfg and exit if requested
 	if args.print_cfg:
@@ -410,7 +416,6 @@ def main() -> None:
 			)
 
 		print(summary)
-
 
 
 if __name__ == "__main__":
