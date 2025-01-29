@@ -367,7 +367,7 @@ def assemble_summary(
 
 	stats_dict_ints: dict[str, int] = {
 		"files": len(collected_files),
-		"lines": len(output),
+		"lines": len(output_joined.splitlines()),
 		"chars": len(output_joined),
 	}
 
