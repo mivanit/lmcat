@@ -313,14 +313,12 @@ def assemble_summary(
 	output.extend(tree_output)
 	output.append("```\n")
 
-	cwd: Path = Path.cwd()
-
 	# Add file contents if not suppressed
 	if not config.tree_only:
 		output.append("# File Contents")
 
 		for fpath in collected_files:
-			relpath_posix = fpath.relative_to(cwd).as_posix()
+			relpath_posix = fpath.relative_to(root_dir).as_posix()
 			pathspec_start = f'{{ path: "{relpath_posix}" }}'
 			pathspec_end = f'{{ end_of_file: "{relpath_posix}" }}'
 			output.append("")
