@@ -1,7 +1,7 @@
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.0.1</p>
+v0.1.0</p>
 </blockquote>
 <h2 id="contents">Contents</h2>
 <h1 id="lmcat">lmcat</h1>
@@ -11,28 +11,41 @@ respects <code>.gitignore</code> and <code>.lmignore</code> patterns and
 provides configurable output formatting.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Creates a tree view of your directory structure</li>
+<li>Tree view of directory structure with file statistics (lines,
+characters, tokens)</li>
 <li>Includes file contents with clear delimiters</li>
 <li>Respects <code>.gitignore</code> patterns (can be disabled)</li>
 <li>Supports custom ignore patterns via <code>.lmignore</code></li>
 <li>Configurable via <code>pyproject.toml</code>,
-<code>lmcat.toml</code>, or <code>lmcat.json</code></li>
-<li>Python 3.11+ native, with fallback support for older versions</li>
+<code>lmcat.toml</code>, or <code>lmcat.json</code>
+<ul>
+<li>you can specify <code>glob_process</code> or
+<code>decider_process</code> to run on files, like if you want to
+convert a notebook to a markdown file</li>
+</ul></li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Install from PyPI:</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lmcat</span></code></pre></div>
+<p>or, install with support for counting tokens:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lmcat<span class="pp">[</span><span class="ss">tokenizers</span><span class="pp">]</span></span></code></pre></div>
 <h2 id="usage">Usage</h2>
 <p>Basic usage - concatenate current directory:</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Only show directory tree</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--tree-only</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Write output to file</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--output</span> summary.md</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Print current configuration</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--print-cfg</span></span></code></pre></div>
 <p>The output will include a directory tree and the contents of each
 non-ignored file.</p>
 <h3 id="command-line-options">Command Line Options</h3>
 <ul>
-<li><code>-g</code>, <code>--no-include-gitignore</code>: Ignore
-<code>.gitignore</code> files (they are included by default)</li>
 <li><code>-t</code>, <code>--tree-only</code>: Only print the directory
 tree, not file contents</li>
 <li><code>-o</code>, <code>--output</code>: Specify an output file
@@ -40,42 +53,29 @@ tree, not file contents</li>
 <li><code>-h</code>, <code>--help</code>: Show help message</li>
 </ul>
 <h3 id="configuration">Configuration</h3>
-<p>lmcat can be configured using any of these files (in order of
-precedence):</p>
-<ol type="1">
-<li><code>pyproject.toml</code> (under <code>[tool.lmcat]</code>)</li>
-<li><code>lmcat.toml</code></li>
-<li><code>lmcat.json</code></li>
-</ol>
-<p>Configuration options:</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.lmcat]</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_divider</span> <span class="op">=</span> <span class="st">&quot;│   &quot;</span>    <span class="co"># Used for vertical lines in the tree</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">indent</span> <span class="op">=</span> <span class="st">&quot;    &quot;</span>          <span class="co"># Used for indentation</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">file_divider</span> <span class="op">=</span> <span class="st">&quot;├── &quot;</span>    <span class="co"># Used for file/directory entries</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">content_divider</span> <span class="op">=</span> <span class="st">&quot;``````&quot;</span> <span class="co"># Used to delimit file contents</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">include_gitignore</span> <span class="op">=</span> <span class="cn">true</span> <span class="co"># Whether to respect .gitignore files</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_only</span> <span class="op">=</span> <span class="cn">false</span>       <span class="co"># Whether to only show the tree</span></span></code></pre></div>
-<h3 id="ignore-patterns">Ignore Patterns</h3>
-<p>lmcat supports two types of ignore files:</p>
-<ol type="1">
-<li><code>.gitignore</code> - Standard Git ignore patterns (used by
-default)</li>
-<li><code>.lmignore</code> - Custom ignore patterns specific to
-lmcat</li>
-</ol>
-<p><code>.lmignore</code> follows the same pattern syntax as
-<code>.gitignore</code>. Patterns in <code>.lmignore</code> take
-precedence over <code>.gitignore</code>.</p>
-<p>Example <code>.lmignore</code>:</p>
-<pre class="gitignore"><code># Ignore all .log files
-*.log
-
-# Ignore the build directory and its contents
-build/
-
-# Un-ignore a specific file (overrides previous patterns)
-!important.log</code></pre>
+<p>lmcat is best configured via a <code>tool.lmcat</code> section in
+<code>pyproject.toml</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.lmcat]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Tree formatting</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_divider</span> <span class="op">=</span> <span class="st">&quot;│   &quot;</span>    <span class="co"># Vertical lines in tree</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_indent</span> <span class="op">=</span> <span class="st">&quot; &quot;</span>        <span class="co"># Indentation</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_file_divider</span> <span class="op">=</span> <span class="st">&quot;├── &quot;</span>  <span class="co"># File/directory entries</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">content_divider</span> <span class="op">=</span> <span class="st">&quot;``````&quot;</span>  <span class="co"># File content delimiters</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Processing pipeline</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="dt">tokenizer</span> <span class="op">=</span> <span class="st">&quot;gpt2&quot;</span>  <span class="co"># or &quot;whitespace-split&quot;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_only</span> <span class="op">=</span> <span class="cn">false</span>   <span class="co"># Only show tree structure</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">on_multiple_processors</span> <span class="op">=</span> <span class="st">&quot;except&quot;</span>  <span class="co"># Behavior when multiple processors match</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># File handling</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="dt">ignore_patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;*.tmp&quot;</span><span class="op">,</span> <span class="st">&quot;*.log&quot;</span><span class="op">]</span>  <span class="co"># Additional patterns to ignore</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="dt">ignore_patterns_files</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;.gitignore&quot;</span><span class="op">,</span> <span class="st">&quot;.lmignore&quot;</span><span class="op">]</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># processors</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.lmcat.glob_process]</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;[mM]akefile&quot;</span> <span class="op">=</span> <span class="st">&quot;makefile_recipes&quot;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;*.ipynb&quot;</span> <span class="op">=</span> <span class="st">&quot;ipynb_to_md&quot;</span></span></code></pre></div>
 <h2 id="development">Development</h2>
 <h3 id="setup">Setup</h3>
 <ol type="1">
@@ -89,8 +89,6 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="
 </ol>
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> setup</span></code></pre></div>
-<p>This will: - Create a virtual environment - Install development
-dependencies - Set up pre-commit hooks</p>
 <h3 id="development-commands">Development Commands</h3>
 <p>The project uses <code>make</code> for common development tasks:</p>
 <ul>
@@ -111,11 +109,15 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 <p>For verbose output:</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">VERBOSE</span><span class="op">=</span>1 <span class="fu">make</span> test</span></code></pre></div>
-<p>For test coverage:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> cov</span></code></pre></div>
 <h3 id="roadmap">Roadmap</h3>
 <ul>
+<li>more processors and deciders, like:
+<ul>
+<li>only first <code>n</code> lines if file is too large</li>
+<li>first few lines of a csv file</li>
+<li>json schema of a big json/toml/yaml file</li>
+<li>metadata extraction from images</li>
+</ul></li>
 <li>better tests, I feel like gitignore/lmignore interaction is
 broken</li>
 <li>llm summarization and caching of those summaries in
@@ -128,7 +130,7 @@ broken</li>
 <li><a href="#main"><code>main</code></a></li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py">View
+href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py">View
 Source on GitHub</a></p>
 <h1 id="lmcat"><code>lmcat</code></h1>
 <h3 id="lmcat-1">lmcat</h3>
@@ -138,28 +140,41 @@ respects <code>.gitignore</code> and <code>.lmignore</code> patterns and
 provides configurable output formatting.</p>
 <h4 id="features-1">Features</h4>
 <ul>
-<li>Creates a tree view of your directory structure</li>
+<li>Tree view of directory structure with file statistics (lines,
+characters, tokens)</li>
 <li>Includes file contents with clear delimiters</li>
 <li>Respects <code>.gitignore</code> patterns (can be disabled)</li>
 <li>Supports custom ignore patterns via <code>.lmignore</code></li>
 <li>Configurable via <code>pyproject.toml</code>,
-<code>lmcat.toml</code>, or <code>lmcat.json</code></li>
-<li>Python 3.11+ native, with fallback support for older versions</li>
+<code>lmcat.toml</code>, or <code>lmcat.json</code>
+<ul>
+<li>you can specify <code>glob_process</code> or
+<code>decider_process</code> to run on files, like if you want to
+convert a notebook to a markdown file</li>
+</ul></li>
 </ul>
 <h4 id="installation-1">Installation</h4>
 <p>Install from PyPI:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lmcat</span></code></pre></div>
+<p>or, install with support for counting tokens:</p>
 <div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lmcat</span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lmcat<span class="pp">[</span><span class="ss">tokenizers</span><span class="pp">]</span></span></code></pre></div>
 <h4 id="usage-1">Usage</h4>
 <p>Basic usage - concatenate current directory:</p>
 <div class="sourceCode" id="cb11"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat</span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">### Only show directory tree</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--tree-only</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">### Write output to file</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--output</span> summary.md</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">### Print current configuration</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> lmcat <span class="at">--print-cfg</span></span></code></pre></div>
 <p>The output will include a directory tree and the contents of each
 non-ignored file.</p>
 <h5 id="command-line-options-1">Command Line Options</h5>
 <ul>
-<li><code>-g</code>, <code>--no-include-gitignore</code>: Ignore
-<code>.gitignore</code> files (they are included by default)</li>
 <li><code>-t</code>, <code>--tree-only</code>: Only print the directory
 tree, not file contents</li>
 <li><code>-o</code>, <code>--output</code>: Specify an output file
@@ -167,57 +182,42 @@ tree, not file contents</li>
 <li><code>-h</code>, <code>--help</code>: Show help message</li>
 </ul>
 <h5 id="configuration-1">Configuration</h5>
-<p>lmcat can be configured using any of these files (in order of
-precedence):</p>
-<ol type="1">
-<li><code>pyproject.toml</code> (under <code>[tool.lmcat]</code>)</li>
-<li><code>lmcat.toml</code></li>
-<li><code>lmcat.json</code></li>
-</ol>
-<p>Configuration options:</p>
+<p>lmcat is best configured via a <code>tool.lmcat</code> section in
+<code>pyproject.toml</code>:</p>
 <div class="sourceCode" id="cb12"><pre
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.lmcat]</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_divider</span> <span class="op">=</span> <span class="st">&quot;│   &quot;</span>    <span class="co"># Used for vertical lines in the tree</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">indent</span> <span class="op">=</span> <span class="st">&quot;    &quot;</span>          <span class="co"># Used for indentation</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">file_divider</span> <span class="op">=</span> <span class="st">&quot;├── &quot;</span>    <span class="co"># Used for file/directory entries</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dt">content_divider</span> <span class="op">=</span> <span class="st">&quot;``````&quot;</span> <span class="co"># Used to delimit file contents</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="dt">include_gitignore</span> <span class="op">=</span> <span class="cn">true</span> <span class="co"># Whether to respect .gitignore files</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_only</span> <span class="op">=</span> <span class="cn">false</span>       <span class="co"># Whether to only show the tree</span></span></code></pre></div>
-<h5 id="ignore-patterns-1">Ignore Patterns</h5>
-<p>lmcat supports two types of ignore files:</p>
-<ol type="1">
-<li><code>.gitignore</code> - Standard Git ignore patterns (used by
-default)</li>
-<li><code>.lmignore</code> - Custom ignore patterns specific to
-lmcat</li>
-</ol>
-<p><code>.lmignore</code> follows the same pattern syntax as
-<code>.gitignore</code>. Patterns in <code>.lmignore</code> take
-precedence over <code>.gitignore</code>.</p>
-<p>Example <code>.lmignore</code>:</p>
-<pre class="gitignore"><code>### Ignore all .log files
-*.log
-
-### Ignore the build directory and its contents
-build/
-
-### Un-ignore a specific file (overrides previous patterns)
-!important.log</code></pre>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">### Tree formatting</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_divider</span> <span class="op">=</span> <span class="st">&quot;│   &quot;</span>    <span class="co"># Vertical lines in tree</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_indent</span> <span class="op">=</span> <span class="st">&quot; &quot;</span>        <span class="co"># Indentation</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_file_divider</span> <span class="op">=</span> <span class="st">&quot;├── &quot;</span>  <span class="co"># File/directory entries</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="dt">content_divider</span> <span class="op">=</span> <span class="st">&quot;``````&quot;</span>  <span class="co"># File content delimiters</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">### Processing pipeline</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="dt">tokenizer</span> <span class="op">=</span> <span class="st">&quot;gpt2&quot;</span>  <span class="co"># or &quot;whitespace-split&quot;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="dt">tree_only</span> <span class="op">=</span> <span class="cn">false</span>   <span class="co"># Only show tree structure</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="dt">on_multiple_processors</span> <span class="op">=</span> <span class="st">&quot;except&quot;</span>  <span class="co"># Behavior when multiple processors match</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">### File handling</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="dt">ignore_patterns</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;*.tmp&quot;</span><span class="op">,</span> <span class="st">&quot;*.log&quot;</span><span class="op">]</span>  <span class="co"># Additional patterns to ignore</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="dt">ignore_patterns_files</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;.gitignore&quot;</span><span class="op">,</span> <span class="st">&quot;.lmignore&quot;</span><span class="op">]</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">### processors</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.lmcat.glob_process]</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;[mM]akefile&quot;</span> <span class="op">=</span> <span class="st">&quot;makefile_recipes&quot;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;*.ipynb&quot;</span> <span class="op">=</span> <span class="st">&quot;ipynb_to_md&quot;</span></span></code></pre></div>
 <h4 id="development-1">Development</h4>
 <h5 id="setup-1">Setup</h5>
 <ol type="1">
 <li>Clone the repository:</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/mivanit/lmcat</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> lmcat</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/mivanit/lmcat</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> lmcat</span></code></pre></div>
 <ol start="2" type="1">
 <li>Set up the development environment:</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> setup</span></code></pre></div>
-<p>This will: - Create a virtual environment - Install development
-dependencies - Set up pre-commit hooks</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> setup</span></code></pre></div>
 <h5 id="development-commands-1">Development Commands</h5>
 <p>The project uses <code>make</code> for common development tasks:</p>
 <ul>
@@ -233,16 +233,20 @@ dependencies - Set up pre-commit hooks</p>
 </ul>
 <p>Run <code>make help</code> to see all available commands.</p>
 <h5 id="running-tests-1">Running Tests</h5>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> test</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> test</span></code></pre></div>
 <p>For verbose output:</p>
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="va">VERBOSE</span><span class="op">=</span>1 <span class="fu">make</span> test</span></code></pre></div>
-<p>For test coverage:</p>
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> cov</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="va">VERBOSE</span><span class="op">=</span>1 <span class="fu">make</span> test</span></code></pre></div>
 <h5 id="roadmap-1">Roadmap</h5>
 <ul>
+<li>more processors and deciders, like:
+<ul>
+<li>only first <code>n</code> lines if file is too large</li>
+<li>first few lines of a csv file</li>
+<li>json schema of a big json/toml/yaml file</li>
+<li>metadata extraction from images</li>
+</ul></li>
 <li>better tests, I feel like gitignore/lmignore interaction is
 broken</li>
 <li>llm summarization and caching of those summaries in
@@ -251,12 +255,12 @@ broken</li>
 <li>web interface</li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L0-L6">View
+href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py#L0-L6">View
 Source on GitHub</a></p>
 <h3 id="main"><code>def main</code></h3>
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="va">None</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="va">None</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L194-L273">View
+href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py#L393-L459">View
 Source on GitHub</a></p>
 <p>Main entry point for the script</p>

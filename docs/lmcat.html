@@ -46,7 +46,7 @@
 </script></head>
 <body>
 <div class="package-version">
-    docs for <a href="https://github.com/mivanit/lmcat">lmcat</a> v0.0.1<br>
+    docs for <a href="https://github.com/mivanit/lmcat">lmcat</a> v0.1.0<br>
 </div>
     <nav class="pdoc">
         <label id="navtoggle" for="togglestate" class="pdoc-button">
@@ -86,7 +86,7 @@
     </nav>
     <main class="pdoc">
             <section class="module-info">
-                        <a class="pdoc-button git-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py">View Source on GitHub</a>
+                        <a class="pdoc-button git-button" href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py">View Source on GitHub</a>
                     <h1 class="modulename">
 lmcat    </h1>
 
@@ -97,12 +97,14 @@ lmcat    </h1>
 <h2 id="features">Features</h2>
 
 <ul>
-<li>Creates a tree view of your directory structure</li>
+<li>Tree view of directory structure with file statistics (lines, characters, tokens)</li>
 <li>Includes file contents with clear delimiters</li>
 <li>Respects <code>.gitignore</code> patterns (can be disabled)</li>
 <li>Supports custom ignore patterns via <code>.lmignore</code></li>
-<li>Configurable via <code>pyproject.toml</code>, <code>lmcat.toml</code>, or <code>lmcat.json</code></li>
-<li>Python 3.11+ native, with fallback support for older versions</li>
+<li>Configurable via <code>pyproject.toml</code>, <code>lmcat.toml</code>, or <code>lmcat.json</code>
+<ul>
+<li>you can specify <code>glob_process</code> or <code>decider_process</code> to run on files, like if you want to convert a notebook to a markdown file</li>
+</ul></li>
 </ul>
 
 <h2 id="installation">Installation</h2>
@@ -114,12 +116,26 @@ lmcat    </h1>
 </code></pre>
 </div>
 
+<p>or, install with support for counting tokens:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>lmcat<span class="o">[</span>tokenizers<span class="o">]</span>
+</code></pre>
+</div>
+
 <h2 id="usage">Usage</h2>
 
 <p>Basic usage - concatenate current directory:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>lmcat
+<pre><span></span><code><span class="c1"># Only show directory tree</span>
+python<span class="w"> </span>-m<span class="w"> </span>lmcat<span class="w"> </span>--tree-only
+
+<span class="c1"># Write output to file</span>
+python<span class="w"> </span>-m<span class="w"> </span>lmcat<span class="w"> </span>--output<span class="w"> </span>summary.md
+
+<span class="c1"># Print current configuration</span>
+python<span class="w"> </span>-m<span class="w"> </span>lmcat<span class="w"> </span>--print-cfg
 </code></pre>
 </div>
 
@@ -128,7 +144,6 @@ lmcat    </h1>
 <h3 id="command-line-options">Command Line Options</h3>
 
 <ul>
-<li><code>-g</code>, <code>--no-include-gitignore</code>: Ignore <code>.gitignore</code> files (they are included by default)</li>
 <li><code>-t</code>, <code>--tree-only</code>: Only print the directory tree, not file contents</li>
 <li><code>-o</code>, <code>--output</code>: Specify an output file (defaults to stdout)</li>
 <li><code>-h</code>, <code>--help</code>: Show help message</li>
@@ -136,49 +151,31 @@ lmcat    </h1>
 
 <h3 id="configuration">Configuration</h3>
 
-<p>lmcat can be configured using any of these files (in order of precedence):</p>
-
-<ol>
-<li><code>pyproject.toml</code> (under <code>[tool.lmcat]</code>)</li>
-<li><code>lmcat.toml</code></li>
-<li><code>lmcat.json</code></li>
-</ol>
-
-<p>Configuration options:</p>
+<p>lmcat is best configured via a <code>tool.lmcat</code> section in <code>pyproject.toml</code>:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="k">[tool.lmcat]</span>
-<span class="n">tree_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;│   &quot;</span><span class="w">    </span><span class="c1"># Used for vertical lines in the tree</span>
-<span class="n">indent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;    &quot;</span><span class="w">          </span><span class="c1"># Used for indentation</span>
-<span class="n">file_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;├── &quot;</span><span class="w">    </span><span class="c1"># Used for file/directory entries</span>
-<span class="n">content_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;``````&quot;</span><span class="w"> </span><span class="c1"># Used to delimit file contents</span>
-<span class="n">include_gitignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c1"># Whether to respect .gitignore files</span>
-<span class="n">tree_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">       </span><span class="c1"># Whether to only show the tree</span>
+<span class="c1"># Tree formatting</span>
+<span class="n">tree_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;│   &quot;</span><span class="w">    </span><span class="c1"># Vertical lines in tree</span>
+<span class="n">tree_indent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="w">        </span><span class="c1"># Indentation</span>
+<span class="n">tree_file_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;├── &quot;</span><span class="w">  </span><span class="c1"># File/directory entries</span>
+<span class="n">content_divider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;``````&quot;</span><span class="w">  </span><span class="c1"># File content delimiters</span>
+
+<span class="c1"># Processing pipeline</span>
+<span class="n">tokenizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;gpt2&quot;</span><span class="w">  </span><span class="c1"># or &quot;whitespace-split&quot;</span>
+<span class="n">tree_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w">   </span><span class="c1"># Only show tree structure</span>
+<span class="n">on_multiple_processors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;except&quot;</span><span class="w">  </span><span class="c1"># Behavior when multiple processors match</span>
+
+<span class="c1"># File handling</span>
+<span class="n">ignore_patterns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*.tmp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;*.log&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1"># Additional patterns to ignore</span>
+<span class="n">ignore_patterns_files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;.gitignore&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.lmignore&quot;</span><span class="p">]</span>
+
+<span class="c1"># processors</span>
+<span class="k">[tool.lmcat.glob_process]</span>
+<span class="s2">&quot;[mM]akefile&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;makefile_recipes&quot;</span>
+<span class="s2">&quot;*.ipynb&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ipynb_to_md&quot;</span>
 </code></pre>
 </div>
-
-<h3 id="ignore-patterns">Ignore Patterns</h3>
-
-<p>lmcat supports two types of ignore files:</p>
-
-<ol>
-<li><code>.gitignore</code> - Standard Git ignore patterns (used by default)</li>
-<li><code>.lmignore</code> - Custom ignore patterns specific to lmcat</li>
-</ol>
-
-<p><code>.lmignore</code> follows the same pattern syntax as <code>.gitignore</code>. Patterns in <code>.lmignore</code> take precedence over <code>.gitignore</code>.</p>
-
-<p>Example <code>.lmignore</code>:</p>
-
-<pre><code># Ignore all .log files
-*.log
-
-# Ignore the build directory and its contents
-build/
-
-# Un-ignore a specific file (overrides previous patterns)
-!important.log
-</code></pre>
 
 <h2 id="development">Development</h2>
 
@@ -202,14 +199,6 @@ build/
 <pre><span></span><code>make<span class="w"> </span>setup
 </code></pre>
 </div>
-
-<p>This will:</p>
-
-<ul>
-<li>Create a virtual environment</li>
-<li>Install development dependencies</li>
-<li>Set up pre-commit hooks</li>
-</ul>
 
 <h3 id="development-commands">Development Commands</h3>
 
@@ -243,16 +232,16 @@ build/
 </code></pre>
 </div>
 
-<p>For test coverage:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>make<span class="w"> </span>cov
-</code></pre>
-</div>
-
 <h3 id="roadmap">Roadmap</h3>
 
 <ul>
+<li>more processors and deciders, like:
+<ul>
+<li>only first <code>n</code> lines if file is too large</li>
+<li>first few lines of a csv file</li>
+<li>json schema of a big json/toml/yaml file</li>
+<li>metadata extraction from images</li>
+</ul></li>
 <li>better tests, I feel like gitignore/lmignore interaction is broken</li>
 <li>llm summarization and caching of those summaries in <code>.lmsummary/</code></li>
 <li>reasonable defaults for file extensions to ignore</li>
@@ -265,7 +254,7 @@ build/
                         <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="mod-lmcat-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L0-L6" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py#L0-L6" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -294,7 +283,7 @@ build/
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="main-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.0.1/__init__.py#L194-L273" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.0/__init__.py#L393-L459" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -302,86 +291,73 @@ build/
 
     </div>
     <a class="headerlink" href="#main"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="main-195"><a href="#main-195"><span class="linenos">195</span></a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="main-196"><a href="#main-196"><span class="linenos">196</span></a><span class="w">	</span><span class="sd">&quot;&quot;&quot;Main entry point for the script&quot;&quot;&quot;</span>
-</span><span id="main-197"><a href="#main-197"><span class="linenos">197</span></a>	<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-</span><span id="main-198"><a href="#main-198"><span class="linenos">198</span></a>		<span class="n">description</span><span class="o">=</span><span class="s2">&quot;lmcat - list tree and content, combining .gitignore + .lmignore&quot;</span><span class="p">,</span>
-</span><span id="main-199"><a href="#main-199"><span class="linenos">199</span></a>		<span class="n">add_help</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="main-200"><a href="#main-200"><span class="linenos">200</span></a>	<span class="p">)</span>
-</span><span id="main-201"><a href="#main-201"><span class="linenos">201</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-</span><span id="main-202"><a href="#main-202"><span class="linenos">202</span></a>		<span class="s2">&quot;-g&quot;</span><span class="p">,</span>
-</span><span id="main-203"><a href="#main-203"><span class="linenos">203</span></a>		<span class="s2">&quot;--no-include-gitignore&quot;</span><span class="p">,</span>
-</span><span id="main-204"><a href="#main-204"><span class="linenos">204</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
-</span><span id="main-205"><a href="#main-205"><span class="linenos">205</span></a>		<span class="n">dest</span><span class="o">=</span><span class="s2">&quot;include_gitignore&quot;</span><span class="p">,</span>
-</span><span id="main-206"><a href="#main-206"><span class="linenos">206</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="main-207"><a href="#main-207"><span class="linenos">207</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not parse .gitignore files, only .lmignore (default: parse them).&quot;</span><span class="p">,</span>
-</span><span id="main-208"><a href="#main-208"><span class="linenos">208</span></a>	<span class="p">)</span>
-</span><span id="main-209"><a href="#main-209"><span class="linenos">209</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-</span><span id="main-210"><a href="#main-210"><span class="linenos">210</span></a>		<span class="s2">&quot;-t&quot;</span><span class="p">,</span>
-</span><span id="main-211"><a href="#main-211"><span class="linenos">211</span></a>		<span class="s2">&quot;--tree-only&quot;</span><span class="p">,</span>
-</span><span id="main-212"><a href="#main-212"><span class="linenos">212</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-</span><span id="main-213"><a href="#main-213"><span class="linenos">213</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="main-214"><a href="#main-214"><span class="linenos">214</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only print the tree, not the file contents.&quot;</span><span class="p">,</span>
-</span><span id="main-215"><a href="#main-215"><span class="linenos">215</span></a>	<span class="p">)</span>
-</span><span id="main-216"><a href="#main-216"><span class="linenos">216</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-</span><span id="main-217"><a href="#main-217"><span class="linenos">217</span></a>		<span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-</span><span id="main-218"><a href="#main-218"><span class="linenos">218</span></a>		<span class="s2">&quot;--output&quot;</span><span class="p">,</span>
-</span><span id="main-219"><a href="#main-219"><span class="linenos">219</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
-</span><span id="main-220"><a href="#main-220"><span class="linenos">220</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="main-221"><a href="#main-221"><span class="linenos">221</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to.&quot;</span><span class="p">,</span>
-</span><span id="main-222"><a href="#main-222"><span class="linenos">222</span></a>	<span class="p">)</span>
-</span><span id="main-223"><a href="#main-223"><span class="linenos">223</span></a>	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-</span><span id="main-224"><a href="#main-224"><span class="linenos">224</span></a>		<span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show this help message and exit.&quot;</span>
-</span><span id="main-225"><a href="#main-225"><span class="linenos">225</span></a>	<span class="p">)</span>
-</span><span id="main-226"><a href="#main-226"><span class="linenos">226</span></a>
-</span><span id="main-227"><a href="#main-227"><span class="linenos">227</span></a>	<span class="n">args</span><span class="p">,</span> <span class="n">unknown</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
-</span><span id="main-228"><a href="#main-228"><span class="linenos">228</span></a>
-</span><span id="main-229"><a href="#main-229"><span class="linenos">229</span></a>	<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-</span><span id="main-230"><a href="#main-230"><span class="linenos">230</span></a>	<span class="n">config</span> <span class="o">=</span> <span class="n">LMCatConfig</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
-</span><span id="main-231"><a href="#main-231"><span class="linenos">231</span></a>
-</span><span id="main-232"><a href="#main-232"><span class="linenos">232</span></a>	<span class="c1"># CLI overrides</span>
-</span><span id="main-233"><a href="#main-233"><span class="linenos">233</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">include_gitignore</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">include_gitignore</span>
-</span><span id="main-234"><a href="#main-234"><span class="linenos">234</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
-</span><span id="main-235"><a href="#main-235"><span class="linenos">235</span></a>
-</span><span id="main-236"><a href="#main-236"><span class="linenos">236</span></a>	<span class="n">tree_output</span><span class="p">,</span> <span class="n">collected_files</span> <span class="o">=</span> <span class="n">walk_and_collect</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-</span><span id="main-237"><a href="#main-237"><span class="linenos">237</span></a>
-</span><span id="main-238"><a href="#main-238"><span class="linenos">238</span></a>	<span class="n">output</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="main-239"><a href="#main-239"><span class="linenos">239</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;# File Tree&quot;</span><span class="p">)</span>
-</span><span id="main-240"><a href="#main-240"><span class="linenos">240</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">```&quot;</span><span class="p">)</span>
-</span><span id="main-241"><a href="#main-241"><span class="linenos">241</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tree_output</span><span class="p">)</span>
-</span><span id="main-242"><a href="#main-242"><span class="linenos">242</span></a>	<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="main-243"><a href="#main-243"><span class="linenos">243</span></a>
-</span><span id="main-244"><a href="#main-244"><span class="linenos">244</span></a>	<span class="n">cwd</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
-</span><span id="main-245"><a href="#main-245"><span class="linenos">245</span></a>
-</span><span id="main-246"><a href="#main-246"><span class="linenos">246</span></a>	<span class="c1"># Add file contents if not suppressed</span>
-</span><span id="main-247"><a href="#main-247"><span class="linenos">247</span></a>	<span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">tree_only</span><span class="p">:</span>
-</span><span id="main-248"><a href="#main-248"><span class="linenos">248</span></a>		<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;# File Contents&quot;</span><span class="p">)</span>
-</span><span id="main-249"><a href="#main-249"><span class="linenos">249</span></a>
-</span><span id="main-250"><a href="#main-250"><span class="linenos">250</span></a>		<span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">collected_files</span><span class="p">:</span>
-</span><span id="main-251"><a href="#main-251"><span class="linenos">251</span></a>			<span class="n">relpath_posix</span> <span class="o">=</span> <span class="n">fpath</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-</span><span id="main-252"><a href="#main-252"><span class="linenos">252</span></a>			<span class="n">pathspec_start</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1"> path: &quot;</span><span class="si">{</span><span class="n">relpath_posix</span><span class="si">}</span><span class="s1">&quot; </span><span class="se">}}</span><span class="s1">&#39;</span>
-</span><span id="main-253"><a href="#main-253"><span class="linenos">253</span></a>			<span class="n">pathspec_end</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1"> end_of_file: &quot;</span><span class="si">{</span><span class="n">relpath_posix</span><span class="si">}</span><span class="s1">&quot; </span><span class="se">}}</span><span class="s1">&#39;</span>
-</span><span id="main-254"><a href="#main-254"><span class="linenos">254</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="main-255"><a href="#main-255"><span class="linenos">255</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">content_divider</span> <span class="o">+</span> <span class="n">pathspec_start</span><span class="p">)</span>
-</span><span id="main-256"><a href="#main-256"><span class="linenos">256</span></a>			<span class="k">with</span> <span class="n">fpath</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
-</span><span id="main-257"><a href="#main-257"><span class="linenos">257</span></a>				<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-</span><span id="main-258"><a href="#main-258"><span class="linenos">258</span></a>			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">content_divider</span> <span class="o">+</span> <span class="n">pathspec_end</span><span class="p">)</span>
-</span><span id="main-259"><a href="#main-259"><span class="linenos">259</span></a>
-</span><span id="main-260"><a href="#main-260"><span class="linenos">260</span></a>	<span class="c1"># Write output</span>
-</span><span id="main-261"><a href="#main-261"><span class="linenos">261</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-</span><span id="main-262"><a href="#main-262"><span class="linenos">262</span></a>		<span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="main-263"><a href="#main-263"><span class="linenos">263</span></a>		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="main-264"><a href="#main-264"><span class="linenos">264</span></a>			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
-</span><span id="main-265"><a href="#main-265"><span class="linenos">265</span></a>	<span class="k">else</span><span class="p">:</span>
-</span><span id="main-266"><a href="#main-266"><span class="linenos">266</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
-</span><span id="main-267"><a href="#main-267"><span class="linenos">267</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="main-268"><a href="#main-268"><span class="linenos">268</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="main-269"><a href="#main-269"><span class="linenos">269</span></a>			<span class="p">)</span>
-</span><span id="main-270"><a href="#main-270"><span class="linenos">270</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="main-271"><a href="#main-271"><span class="linenos">271</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="main-272"><a href="#main-272"><span class="linenos">272</span></a>			<span class="p">)</span>
-</span><span id="main-273"><a href="#main-273"><span class="linenos">273</span></a>
-</span><span id="main-274"><a href="#main-274"><span class="linenos">274</span></a>		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="main-394"><a href="#main-394"><span class="linenos">394</span></a><span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="main-395"><a href="#main-395"><span class="linenos">395</span></a><span class="w">	</span><span class="sd">&quot;&quot;&quot;Main entry point for the script&quot;&quot;&quot;</span>
+</span><span id="main-396"><a href="#main-396"><span class="linenos">396</span></a>	<span class="n">arg_parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+</span><span id="main-397"><a href="#main-397"><span class="linenos">397</span></a>		<span class="n">description</span><span class="o">=</span><span class="s2">&quot;lmcat - list tree and content, combining .gitignore + .lmignore&quot;</span><span class="p">,</span>
+</span><span id="main-398"><a href="#main-398"><span class="linenos">398</span></a>		<span class="n">add_help</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-399"><a href="#main-399"><span class="linenos">399</span></a>	<span class="p">)</span>
+</span><span id="main-400"><a href="#main-400"><span class="linenos">400</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-401"><a href="#main-401"><span class="linenos">401</span></a>		<span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+</span><span id="main-402"><a href="#main-402"><span class="linenos">402</span></a>		<span class="s2">&quot;--tree-only&quot;</span><span class="p">,</span>
+</span><span id="main-403"><a href="#main-403"><span class="linenos">403</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+</span><span id="main-404"><a href="#main-404"><span class="linenos">404</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-405"><a href="#main-405"><span class="linenos">405</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only print the tree, not the file contents.&quot;</span><span class="p">,</span>
+</span><span id="main-406"><a href="#main-406"><span class="linenos">406</span></a>	<span class="p">)</span>
+</span><span id="main-407"><a href="#main-407"><span class="linenos">407</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-408"><a href="#main-408"><span class="linenos">408</span></a>		<span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+</span><span id="main-409"><a href="#main-409"><span class="linenos">409</span></a>		<span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+</span><span id="main-410"><a href="#main-410"><span class="linenos">410</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
+</span><span id="main-411"><a href="#main-411"><span class="linenos">411</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="main-412"><a href="#main-412"><span class="linenos">412</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to.&quot;</span><span class="p">,</span>
+</span><span id="main-413"><a href="#main-413"><span class="linenos">413</span></a>	<span class="p">)</span>
+</span><span id="main-414"><a href="#main-414"><span class="linenos">414</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-415"><a href="#main-415"><span class="linenos">415</span></a>		<span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show this help message and exit.&quot;</span>
+</span><span id="main-416"><a href="#main-416"><span class="linenos">416</span></a>	<span class="p">)</span>
+</span><span id="main-417"><a href="#main-417"><span class="linenos">417</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-418"><a href="#main-418"><span class="linenos">418</span></a>		<span class="s2">&quot;--print-cfg&quot;</span><span class="p">,</span>
+</span><span id="main-419"><a href="#main-419"><span class="linenos">419</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+</span><span id="main-420"><a href="#main-420"><span class="linenos">420</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-421"><a href="#main-421"><span class="linenos">421</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print the configuration as json and exit.&quot;</span><span class="p">,</span>
+</span><span id="main-422"><a href="#main-422"><span class="linenos">422</span></a>	<span class="p">)</span>
+</span><span id="main-423"><a href="#main-423"><span class="linenos">423</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+</span><span id="main-424"><a href="#main-424"><span class="linenos">424</span></a>		<span class="s2">&quot;--allow-plugins&quot;</span><span class="p">,</span>
+</span><span id="main-425"><a href="#main-425"><span class="linenos">425</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+</span><span id="main-426"><a href="#main-426"><span class="linenos">426</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="main-427"><a href="#main-427"><span class="linenos">427</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Allow plugins to be loaded from the plugins file. WARNING: this will execute arbitrary code found in the file pointed to by `config.plugins_file`, and **is a security risk**.&quot;</span><span class="p">,</span>
+</span><span id="main-428"><a href="#main-428"><span class="linenos">428</span></a>	<span class="p">)</span>
+</span><span id="main-429"><a href="#main-429"><span class="linenos">429</span></a>
+</span><span id="main-430"><a href="#main-430"><span class="linenos">430</span></a>	<span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span> <span class="o">=</span> <span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="main-431"><a href="#main-431"><span class="linenos">431</span></a>	<span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+</span><span id="main-432"><a href="#main-432"><span class="linenos">432</span></a>	<span class="n">config</span><span class="p">:</span> <span class="n">LMCatConfig</span> <span class="o">=</span> <span class="n">LMCatConfig</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
+</span><span id="main-433"><a href="#main-433"><span class="linenos">433</span></a>
+</span><span id="main-434"><a href="#main-434"><span class="linenos">434</span></a>	<span class="c1"># CLI overrides</span>
+</span><span id="main-435"><a href="#main-435"><span class="linenos">435</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
+</span><span id="main-436"><a href="#main-436"><span class="linenos">436</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">allow_plugins</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_plugins</span>
+</span><span id="main-437"><a href="#main-437"><span class="linenos">437</span></a>
+</span><span id="main-438"><a href="#main-438"><span class="linenos">438</span></a>	<span class="c1"># print cfg and exit if requested</span>
+</span><span id="main-439"><a href="#main-439"><span class="linenos">439</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_cfg</span><span class="p">:</span>
+</span><span id="main-440"><a href="#main-440"><span class="linenos">440</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+</span><span id="main-441"><a href="#main-441"><span class="linenos">441</span></a>		<span class="k">return</span>
+</span><span id="main-442"><a href="#main-442"><span class="linenos">442</span></a>
+</span><span id="main-443"><a href="#main-443"><span class="linenos">443</span></a>	<span class="c1"># assemble summary</span>
+</span><span id="main-444"><a href="#main-444"><span class="linenos">444</span></a>	<span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">assemble_summary</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span><span id="main-445"><a href="#main-445"><span class="linenos">445</span></a>
+</span><span id="main-446"><a href="#main-446"><span class="linenos">446</span></a>	<span class="c1"># Write output</span>
+</span><span id="main-447"><a href="#main-447"><span class="linenos">447</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+</span><span id="main-448"><a href="#main-448"><span class="linenos">448</span></a>		<span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</span><span id="main-449"><a href="#main-449"><span class="linenos">449</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="main-450"><a href="#main-450"><span class="linenos">450</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</span><span id="main-451"><a href="#main-451"><span class="linenos">451</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="main-452"><a href="#main-452"><span class="linenos">452</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
+</span><span id="main-453"><a href="#main-453"><span class="linenos">453</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-454"><a href="#main-454"><span class="linenos">454</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-455"><a href="#main-455"><span class="linenos">455</span></a>			<span class="p">)</span>
+</span><span id="main-456"><a href="#main-456"><span class="linenos">456</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-457"><a href="#main-457"><span class="linenos">457</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-458"><a href="#main-458"><span class="linenos">458</span></a>			<span class="p">)</span>
+</span><span id="main-459"><a href="#main-459"><span class="linenos">459</span></a>
+</span><span id="main-460"><a href="#main-460"><span class="linenos">460</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
 </span></pre></div>
 
 
