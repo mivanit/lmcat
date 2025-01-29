@@ -1,8 +1,8 @@
 # Stats
 - 12 files
 - 67 lines
-- 55159 (55K) chars
-- 20904 (21K) `gpt2` tokens
+- 54972 (55K) chars
+- 20734 (21K) `gpt2` tokens
 
 # File Tree
 
@@ -13,9 +13,9 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [466L 13,537C 5,041T]
-│   ├── processing_pipeline.py  [179L  5,243C 1,970T]
-│   └── processors.py           [112L  3,007C 1,080T]
+│   ├── lmcat.py                [463L 13,493C 5,027T]
+│   ├── processing_pipeline.py  [183L  5,120C 1,855T]
+│   └── processors.py           [117L  2,987C 1,038T]
 ├── tests                       
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
 │   └── test_lmcat_2.py         [148L  4,192C 1,586T]
@@ -248,7 +248,6 @@ import json
 # from dataclasses import dataclass, field
 from pathlib import Path
 import sys
-from typing import Literal
 
 from lmcat.processing_pipeline import ProcessingPipeline
 
@@ -273,7 +272,7 @@ from muutils.misc import shorten_numerical_to_str  # noqa: E402
 
 
 from lmcat.file_stats import FileStats, TokenizerWrapper, TreeEntry, TOKENIZERS_PRESENT
-from lmcat.processing_pipeline import OnMultipleProcessors, ProcessingPipeline
+from lmcat.processing_pipeline import OnMultipleProcessors
 
 
 @serializable_dataclass(kw_only=True)
@@ -304,14 +303,14 @@ class LMCatConfig(SerializableDataclass):
 	# with one of the `register_*` decorators, they will be added to the functions
 	# which can be used in the processing pipeline
 	# --allow-plugins is a command line only option and must be set to true for this to work
-	plugins_file: Path|None = serializable_field(
+	plugins_file: Path | None = serializable_field(
 		default=None,
 		serialization_fn=lambda x: x.as_posix() if x else None,
 		deserialize_fn=lambda x: Path(x) if x else None,
 	)
 	allow_plugins: bool = serializable_field(
 		default=False,
-		deserialize_fn=lambda x: False, # this can only be overriden through the command line
+		deserialize_fn=lambda x: False,  # this can only be overriden through the command line
 	)
 
 	# processing pipeline
@@ -321,7 +320,6 @@ class LMCatConfig(SerializableDataclass):
 		default="except",
 		assert_type=False,
 	)
-	
 
 	# tokenization
 	tokenizer: str = serializable_field(
@@ -337,11 +335,10 @@ class LMCatConfig(SerializableDataclass):
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
 		return TokenizerWrapper(self.tokenizer)
-	
 
 	def get_processing_pipeline(self) -> ProcessingPipeline:
 		"""Get the processing pipeline object"""
-		plugins_file: Path|None = self.plugins_file if self.allow_plugins else None
+		plugins_file: Path | None = self.plugins_file if self.allow_plugins else None
 		return ProcessingPipeline(
 			plugins_file=plugins_file,
 			glob_process_keys=self.glob_process,
@@ -593,9 +590,9 @@ def assemble_summary(
 
 			# process the contents
 			f_contents: str
-			p_name: str|None
+			p_name: str | None
 			f_contents, p_name = processing_pipeline.process_file(fpath)
-			processed_with: str = f'processed_with="{p_name}"' if p_name else ''
+			processed_with: str = f'processed_with="{p_name}"' if p_name else ""
 
 			# start of file marker
 			pathspec_start: str = f'{{ path="{relpath_posix}" {processed_with} }}'
@@ -714,7 +711,7 @@ if __name__ == "__main__":
 from importlib.util import spec_from_file_location, module_from_spec
 import sys
 from pathlib import Path
-from typing import Callable, Literal, Optional
+from typing import Literal
 import re
 import warnings
 
@@ -729,13 +726,14 @@ from lmcat.processors import (
 
 OnMultipleProcessors = Literal["warn", "except", "do_first", "do_last", "skip"]
 
+
 def _compile_glob(pattern: str) -> re.Pattern:
 	"""Convert a glob pattern to a regex pattern.
-	
+
 	# Parameters:
 		- `pattern : str`
 		Glob pattern to compile
-	
+
 	# Returns:
 		- `re.Pattern`
 		Compiled regex pattern
@@ -745,31 +743,32 @@ def _compile_glob(pattern: str) -> re.Pattern:
 
 
 def load_plugins(plugins_file: Path) -> None:
-    """Load plugins from a Python file.
-    
-    # Parameters:
-     - `plugins_file : Path`
-        Path to plugins file
-    """
-    if not plugins_file.exists():
-        return
-        
-    try:
-        # Load module
-        spec = spec_from_file_location("lmcat_plugins", plugins_file)
-        if spec is None or spec.loader is None:
-            return
-            
-        module = module_from_spec(spec)
-        # Add to sys.modules so imports work properly
-        sys.modules["lmcat_plugins"] = module
-        spec.loader.exec_module(module)
-    except Exception as e:
-        print(f"Error loading plugins: {e}", file=sys.stderr)
+	"""Load plugins from a Python file.
+
+	# Parameters:
+	 - `plugins_file : Path`
+	    Path to plugins file
+	"""
+	if not plugins_file.exists():
+		return
+
+	try:
+		# Load module
+		spec = spec_from_file_location("lmcat_plugins", plugins_file)
+		if spec is None or spec.loader is None:
+			return
+
+		module = module_from_spec(spec)
+		# Add to sys.modules so imports work properly
+		sys.modules["lmcat_plugins"] = module
+		spec.loader.exec_module(module)
+	except Exception as e:
+		print(f"Error loading plugins: {e}", file=sys.stderr)
+
 
 class ProcessingPipeline:
 	"""Manages the processing pipeline for files.
-	
+
 	# Attributes:
 	 - `glob_process : dict[str, ProcessorName]`
 		Maps glob patterns to processor names
@@ -778,18 +777,20 @@ class ProcessingPipeline:
 	 - `_compiled_globs : dict[str, re.Pattern]`
 		Cached compiled glob patterns for performance
 	"""
-	
+
 	def __init__(
-			self,
-			plugins_file: Path|None,
-			glob_process_keys: dict[str, ProcessorName],
-			decider_process_keys: dict[DeciderName, ProcessorName],
-			on_multiple_processors: OnMultipleProcessors,
-		):
+		self,
+		plugins_file: Path | None,
+		glob_process_keys: dict[str, ProcessorName],
+		decider_process_keys: dict[DeciderName, ProcessorName],
+		on_multiple_processors: OnMultipleProcessors,
+	):
 		# store the vars
-		self.plugins_file: Path|None = plugins_file
+		self.plugins_file: Path | None = plugins_file
 		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
-		self.decider_process_keys: dict[DeciderName, ProcessorName] = decider_process_keys
+		self.decider_process_keys: dict[DeciderName, ProcessorName] = (
+			decider_process_keys
+		)
 		self.on_multiple_processors: OnMultipleProcessors = on_multiple_processors
 
 		# load the plugins file
@@ -817,40 +818,38 @@ class ProcessingPipeline:
 				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
 			) from e
 
-
-
 	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
 		"""Get all applicable processors for a given path.
-		
+
 		# Parameters:
 		 - `path : Path`
 			Path to get processors for
-			
+
 		# Returns:
 		 - `list[ProcessorFunc]`
 			List of applicable path processors
 		"""
 		processors: list[ProcessorFunc] = []
-		
+
 		# Check glob patterns
 		for glob_pattern, processor in self.glob_process.items():
 			if glob_pattern.match(path.name):
 				processors.append(processor)
-		
+
 		# Check deciders
 		for decider, processor in self.decider_process.items():
 			if decider(path):
 				processors.append(processor)
-		
+
 		return processors
 
-	def process_file(self, path: Path) -> tuple[str, str|None]:
+	def process_file(self, path: Path) -> tuple[str, str | None]:
 		"""Process a file through the pipeline.
-		
+
 		# Parameters:
 		 - `path : Path`
 			Path to process the content of
-			
+
 		# Returns:
 		 - `tuple[str, str]`
 			Processed content and the processor name
@@ -858,9 +857,9 @@ class ProcessingPipeline:
 		"""
 		# Get all applicable processors
 		processors: list[ProcessorFunc] = self.get_processors_for_path(path)
-		
+
 		# Early return if no processors
-		selected_processor: ProcessorFunc|None
+		selected_processor: ProcessorFunc | None
 
 		if len(processors) == 0:
 			selected_processor = None
@@ -873,7 +872,9 @@ class ProcessingPipeline:
 					warnings.warn(f"Multiple processors for {path.name}: {processors}")
 					selected_processor = processors[0]
 				case "except":
-					raise ValueError(f"Multiple processors for {path.name}: {processors}")
+					raise ValueError(
+						f"Multiple processors for {path.name}: {processors}"
+					)
 				case "do_first":
 					selected_processor = processors[0]
 				case "do_last":
@@ -881,15 +882,15 @@ class ProcessingPipeline:
 				case "skip":
 					selected_processor = None
 				case _:
-					raise ValueError(f"Invalid on_multiple_processors: {self.on_multiple_processors = }")
-				
+					raise ValueError(
+						f"Invalid on_multiple_processors: {self.on_multiple_processors = }"
+					)
 
 		# Process the file and return
 		if selected_processor is None:
 			return path.read_text(encoding="utf-8", errors="surrogateescape"), None
 		else:
 			return selected_processor(path), selected_processor.__name__
-	
 
 ``````{ end_of_file="lmcat/processing_pipeline.py" }
 
@@ -914,6 +915,7 @@ def register_processor(func: ProcessorFunc) -> ProcessorFunc:
 	PROCESSORS[ProcessorName(func.__name__)] = func
 	return func
 
+
 def register_decider(func: DeciderFunc) -> DeciderFunc:
 	"""Register a function as a decider"""
 	DECIDERS[DeciderName(func.__name__)] = func
@@ -924,88 +926,93 @@ def register_decider(func: DeciderFunc) -> DeciderFunc:
 def remove_comments(path: Path) -> str:
 	"""Remove single-line comments from code."""
 	lines = path.read_text().splitlines()
-	processed = [line for line in lines if not line.strip().startswith('#')]
-	return '\n'.join(processed)
+	processed = [line for line in lines if not line.strip().startswith("#")]
+	return "\n".join(processed)
+
 
 @register_processor
 def compress_whitespace(path: Path) -> str:
 	"""Compress multiple whitespace characters into single spaces."""
-	return ' '.join(path.read_text().split())
+	return " ".join(path.read_text().split())
+
 
 @register_processor
 def to_relative_path(path: Path) -> str:
 	"""return the path to the file as a string"""
 	return path.as_posix()
 
+
 @register_decider
 def is_python_file(path: Path) -> bool:
 	"""Check if file is a Python source file."""
-	return path.suffix == '.py'
+	return path.suffix == ".py"
+
 
 @register_decider
 def is_documentation(path: Path) -> bool:
 	"""Check if file is documentation."""
-	return path.suffix in {'.md', '.rst', '.txt'}
+	return path.suffix in {".md", ".rst", ".txt"}
 
 
 @register_processor
 def makefile_processor(path: Path) -> str:
 	"""Process a Makefile to show only target descriptions and basic structure.
-	
+
 	Preserves:
 	- Comments above .PHONY targets up to first empty line
 	- The .PHONY line and target line
 	- First line after target if it starts with @echo
-	
+
 	# Parameters:
 	 - `path : Path`
 		Path to the Makefile to process
-	
+
 	# Returns:
 	 - `str`
 		Processed Makefile content
 	"""
 	lines: Sequence[str] = path.read_text().splitlines()
 	output_lines: list[str] = []
-	
+
 	i: int = 0
 	while i < len(lines):
 		line: str = lines[i]
-		
+
 		# Look for .PHONY lines
-		if line.strip().startswith('.PHONY:'):
+		if line.strip().startswith(".PHONY:"):
 			# Store target name for later matching
-			target_name: str = line.split(':')[1].strip()
-			
+			target_name: str = line.split(":")[1].strip()
+
 			# Collect comments above until empty line
 			comment_lines: list[str] = []
 			look_back: int = i - 1
 			while look_back >= 0 and lines[look_back].strip():
-				if lines[look_back].strip().startswith('#'):
+				if lines[look_back].strip().startswith("#"):
 					comment_lines.insert(0, lines[look_back])
 				look_back -= 1
-			
+
 			# Add collected comments
 			output_lines.extend(comment_lines)
-			
+
 			# Add .PHONY line
 			output_lines.append(line)
-			
+
 			# Add target line (should be next)
-			if i + 1 < len(lines) and lines[i + 1].startswith(f'{target_name}:'):
+			if i + 1 < len(lines) and lines[i + 1].startswith(f"{target_name}:"):
 				output_lines.append(lines[i + 1])
 				i += 1
-				
+
 				# Check for @echo on next line
-				if i + 1 < len(lines) and lines[i + 1].strip().startswith('@echo'):
+				if i + 1 < len(lines) and lines[i + 1].strip().startswith("@echo"):
 					output_lines.append(lines[i + 1])
 
-				output_lines.append('	...')
-				output_lines.append('')
-			
+				output_lines.append("	...")
+				output_lines.append("")
+
 		i += 1
-	
-	return '\n'.join(output_lines)
+
+	return "\n".join(output_lines)
+
 ``````{ end_of_file="lmcat/processors.py" }
 
 ``````{ path="tests/test_lmcat.py"  }
