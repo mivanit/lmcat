@@ -1,15 +1,15 @@
 # Stats
 - 14 files
-- 2197 (2.2K) lines
-- 62167 (62K) chars
-- 23255 (23K) `gpt2` tokens
+- 2205 (2.2K) lines
+- 62258 (62K) chars
+- 23297 (23K) `gpt2` tokens
 
 # File Tree
 
 ```
 lmcat                           
 ├── lmcat                       
-│   ├── __init__.py             [  7L     84C    35T]
+│   ├── __init__.py             [ 15L    175C    79T]
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
@@ -35,7 +35,15 @@ lmcat
 
 from lmcat.lmcat import main
 
-__all__ = ["main"]
+__all__ = [
+	# funcs
+	"main",
+	# submodules
+	"lmcat",
+	"file_stats",
+	"processing_pipeline",
+	"processors",
+]
 
 ``````{ end_of_file="lmcat/__init__.py" }
 

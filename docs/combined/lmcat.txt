@@ -126,6 +126,13 @@ Roadmap
 -   reasonable defaults for file extensions to ignore
 -   web interface
 
+Submodules
+
+-   lmcat
+-   file_stats
+-   processing_pipeline
+-   processors
+
 API Documentation
 
 -   main
@@ -267,3 +274,588 @@ def main
 View Source on GitHub
 
 Main entry point for the script
+
+  docs for lmcat v0.1.0
+
+API Documentation
+
+-   TOKENIZERS_PRESENT
+-   TokenizerWrapper
+-   FileStats
+-   TreeEntry
+
+View Source on GitHub
+
+lmcat.file_stats
+
+View Source on GitHub
+
+-   TOKENIZERS_PRESENT: bool = True
+
+class TokenizerWrapper:
+
+View Source on GitHub
+
+tokenizer wrapper. stores name and provides n_tokens method.
+
+uses splitting by whitespace as a fallback – whitespace-split
+
+TokenizerWrapper
+
+    (name: str = 'whitespace-split')
+
+View Source on GitHub
+
+-   name: str
+
+-   use_fallback: bool
+
+-   tokenizer: Optional[tokenizers.Tokenizer]
+
+def n_tokens
+
+    (self, text: str) -> int
+
+View Source on GitHub
+
+Return number of tokens in text
+
+class FileStats:
+
+View Source on GitHub
+
+Statistics for a single file
+
+FileStats
+
+    (lines: int, chars: int, tokens: Optional[int] = None)
+
+-   lines: int
+
+-   chars: int
+
+-   tokens: Optional[int] = None
+
+def from_file
+
+    (
+        cls,
+        path: pathlib.Path,
+        tokenizer: lmcat.file_stats.TokenizerWrapper
+    ) -> lmcat.file_stats.FileStats
+
+View Source on GitHub
+
+Get statistics for a single file
+
+Parameters:
+
+-   path : Path Path to the file to analyze
+-   tokenizer : Optional[tokenizers.Tokenizer] Tokenizer to use for
+    counting tokens, if any
+
+Returns:
+
+-   FileStats Statistics for the file
+
+class TreeEntry(typing.NamedTuple):
+
+View Source on GitHub
+
+Entry in the tree output with optional stats
+
+TreeEntry
+
+    (line: str, stats: Optional[lmcat.file_stats.FileStats] = None)
+
+Create new instance of TreeEntry(line, stats)
+
+-   line: str
+
+Alias for field number 0
+
+-   stats: Optional[lmcat.file_stats.FileStats]
+
+Alias for field number 1
+
+Inherited Members
+
+-   index
+-   count
+
+  docs for lmcat v0.1.0
+
+API Documentation
+
+-   LMCatConfig
+-   IgnoreHandler
+-   sorted_entries
+-   walk_dir
+-   format_tree_with_stats
+-   walk_and_collect
+-   assemble_summary
+-   main
+
+View Source on GitHub
+
+lmcat.lmcat
+
+View Source on GitHub
+
+class LMCatConfig(muutils.json_serialize.serializable_dataclass.SerializableDataclass):
+
+View Source on GitHub
+
+Configuration dataclass for lmcat
+
+Parameters:
+
+-   tree_divider: str
+-   tree_indent: str
+-   tree_file_divider: str
+-   content_divider: str
+-   include_gitignore: bool (default True)
+-   tree_only: bool (default False)
+
+LMCatConfig
+
+    (
+        *,
+        content_divider: str = '``````',
+        tree_only: bool = False,
+        ignore_patterns: list[str] = <factory>,
+        ignore_patterns_files: list[pathlib.Path] = <factory>,
+        plugins_file: pathlib.Path | None = None,
+        allow_plugins: bool = False,
+        glob_process: dict[str, str] = <factory>,
+        decider_process: dict[str, str] = <factory>,
+        on_multiple_processors: Literal['warn', 'except', 'do_first', 'do_last', 'skip'] = 'except',
+        tokenizer: str = 'gpt2',
+        tree_divider: str = '│   ',
+        tree_file_divider: str = '├── ',
+        tree_indent: str = ' '
+    )
+
+-   content_divider: str = '``````'
+
+-   tree_only: bool = False
+
+-   ignore_patterns: list[str]
+
+-   ignore_patterns_files: list[pathlib.Path]
+
+-   plugins_file: pathlib.Path | None = None
+
+-   allow_plugins: bool = False
+
+-   glob_process: dict[str, str]
+
+-   decider_process: dict[str, str]
+
+-   on_multiple_processors: Literal['warn', 'except', 'do_first', 'do_last', 'skip'] = 'except'
+
+-   tokenizer: str = 'gpt2'
+
+Tokenizer to use for tokenizing the output. gpt2 by default. passed to
+tokenizers.Tokenizer.from_pretrained(). If specified and tokenizers not
+installed, will throw exception. fallback whitespace-split used to avoid
+exception when tokenizers not installed.
+
+-   tree_divider: str = '│   '
+
+-   tree_file_divider: str = '├── '
+
+-   tree_indent: str = ' '
+
+def get_tokenizer_obj
+
+    (self) -> lmcat.file_stats.TokenizerWrapper
+
+View Source on GitHub
+
+Get the tokenizer object
+
+def get_processing_pipeline
+
+    (self) -> lmcat.processing_pipeline.ProcessingPipeline
+
+View Source on GitHub
+
+Get the processing pipeline object
+
+def read
+
+    (cls, root_dir: pathlib.Path) -> lmcat.lmcat.LMCatConfig
+
+View Source on GitHub
+
+Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
+
+def serialize
+
+    (self) -> dict[str, typing.Any]
+
+View Source on GitHub
+
+returns the class as a dict, implemented by using
+@serializable_dataclass decorator
+
+def load
+
+    (cls, data: Union[dict[str, Any], ~T]) -> Type[~T]
+
+View Source on GitHub
+
+takes in an appropriately structured dict and returns an instance of the
+class, implemented by using @serializable_dataclass decorator
+
+def validate_fields_types
+
+    (
+        self: muutils.json_serialize.serializable_dataclass.SerializableDataclass,
+        on_typecheck_error: muutils.errormode.ErrorMode = ErrorMode.Except
+    ) -> bool
+
+View Source on GitHub
+
+validate the types of all the fields on a SerializableDataclass. calls
+SerializableDataclass__validate_field_type for each field
+
+Inherited Members
+
+-   validate_field_type
+-   diff
+-   update_from_nested_dict
+
+class IgnoreHandler:
+
+View Source on GitHub
+
+Handles all ignore pattern matching using igittigitt
+
+IgnoreHandler
+
+    (root_dir: pathlib.Path, config: lmcat.lmcat.LMCatConfig)
+
+View Source on GitHub
+
+-   root_dir: pathlib.Path
+
+-   config: lmcat.lmcat.LMCatConfig
+
+-   parser: igittigitt.igittigitt.IgnoreParser
+
+def is_ignored
+
+    (self, path: pathlib.Path) -> bool
+
+View Source on GitHub
+
+Check if a path should be ignored
+
+def sorted_entries
+
+    (directory: pathlib.Path) -> list[pathlib.Path]
+
+View Source on GitHub
+
+Return directory contents sorted: directories first, then files
+
+def walk_dir
+
+    (
+        directory: pathlib.Path,
+        ignore_handler: lmcat.lmcat.IgnoreHandler,
+        config: lmcat.lmcat.LMCatConfig,
+        tokenizer: lmcat.file_stats.TokenizerWrapper,
+        prefix: str = ''
+    ) -> tuple[list[lmcat.file_stats.TreeEntry], list[pathlib.Path]]
+
+View Source on GitHub
+
+Recursively walk a directory, building tree lines and collecting file
+paths
+
+def format_tree_with_stats
+
+    (
+        entries: list[lmcat.file_stats.TreeEntry],
+        show_tokens: bool = False
+    ) -> list[str]
+
+View Source on GitHub
+
+Format tree entries with aligned statistics
+
+Parameters:
+
+-   entries : list[TreeEntry] List of tree entries with optional stats
+-   show_tokens : bool Whether to show token counts
+
+Returns:
+
+-   list[str] Formatted tree lines with aligned stats
+
+def walk_and_collect
+
+    (
+        root_dir: pathlib.Path,
+        config: lmcat.lmcat.LMCatConfig
+    ) -> tuple[list[str], list[pathlib.Path]]
+
+View Source on GitHub
+
+Walk filesystem from root_dir and gather tree listing plus file paths
+
+def assemble_summary
+
+    (root_dir: pathlib.Path, config: lmcat.lmcat.LMCatConfig) -> str
+
+View Source on GitHub
+
+Assemble the summary output and return
+
+def main
+
+    () -> None
+
+View Source on GitHub
+
+Main entry point for the script
+
+  docs for lmcat v0.1.0
+
+API Documentation
+
+-   OnMultipleProcessors
+-   load_plugins
+-   ProcessingPipeline
+
+View Source on GitHub
+
+lmcat.processing_pipeline
+
+View Source on GitHub
+
+-   OnMultipleProcessors = typing.Literal['warn', 'except', 'do_first', 'do_last', 'skip']
+
+def load_plugins
+
+    (plugins_file: pathlib.Path) -> None
+
+View Source on GitHub
+
+Load plugins from a Python file.
+
+Parameters:
+
+-   plugins_file : Path Path to plugins file
+
+class ProcessingPipeline:
+
+View Source on GitHub
+
+Manages the processing pipeline for files.
+
+Attributes:
+
+-   glob_process : dict[str, ProcessorName] Maps glob patterns to
+    processor names
+-   decider_process : dict[DeciderName, ProcessorName] Maps decider
+    names to processor names
+-   _compiled_globs : dict[str, re.Pattern] Cached compiled glob
+    patterns for performance
+
+ProcessingPipeline
+
+    (
+        plugins_file: pathlib.Path | None,
+        decider_process_keys: dict[str, str],
+        glob_process_keys: dict[str, str],
+        on_multiple_processors: Literal['warn', 'except', 'do_first', 'do_last', 'skip']
+    )
+
+View Source on GitHub
+
+-   plugins_file: pathlib.Path | None
+
+-   decider_process_keys: dict[str, str]
+
+-   glob_process_keys: dict[str, str]
+
+-   on_multiple_processors: Literal['warn', 'except', 'do_first', 'do_last', 'skip']
+
+def get_processors_for_path
+
+    (self, path: pathlib.Path) -> list[typing.Callable[[pathlib.Path], str]]
+
+View Source on GitHub
+
+Get all applicable processors for a given path.
+
+Parameters:
+
+-   path : Path Path to get processors for
+
+Returns:
+
+-   list[ProcessorFunc] List of applicable path processors
+
+def process_file
+
+    (self, path: pathlib.Path) -> tuple[str, str | None]
+
+View Source on GitHub
+
+Process a file through the pipeline.
+
+Parameters:
+
+-   path : Path Path to process the content of
+
+Returns:
+
+-   tuple[str, str] Processed content and the processor name if no
+    processor is found, will be (path.read_text(), None)
+
+  docs for lmcat v0.1.0
+
+API Documentation
+
+-   ProcessorName
+-   DeciderName
+-   ProcessorFunc
+-   DeciderFunc
+-   PROCESSORS
+-   DECIDERS
+-   register_processor
+-   register_decider
+-   is_over_10kb
+-   is_documentation
+-   remove_comments
+-   compress_whitespace
+-   to_relative_path
+-   ipynb_to_md
+-   makefile_recipes
+-   csv_preview_5_lines
+
+View Source on GitHub
+
+lmcat.processors
+
+View Source on GitHub
+
+-   ProcessorName = <class 'str'>
+
+-   DeciderName = <class 'str'>
+
+-   ProcessorFunc = typing.Callable[[pathlib.Path], str]
+
+-   DeciderFunc = typing.Callable[[pathlib.Path], bool]
+
+-   PROCESSORS: dict[str, typing.Callable[[pathlib.Path], str]] = {'remove_comments': <function remove_comments>, 'compress_whitespace': <function compress_whitespace>, 'to_relative_path': <function to_relative_path>, 'ipynb_to_md': <function ipynb_to_md>, 'makefile_recipes': <function makefile_recipes>, 'csv_preview_5_lines': <function csv_preview_5_lines>}
+
+-   DECIDERS: dict[str, typing.Callable[[pathlib.Path], bool]] = {'is_over_10kb': <function is_over_10kb>, 'is_documentation': <function is_documentation>}
+
+def register_processor
+
+    (func: Callable[[pathlib.Path], str]) -> Callable[[pathlib.Path], str]
+
+View Source on GitHub
+
+Register a function as a path processor
+
+def register_decider
+
+    (func: Callable[[pathlib.Path], bool]) -> Callable[[pathlib.Path], bool]
+
+View Source on GitHub
+
+Register a function as a decider
+
+def is_over_10kb
+
+    (path: pathlib.Path) -> bool
+
+View Source on GitHub
+
+Check if file is over 10KB.
+
+def is_documentation
+
+    (path: pathlib.Path) -> bool
+
+View Source on GitHub
+
+Check if file is documentation.
+
+def remove_comments
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+Remove single-line comments from code.
+
+def compress_whitespace
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+Compress multiple whitespace characters into single spaces.
+
+def to_relative_path
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+return the path to the file as a string
+
+def ipynb_to_md
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+Convert an IPython notebook to markdown.
+
+def makefile_recipes
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+Process a Makefile to show only target descriptions and basic structure.
+
+Preserves: - Comments above .PHONY targets up to first empty line - The
+.PHONY line and target line - First line after target if it starts with
+@echo
+
+Parameters:
+
+-   path : Path Path to the Makefile to process
+
+Returns:
+
+-   str Processed Makefile content
+
+def csv_preview_5_lines
+
+    (path: pathlib.Path) -> str
+
+View Source on GitHub
+
+Preview first few lines of a CSV file (up to 5)
+
+Reads only first 1024 bytes and splits into lines. Does not attempt to
+parse CSV structure.
+
+Parameters:
+
+-   path : Path Path to CSV file
+
+Returns:
+
+-   str First few lines of the file
