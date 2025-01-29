@@ -1,8 +1,8 @@
 # Stats
 - 14 files
 - 2205 (2.2K) lines
-- 62258 (62K) chars
-- 23297 (23K) `gpt2` tokens
+- 62274 (62K) chars
+- 23304 (23K) `gpt2` tokens
 
 # File Tree
 
@@ -15,7 +15,7 @@ lmcat
 │   ├── index.html              [104L  4,125C 2,152T]
 │   ├── lmcat.py                [463L 13,513C 5,033T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
-│   └── processors.py           [181L  4,442C 1,512T]
+│   └── processors.py           [181L  4,458C 1,519T]
 ├── tests                       
 │   ├── demo_notebook.ipynb     [ 32L    477C   223T]
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
@@ -985,7 +985,7 @@ def to_relative_path(path: Path) -> str:
 @register_processor
 def ipynb_to_md(path: Path) -> str:
 	"""Convert an IPython notebook to markdown."""
-	nb_contents: dict = json.loads(path.read_text())
+	nb_contents: dict = json.loads(path.read_text(encoding="utf-8"))
 
 	output: list[str] = []
 
