@@ -138,7 +138,7 @@ class IgnoreHandler:
 
 		# then from the config itself
 		for pattern in self.config.ignore_patterns:
-			self.parser.add_rule(pattern)
+			self.parser.add_rule(pattern=pattern, base_path=self.root_dir)
 
 	def is_ignored(self, path: Path) -> bool:
 		"""Check if a path should be ignored"""
