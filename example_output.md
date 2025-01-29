@@ -1,8 +1,8 @@
 # Stats
-- 12 files
-- 67 lines
-- 54972 (55K) chars
-- 20734 (21K) `gpt2` tokens
+- 14 files
+- 2204 (2.2K) lines
+- 62055 (62K) chars
+- 23204 (23K) `gpt2` tokens
 
 # File Tree
 
@@ -13,15 +13,17 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [463L 13,493C 5,027T]
+│   ├── lmcat.py                [463L 13,513C 5,033T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
-│   └── processors.py           [117L  2,987C 1,038T]
+│   └── processors.py           [182L  4,445C 1,517T]
 ├── tests                       
+│   ├── demo_notebook.ipynb     [ 33L    505C   236T]
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
-│   └── test_lmcat_2.py         [148L  4,192C 1,586T]
+│   ├── test_lmcat_2.py         [148L  4,192C 1,586T]
+│   └── test_lmcat_3.py         [184L  5,156C 1,764T]
 ├── README.md                   [138L  3,320C 1,021T]
 ├── makefile                    [691L 23,553C 8,387T]
-├── pyproject.toml              [ 90L  1,985C   814T]
+├── pyproject.toml              [ 89L  1,977C   817T]
 ```
 
 # File Contents
@@ -341,8 +343,8 @@ class LMCatConfig(SerializableDataclass):
 		plugins_file: Path | None = self.plugins_file if self.allow_plugins else None
 		return ProcessingPipeline(
 			plugins_file=plugins_file,
-			glob_process_keys=self.glob_process,
 			decider_process_keys=self.decider_process,
+			glob_process_keys=self.glob_process,
 			on_multiple_processors=self.on_multiple_processors,
 		)
 
@@ -610,7 +612,7 @@ def assemble_summary(
 
 	stats_dict_ints: dict[str, int] = {
 		"files": len(collected_files),
-		"lines": len(output),
+		"lines": len(output_joined.splitlines()),
 		"chars": len(output_joined),
 	}
 
@@ -781,16 +783,16 @@ class ProcessingPipeline:
 	def __init__(
 		self,
 		plugins_file: Path | None,
-		glob_process_keys: dict[str, ProcessorName],
 		decider_process_keys: dict[DeciderName, ProcessorName],
+		glob_process_keys: dict[str, ProcessorName],
 		on_multiple_processors: OnMultipleProcessors,
 	):
 		# store the vars
 		self.plugins_file: Path | None = plugins_file
-		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
 		self.decider_process_keys: dict[DeciderName, ProcessorName] = (
 			decider_process_keys
 		)
+		self.glob_process_keys: dict[str, ProcessorName] = glob_process_keys
 		self.on_multiple_processors: OnMultipleProcessors = on_multiple_processors
 
 		# load the plugins file
@@ -799,16 +801,6 @@ class ProcessingPipeline:
 
 		# try to get the glob and decider processor functions
 		try:
-			self.glob_process: dict[re.Pattern, ProcessorFunc] = {
-				_compile_glob(glob_pattern): PROCESSORS[processor_name]
-				for glob_pattern, processor_name in self.glob_process_keys.items()
-			}
-		except KeyError as e:
-			raise ValueError(
-				f"Invalid glob processor:\n{e}\n{PROCESSORS.keys() = }\n{self.glob_process_keys = }"
-			) from e
-
-		try:
 			self.decider_process: dict[DeciderFunc, ProcessorFunc] = {
 				DECIDERS[decider_name]: PROCESSORS[processor_name]
 				for decider_name, processor_name in self.decider_process_keys.items()
@@ -816,6 +808,16 @@ class ProcessingPipeline:
 		except KeyError as e:
 			raise ValueError(
 				f"Invalid decider or decider processor:\n{e}\n{DECIDERS.keys() = }\n{PROCESSORS.keys() = }\n{self.decider_process_keys = }"
+			) from e
+
+		try:
+			self.glob_process: dict[re.Pattern, ProcessorFunc] = {
+				_compile_glob(glob_pattern): PROCESSORS[processor_name]
+				for glob_pattern, processor_name in self.glob_process_keys.items()
+			}
+		except KeyError as e:
+			raise ValueError(
+				f"Invalid glob processor:\n{e}\n{PROCESSORS.keys() = }\n{self.glob_process_keys = }"
 			) from e
 
 	def get_processors_for_path(self, path: Path) -> list[ProcessorFunc]:
@@ -831,14 +833,14 @@ class ProcessingPipeline:
 		"""
 		processors: list[ProcessorFunc] = []
 
-		# Check glob patterns
-		for glob_pattern, processor in self.glob_process.items():
-			if glob_pattern.match(path.name):
-				processors.append(processor)
-
 		# Check deciders
 		for decider, processor in self.decider_process.items():
 			if decider(path):
+				processors.append(processor)
+
+		# Check glob patterns
+		for glob_pattern, processor in self.glob_process.items():
+			if glob_pattern.match(path.name):
 				processors.append(processor)
 
 		return processors
@@ -895,19 +897,31 @@ class ProcessingPipeline:
 ``````{ end_of_file="lmcat/processing_pipeline.py" }
 
 ``````{ path="lmcat/processors.py"  }
+import json
 from typing import Callable, Sequence
 from pathlib import Path
+
+
+# type defs
+# ==================================================
 
 ProcessorName = str
 DeciderName = str
 
-
 ProcessorFunc = Callable[[Path], str]
 DeciderFunc = Callable[[Path], bool]
+
+
+# global dicts of processors and deciders
+# ==================================================
 
 PROCESSORS: dict[ProcessorName, ProcessorFunc] = dict()
 
 DECIDERS: dict[DeciderName, DeciderFunc] = dict()
+
+
+# register functions
+# ==================================================
 
 
 def register_processor(func: ProcessorFunc) -> ProcessorFunc:
@@ -920,6 +934,24 @@ def register_decider(func: DeciderFunc) -> DeciderFunc:
 	"""Register a function as a decider"""
 	DECIDERS[DeciderName(func.__name__)] = func
 	return func
+
+
+# default deciders
+# ==================================================
+@register_decider
+def is_over_10kb(path: Path) -> bool:
+	"""Check if file is over 10KB."""
+	return path.stat().st_size > 2**1
+
+
+@register_decider
+def is_documentation(path: Path) -> bool:
+	"""Check if file is documentation."""
+	return path.suffix in {".md", ".rst", ".txt"}
+
+
+# default processors
+# ==================================================
 
 
 @register_processor
@@ -942,16 +974,24 @@ def to_relative_path(path: Path) -> str:
 	return path.as_posix()
 
 
-@register_decider
-def is_python_file(path: Path) -> bool:
-	"""Check if file is a Python source file."""
-	return path.suffix == ".py"
+@register_processor
+def ipynb_to_md(path: Path) -> str:
+	"""Convert an IPython notebook to markdown."""
+	nb_contents: dict = json.loads(path.read_text())
+	
+	output: list[str] = []
 
+	for cell in nb_contents["cells"]:
+		if cell["cell_type"] == "markdown":
+			output.extend(cell["source"])
+			output.append("\n\n")
+		elif cell["cell_type"] == "code":
+			output.append("```python\n")
+			output.extend(cell["source"])
+			output.append("\n```\n\n")
+	
+	return "".join(output)
 
-@register_decider
-def is_documentation(path: Path) -> bool:
-	"""Check if file is documentation."""
-	return path.suffix in {".md", ".rst", ".txt"}
 
 
 @register_processor
@@ -1013,7 +1053,50 @@ def makefile_recipes(path: Path) -> str:
 
 	return "\n".join(output_lines)
 
+
+@register_processor
+def csv_preview_5_lines(path: Path) -> str:
+	"""Preview first few lines of a CSV file (up to 5)
+
+	Reads only first 1024 bytes and splits into lines.
+	Does not attempt to parse CSV structure.
+
+	# Parameters:
+	- `path : Path`
+	    Path to CSV file
+
+	# Returns:
+	- `str`
+	    First few lines of the file"""
+	try:
+		with path.open("r", encoding="utf-8") as f:
+			content = f.read(1024)
+
+		lines = content.splitlines()[:5]
+		if len(content) == 1024:
+			lines.append("... (truncated)")
+
+		return "\n".join(lines)
+	except Exception as e:
+		return f"Error previewing CSV: {str(e)}"
+
 ``````{ end_of_file="lmcat/processors.py" }
+
+``````{ path="tests/demo_notebook.ipynb" processed_with="ipynb_to_md" }
+# this is a notebook
+
+and this is all in a markdown cell
+
+```python
+# this is a code cell
+
+import numpy as np
+
+print("Hello, world!")
+```
+
+
+``````{ end_of_file="tests/demo_notebook.ipynb" }
 
 ``````{ path="tests/test_lmcat.py"  }
 import sys
@@ -1498,6 +1581,194 @@ def test_error_handling():
 
 ``````{ end_of_file="tests/test_lmcat_2.py" }
 
+``````{ path="tests/test_lmcat_3.py"  }
+from pathlib import Path
+import pytest
+from typing import Any
+
+from lmcat.file_stats import FileStats, TokenizerWrapper
+from lmcat.lmcat import LMCatConfig
+from lmcat.processing_pipeline import OnMultipleProcessors
+from lmcat.processors import register_processor, register_decider
+
+# Use same temp path as other tests
+TEMP_PATH: Path = Path("tests/_temp")
+
+
+def test_tokenizer_wrapper_gpt2():
+	"""Test TokenizerWrapper with GPT2 tokenizer if available"""
+	try:
+		tokenizer = TokenizerWrapper("gpt2")
+		assert tokenizer.name == "gpt2"
+		assert not tokenizer.use_fallback
+
+		# Test token counting
+		assert tokenizer.n_tokens("Hello world") == 2
+		assert tokenizer.n_tokens("Hello   world") == 4  # Multiple spaces
+	except ImportError:
+		pytest.skip("tokenizers package not installed")
+
+
+def test_tokenizer_wrapper_fallback():
+	"""Test TokenizerWrapper fallback whitespace tokenization"""
+	tokenizer = TokenizerWrapper("whitespace-split")
+	assert tokenizer.name == "whitespace-split"
+	assert tokenizer.use_fallback
+
+	assert tokenizer.n_tokens("Hello world") == 2
+	assert tokenizer.n_tokens("Hello   world") == 2
+	assert tokenizer.n_tokens("abc") == 1
+
+
+def test_processing_pipeline_multiple_matches():
+	"""Test different behaviors when multiple processors match"""
+	test_dir = TEMP_PATH / "pipeline_test"
+	test_dir.mkdir(parents=True, exist_ok=True)
+	test_file = test_dir / "test.txt"
+	test_file.write_text("original content")
+
+	# Register test processors
+	@register_processor
+	def processor1(path: Path) -> str:
+		return "processor1 output"
+
+	@register_processor
+	def processor2(path: Path) -> str:
+		return "processor2 output"
+
+	@register_decider
+	def always_true(path: Path) -> bool:
+		return True
+
+	# Test different OnMultipleProcessors behaviors
+	configs: dict[OnMultipleProcessors, Any] = {
+		"do_first": "processor1 output",
+		"do_last": "processor2 output",
+		"skip": "original content",
+	}
+
+	for mode, expected in configs.items():
+		print(f"{mode = }, {expected = }")
+		config = LMCatConfig(
+			decider_process={"always_true": "processor1"},
+			glob_process={"*.txt": "processor2"},
+			on_multiple_processors=mode,
+		)
+		pipeline = config.get_processing_pipeline()
+		result, p_used = pipeline.process_file(test_file)
+		if mode == "skip":
+			assert p_used is None
+		elif mode == "do_first":
+			assert p_used == "processor1"
+		elif mode == "do_last":
+			assert p_used == "processor2"
+
+		assert result == expected
+
+	# Test "except" mode raises error
+	config_except = LMCatConfig(
+		decider_process={"always_true": "processor1"},
+		glob_process={"*.txt": "processor2"},
+		on_multiple_processors="except",
+	)
+	pipeline = config_except.get_processing_pipeline()
+	with pytest.raises(ValueError):
+		pipeline.process_file(test_file)
+
+
+def test_filestats_large_file():
+	"""Test FileStats handling of large files"""
+	test_dir = TEMP_PATH / "large_file_stats"
+	test_dir.mkdir(parents=True, exist_ok=True)
+	large_file = test_dir / "large.txt"
+
+	# Create 5MB file
+	chunk = "x" * 1024  # 1KB chunk
+	with large_file.open("w") as f:
+		for _ in range(5 * 1024):  # Write 5MB
+			f.write(chunk)
+
+	tokenizer = TokenizerWrapper()
+	stats = FileStats.from_file(large_file, tokenizer)
+
+	assert stats.lines == 1
+	assert stats.chars == 5 * 1024 * 1024
+	assert stats.tokens is not None
+	assert stats.tokens > 0
+
+
+def test_config_plugins():
+	"""Test plugin loading functionality"""
+	test_dir = TEMP_PATH / "plugins_test"
+	test_dir.mkdir(parents=True, exist_ok=True)
+
+	# Create test plugin file
+	plugin_file = test_dir / "test_plugin.py"
+	plugin_file.write_text("""
+from pathlib import Path
+from lmcat.processors import register_processor, register_decider
+
+@register_processor
+def custom_processor(path: Path) -> str:
+    return "custom processed"
+
+@register_decider
+def custom_decider(path: Path) -> bool:
+    return path.suffix == '.custom'
+""")
+
+	# Test with plugins enabled
+	config = LMCatConfig(
+		plugins_file=plugin_file,
+		allow_plugins=True,
+		decider_process={"custom_decider": "custom_processor"},
+	)
+
+	pipeline = config.get_processing_pipeline()
+
+	# Create test file
+	test_file = test_dir / "test.custom"
+	test_file.write_text("original content")
+
+	# Test custom processor
+	result, processor_name = pipeline.process_file(test_file)
+	assert result == "custom processed"
+	assert processor_name == "custom_processor"
+
+
+def test_error_files():
+	"""Test handling of files with various error conditions"""
+	test_dir = TEMP_PATH / "error_files"
+	test_dir.mkdir(parents=True, exist_ok=True)
+
+	# Create a directory that looks like a file
+	dir_file = test_dir / "dir.txt"
+	dir_file.mkdir()
+
+	# Create an empty file
+	empty_file = test_dir / "empty.txt"
+	empty_file.touch()
+
+	# Create file with invalid UTF-8
+	invalid_utf8 = test_dir / "invalid.txt"
+	invalid_utf8.write_bytes(b"Hello\xff\xfeWorld")
+
+	tokenizer = TokenizerWrapper()
+
+	# Test empty file
+	stats = FileStats.from_file(empty_file, tokenizer)
+	assert stats.lines == 0
+	assert stats.chars == 0
+	assert stats.tokens == 0
+
+	# Test invalid UTF-8 file
+	stats = FileStats.from_file(invalid_utf8, tokenizer)
+	assert stats.lines >= 0  # Should handle without crashing
+	assert stats.chars >= 0
+	assert stats.tokens is not None
+
+``````{ end_of_file="tests/test_lmcat_3.py" }
+
 ``````{ path="README.md"  }
 # lmcat
 
@@ -1935,6 +2206,5 @@ ignore_patterns_files = [".lmignore", ".gitignore"]
 
 [tool.lmcat.glob_process]
 "[mM]akefile" = "makefile_recipes"
-
-# [tool.lmcat.decider_process]
+"*.ipynb" = "ipynb_to_md"
 ``````{ end_of_file="pyproject.toml" }

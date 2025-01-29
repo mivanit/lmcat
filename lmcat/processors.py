@@ -1,3 +1,4 @@
+import json
 from typing import Callable, Sequence
 from pathlib import Path
 
@@ -72,6 +73,26 @@ def compress_whitespace(path: Path) -> str:
 def to_relative_path(path: Path) -> str:
 	"""return the path to the file as a string"""
 	return path.as_posix()
+
+
+@register_processor
+def ipynb_to_md(path: Path) -> str:
+	"""Convert an IPython notebook to markdown."""
+	nb_contents: dict = json.loads(path.read_text())
+	
+	output: list[str] = []
+
+	for cell in nb_contents["cells"]:
+		if cell["cell_type"] == "markdown":
+			output.extend(cell["source"])
+			output.append("\n\n")
+		elif cell["cell_type"] == "code":
+			output.append("```python\n")
+			output.extend(cell["source"])
+			output.append("\n```\n\n")
+	
+	return "".join(output)
+
 
 
 @register_processor
