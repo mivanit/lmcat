@@ -1,3 +1,13 @@
+[![PyPI](https://img.shields.io/pypi/v/lmcat)](https://pypi.org/project/lmcat/)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/lmcat)
+[![docs](https://img.shields.io/badge/docs-latest-blue)](https://miv.name/lmcat)
+[![Checks](https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg)](https://github.com/mivanit/lmcat/actions/workflows/checks.yml)
+[![Coverage](docs/coverage/coverage.svg)](docs/coverage/html/)
+
+![GitHub commits](https://img.shields.io/github/commit-activity/t/mivanit/lmcat)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/mivanit/lmcat)
+![code size, bytes](https://img.shields.io/github/languages/code-size/mivanit/lmcat)
+
 # lmcat
 
 A Python tool for concatenating files and directory structures into a single document, perfect for sharing code with language models. It respects `.gitignore` and `.lmignore` patterns and provides configurable output formatting.
