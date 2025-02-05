@@ -402,7 +402,7 @@ def main() -> None:
 		"--output",
 		action="store",
 		default=None,
-		help="Output file to write the tree and contents to.",
+		help="Output file to write the tree and contents to. set to 'STDOUT' to print to console if you want to override the config.",
 	)
 	arg_parser.add_argument(
 		"-h", "--help", action="help", help="Show this help message and exit."
@@ -425,7 +425,13 @@ def main() -> None:
 	config: LMCatConfig = LMCatConfig.read(root_dir)
 
 	# CLI overrides
-	config.output = args.output
+	if args.output is not None:
+		config.output = args.output
+	elif args.output == "STDOUT":
+		config.output = None
+	else:
+		assert args.output is None
+
 	config.tree_only = args.tree_only
 	config.allow_plugins = args.allow_plugins
 
@@ -439,7 +445,7 @@ def main() -> None:
 
 	# Write output
 	if config.output:
-		output_path: Path = Path(args.output)
+		output_path: Path = Path(config.output)
 		output_path.parent.mkdir(parents=True, exist_ok=True)
 		output_path.write_text(summary, encoding="utf-8")
 	else:
