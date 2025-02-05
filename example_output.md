@@ -2132,7 +2132,7 @@ demo-tree:
 ``````{ path="pyproject.toml"  }
 [project]
 name = "lmcat"
-version = "0.1.3"
+version = "0.2.0"
 description = "concatenating files for tossing them into a language model"
 authors = [
 	{ name = "Michael Ivanitskiy", email = "mivanits@umich.edu" }

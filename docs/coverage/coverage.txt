@@ -3,7 +3,7 @@ Name                                      Stmts   Miss  Cover   Missing
 lmcat\__init__.py                             2      0   100%
 lmcat\__main__.py                             3      3     0%   1-4
 lmcat\file_stats.py                          42      7    83%   8-12, 21-22
-lmcat\lmcat.py                              192     55    71%   15-19, 103-138, 157, 285, 389-453, 460-464
+lmcat\lmcat.py                              192     55    71%   15-19, 103-138, 157, 285, 389-460, 464
 lmcat\processing_pipeline.py                 71     12    83%   43, 49, 55-56, 96-97, 106-107, 162-163, 174-175
 lmcat\processors.py                          82     51    38%   45, 51, 61-63, 69, 75, 81-94, 114-154, 171-181
 tests\_temp\plugins_test\test_plugin.py       8      0   100%

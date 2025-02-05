@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_5cd3ba5dff604233_processing_pipeline_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.10">coverage.py v7.6.10</a>,
-            created at 2025-02-05 01:58 -0700
+            created at 2025-02-05 02:11 -0700
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -507,10 +507,10 @@
     <p class="mis show_mis"><span class="n"><a id="t425" href="#t425">425</a></span><span class="t">        <span class="nam">config</span><span class="op">:</span> <span class="nam">LMCatConfig</span> <span class="op">=</span> <span class="nam">LMCatConfig</span><span class="op">.</span><span class="nam">read</span><span class="op">(</span><span class="nam">root_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t426" href="#t426">426</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t">        <span class="com"># CLI overrides</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t">        <span class="key">if</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t">                <span class="nam">config</span><span class="op">.</span><span class="nam">output</span> <span class="op">=</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t">        <span class="key">elif</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span> <span class="op">==</span> <span class="str">"STDOUT"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t431" href="#t431">431</a></span><span class="t">                <span class="nam">config</span><span class="op">.</span><span class="nam">output</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t">        <span class="key">if</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span> <span class="op">==</span> <span class="str">"STDOUT"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t">                <span class="nam">config</span><span class="op">.</span><span class="nam">output</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t">        <span class="key">elif</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t431" href="#t431">431</a></span><span class="t">                <span class="nam">config</span><span class="op">.</span><span class="nam">output</span> <span class="op">=</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t432" href="#t432">432</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t433" href="#t433">433</a></span><span class="t">                <span class="key">assert</span> <span class="nam">args</span><span class="op">.</span><span class="nam">output</span> <span class="key">is</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t434" href="#t434">434</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -535,14 +535,14 @@
     <p class="mis show_mis"><span class="n"><a id="t453" href="#t453">453</a></span><span class="t">                        <span class="nam">sys</span><span class="op">.</span><span class="nam">stdout</span> <span class="op">=</span> <span class="nam">io</span><span class="op">.</span><span class="nam">TextIOWrapper</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t454" href="#t454">454</a></span><span class="t">                                <span class="nam">sys</span><span class="op">.</span><span class="nam">stdout</span><span class="op">.</span><span class="nam">buffer</span><span class="op">,</span> <span class="nam">encoding</span><span class="op">=</span><span class="str">"utf-8"</span><span class="op">,</span> <span class="nam">errors</span><span class="op">=</span><span class="str">"replace"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t455" href="#t455">455</a></span><span class="t">                        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t456" href="#t456">456</a></span><span class="t">                        <span class="nam">sys</span><span class="op">.</span><span class="nam">stderr</span> <span class="op">=</span> <span class="nam">io</span><span class="op">.</span><span class="nam">TextIOWrapper</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t456" href="#t456">456</a></span><span class="t">                        <span class="nam">sys</span><span class="op">.</span><span class="nam">stderr</span> <span class="op">=</span> <span class="nam">io</span><span class="op">.</span><span class="nam">TextIOWrapper</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t457" href="#t457">457</a></span><span class="t">                                <span class="nam">sys</span><span class="op">.</span><span class="nam">stderr</span><span class="op">.</span><span class="nam">buffer</span><span class="op">,</span> <span class="nam">encoding</span><span class="op">=</span><span class="str">"utf-8"</span><span class="op">,</span> <span class="nam">errors</span><span class="op">=</span><span class="str">"replace"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t458" href="#t458">458</a></span><span class="t">                        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t459" href="#t459">459</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t460" href="#t460">460</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="nam">summary</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t461" href="#t461">461</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t462" href="#t462">462</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t463" href="#t463">463</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">"__main__"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t463" href="#t463">463</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">"__main__"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t464" href="#t464">464</a></span><span class="t">        <span class="nam">main</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
@@ -553,7 +553,7 @@
             <a class="nav" href="z_5cd3ba5dff604233_processing_pipeline_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.10">coverage.py v7.6.10</a>,
-            created at 2025-02-05 01:58 -0700
+            created at 2025-02-05 02:11 -0700
         </p>
     </div>
 </footer>
