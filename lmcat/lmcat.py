@@ -425,10 +425,10 @@ def main() -> None:
 	config: LMCatConfig = LMCatConfig.read(root_dir)
 
 	# CLI overrides
-	if args.output is not None:
-		config.output = args.output
-	elif args.output == "STDOUT":
+	if args.output == "STDOUT":
 		config.output = None
+	elif args.output is not None:
+		config.output = args.output
 	else:
 		assert args.output is None
 
