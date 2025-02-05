@@ -1,4 +1,4 @@
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.1
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.2
 
 
 ## Contents
@@ -148,7 +148,7 @@ VERBOSE=1 make test
 
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/__init__.py)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/__init__.py)
 
 # `lmcat` { #lmcat }
 
@@ -284,7 +284,7 @@ VERBOSE=1 make test
 - web interface
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/__init__.py#L0-L14)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/__init__.py#L0-L14)
 
 
 
@@ -294,7 +294,7 @@ VERBOSE=1 make test
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/__init__.py#L393-L459)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/__init__.py#L387-L454)
 
 
 Main entry point for the script
@@ -302,7 +302,7 @@ Main entry point for the script
 
 
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.1
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.2
 
 
 
@@ -317,12 +317,12 @@ Main entry point for the script
 
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py)
 
 # `lmcat.file_stats` { #lmcat.file_stats }
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L0-L83)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L0-L83)
 
 
 
@@ -333,7 +333,7 @@ Main entry point for the script
 
 ### `class TokenizerWrapper:` { #TokenizerWrapper }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L25-L43)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L25-L43)
 
 
 tokenizer wrapper. stores name and provides `n_tokens` method.
@@ -346,7 +346,7 @@ uses splitting by whitespace as a fallback -- `whitespace-split`
 (name: str = 'whitespace-split')
 ```
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L30-L35)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L30-L35)
 
 
 
@@ -372,7 +372,7 @@ uses splitting by whitespace as a fallback -- `whitespace-split`
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L37-L43)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L37-L43)
 
 
 Return number of tokens in text
@@ -380,7 +380,7 @@ Return number of tokens in text
 
 ### `class FileStats:` { #FileStats }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L46-L77)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L46-L77)
 
 
 Statistics for a single file
@@ -419,7 +419,7 @@ Statistics for a single file
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L54-L77)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L54-L77)
 
 
 Get statistics for a single file
@@ -437,7 +437,7 @@ Get statistics for a single file
 
 ### `class TreeEntry(typing.NamedTuple):` { #TreeEntry }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/file_stats.py#L80-L84)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/file_stats.py#L80-L84)
 
 
 Entry in the tree output with optional stats
@@ -472,7 +472,7 @@ Alias for field number 1
 
 
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.1
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.2
 
 
 
@@ -491,29 +491,21 @@ Alias for field number 1
 
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py)
 
 # `lmcat.lmcat` { #lmcat.lmcat }
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L0-L462)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L0-L457)
 
 
 
 ### `class LMCatConfig(muutils.json_serialize.serializable_dataclass.SerializableDataclass):` { #LMCatConfig }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L35-L144)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L35-L138)
 
 
 Configuration dataclass for lmcat
-
-### Parameters:
- - `tree_divider: str`
- - `tree_indent: str`
- - `tree_file_divider: str`
- - `content_divider: str`
- - `include_gitignore: bool`  (default True)
- - `tree_only: bool`  (default False)
 
 
 ### `LMCatConfig` { #LMCatConfig.__init__ }
@@ -532,7 +524,8 @@ Configuration dataclass for lmcat
     tokenizer: str = 'gpt2',
     tree_divider: str = '│   ',
     tree_file_divider: str = '├── ',
-    tree_indent: str = ' '
+    tree_indent: str = ' ',
+    output: str | None = None
 )
 ```
 
@@ -605,13 +598,18 @@ Tokenizer to use for tokenizing the output. `gpt2` by default. passed to `tokeni
 
 
 
+- `output: str | None = None`
+
+
+
+
 ### `def get_tokenizer_obj` { #LMCatConfig.get_tokenizer_obj }
 ```python
 (self) -> lmcat.file_stats.TokenizerWrapper
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L92-L94)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L86-L88)
 
 
 Get the tokenizer object
@@ -623,7 +621,7 @@ Get the tokenizer object
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L96-L104)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L90-L98)
 
 
 Get the processing pipeline object
@@ -635,7 +633,7 @@ Get the processing pipeline object
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L106-L144)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L100-L138)
 
 
 Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
@@ -647,7 +645,7 @@ Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L703-L759)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L703-L759)
 
 
 returns the class as a dict, implemented by using `@serializable_dataclass` decorator
@@ -659,7 +657,7 @@ returns the class as a dict, implemented by using `@serializable_dataclass` deco
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L766-L852)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L766-L852)
 
 
 takes in an appropriately structured dict and returns an instance of the class, implemented by using `@serializable_dataclass` decorator
@@ -674,7 +672,7 @@ takes in an appropriately structured dict and returns an instance of the class, 
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L303-L312)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L303-L312)
 
 
 validate the types of all the fields on a `SerializableDataclass`. calls `SerializableDataclass__validate_field_type` for each field
@@ -689,7 +687,7 @@ validate the types of all the fields on a `SerializableDataclass`. calls `Serial
 
 ### `class IgnoreHandler:` { #IgnoreHandler }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L147-L172)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L141-L166)
 
 
 Handles all ignore pattern matching using igittigitt
@@ -700,7 +698,7 @@ Handles all ignore pattern matching using igittigitt
 (root_dir: pathlib.Path, config: lmcat.lmcat.LMCatConfig)
 ```
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L150-L163)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L144-L157)
 
 
 
@@ -726,7 +724,7 @@ Handles all ignore pattern matching using igittigitt
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L165-L172)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L159-L166)
 
 
 Check if a path should be ignored
@@ -738,7 +736,7 @@ Check if a path should be ignored
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L175-L183)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L169-L177)
 
 
 Return directory contents sorted: directories first, then files
@@ -756,7 +754,7 @@ Return directory contents sorted: directories first, then files
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L186-L228)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L180-L222)
 
 
 Recursively walk a directory, building tree lines and collecting file paths
@@ -771,7 +769,7 @@ Recursively walk a directory, building tree lines and collecting file paths
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L231-L282)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L225-L276)
 
 
 Format tree entries with aligned statistics
@@ -796,7 +794,7 @@ Format tree entries with aligned statistics
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L285-L316)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L279-L310)
 
 
 Walk filesystem from root_dir and gather tree listing plus file paths
@@ -808,7 +806,7 @@ Walk filesystem from root_dir and gather tree listing plus file paths
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L319-L390)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L313-L384)
 
 
 Assemble the summary output and return
@@ -820,7 +818,7 @@ Assemble the summary output and return
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/lmcat.py#L393-L459)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L387-L454)
 
 
 Main entry point for the script
@@ -828,7 +826,7 @@ Main entry point for the script
 
 
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.1
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.2
 
 
 
@@ -842,12 +840,12 @@ Main entry point for the script
 
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py)
 
 # `lmcat.processing_pipeline` { #lmcat.processing_pipeline }
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L0-L182)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L0-L182)
 
 
 
@@ -862,7 +860,7 @@ Main entry point for the script
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L35-L56)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L35-L56)
 
 
 Load plugins from a Python file.
@@ -874,7 +872,7 @@ Load plugins from a Python file.
 
 ### `class ProcessingPipeline:` { #ProcessingPipeline }
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L59-L183)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L59-L183)
 
 
 Manages the processing pipeline for files.
@@ -898,7 +896,7 @@ Manages the processing pipeline for files.
 )
 ```
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L71-L109)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L71-L109)
 
 
 
@@ -929,7 +927,7 @@ Manages the processing pipeline for files.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L111-L134)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L111-L134)
 
 
 Get all applicable processors for a given path.
@@ -949,7 +947,7 @@ Get all applicable processors for a given path.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processing_pipeline.py#L136-L183)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processing_pipeline.py#L136-L183)
 
 
 Process a file through the pipeline.
@@ -966,7 +964,7 @@ Process a file through the pipeline.
 
 
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.1
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.1.2
 
 
 
@@ -993,12 +991,12 @@ Process a file through the pipeline.
 
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py)
 
 # `lmcat.processors` { #lmcat.processors }
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L0-L180)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L0-L180)
 
 
 
@@ -1038,7 +1036,7 @@ Process a file through the pipeline.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L28-L31)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L28-L31)
 
 
 Register a function as a path processor
@@ -1050,7 +1048,7 @@ Register a function as a path processor
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L34-L37)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L34-L37)
 
 
 Register a function as a decider
@@ -1062,7 +1060,7 @@ Register a function as a decider
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L42-L45)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L42-L45)
 
 
 Check if file is over 10KB.
@@ -1074,7 +1072,7 @@ Check if file is over 10KB.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L48-L51)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L48-L51)
 
 
 Check if file is documentation.
@@ -1086,7 +1084,7 @@ Check if file is documentation.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L58-L63)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L58-L63)
 
 
 Remove single-line comments from code.
@@ -1098,7 +1096,7 @@ Remove single-line comments from code.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L66-L69)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L66-L69)
 
 
 Compress multiple whitespace characters into single spaces.
@@ -1110,7 +1108,7 @@ Compress multiple whitespace characters into single spaces.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L72-L75)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L72-L75)
 
 
 return the path to the file as a string
@@ -1122,7 +1120,7 @@ return the path to the file as a string
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L78-L94)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L78-L94)
 
 
 Convert an IPython notebook to markdown.
@@ -1134,7 +1132,7 @@ Convert an IPython notebook to markdown.
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L97-L154)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L97-L154)
 
 
 Process a Makefile to show only target descriptions and basic structure.
@@ -1159,7 +1157,7 @@ Preserves:
 ```
 
 
-[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.1/processors.py#L157-L181)
+[View Source on GitHub](https://github.com/mivanit/lmcat/blob/0.1.2/processors.py#L157-L181)
 
 
 Preview first few lines of a CSV file (up to 5)

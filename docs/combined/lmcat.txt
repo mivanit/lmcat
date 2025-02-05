@@ -1,4 +1,4 @@
-  docs for lmcat v0.1.1
+  docs for lmcat v0.1.2
 
 Contents
 
@@ -275,7 +275,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.1
+  docs for lmcat v0.1.2
 
 API Documentation
 
@@ -383,7 +383,7 @@ Inherited Members
 -   index
 -   count
 
-  docs for lmcat v0.1.1
+  docs for lmcat v0.1.2
 
 API Documentation
 
@@ -408,15 +408,6 @@ View Source on GitHub
 
 Configuration dataclass for lmcat
 
-Parameters:
-
--   tree_divider: str
--   tree_indent: str
--   tree_file_divider: str
--   content_divider: str
--   include_gitignore: bool (default True)
--   tree_only: bool (default False)
-
 LMCatConfig
 
     (
@@ -433,7 +424,8 @@ LMCatConfig
         tokenizer: str = 'gpt2',
         tree_divider: str = '│   ',
         tree_file_divider: str = '├── ',
-        tree_indent: str = ' '
+        tree_indent: str = ' ',
+        output: str | None = None
     )
 
 -   content_divider: str = '``````'
@@ -466,6 +458,8 @@ exception when tokenizers not installed.
 -   tree_file_divider: str = '├── '
 
 -   tree_indent: str = ' '
+
+-   output: str | None = None
 
 def get_tokenizer_obj
 
@@ -623,7 +617,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.1
+  docs for lmcat v0.1.2
 
 API Documentation
 
@@ -718,7 +712,7 @@ Returns:
 -   tuple[str, str] Processed content and the processor name if no
     processor is found, will be (path.read_text(), None)
 
-  docs for lmcat v0.1.1
+  docs for lmcat v0.1.2
 
 API Documentation
 

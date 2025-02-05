@@ -1,8 +1,8 @@
 # Stats
 - 14 files
-- 2205 (2.2K) lines
-- 62274 (62K) chars
-- 23304 (23K) `gpt2` tokens
+- 2200 (2.2K) lines
+- 62174 (62K) chars
+- 23251 (23K) `gpt2` tokens
 
 # File Tree
 
@@ -13,7 +13,7 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [463L 13,513C 5,033T]
+│   ├── lmcat.py                [458L 13,413C 4,980T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
 │   └── processors.py           [181L  4,458C 1,519T]
 ├── tests                       
@@ -287,16 +287,7 @@ from lmcat.processing_pipeline import OnMultipleProcessors
 
 @serializable_dataclass(kw_only=True)
 class LMCatConfig(SerializableDataclass):
-	"""Configuration dataclass for lmcat
-
-	# Parameters:
-	 - `tree_divider: str`
-	 - `tree_indent: str`
-	 - `tree_file_divider: str`
-	 - `content_divider: str`
-	 - `include_gitignore: bool`  (default True)
-	 - `tree_only: bool`  (default False)
-	"""
+	"""Configuration dataclass for lmcat"""
 
 	content_divider: str = serializable_field(default="``````")
 	tree_only: bool = serializable_field(default=False)
@@ -341,6 +332,9 @@ class LMCatConfig(SerializableDataclass):
 	tree_divider: str = serializable_field(default="│   ")
 	tree_file_divider: str = serializable_field(default="├── ")
 	tree_indent: str = serializable_field(default=" ")
+
+	# output location
+	output: str | None = serializable_field(default=None)
 
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
@@ -684,6 +678,7 @@ def main() -> None:
 	config: LMCatConfig = LMCatConfig.read(root_dir)
 
 	# CLI overrides
+	config.output = args.output
 	config.tree_only = args.tree_only
 	config.allow_plugins = args.allow_plugins
 
@@ -696,7 +691,7 @@ def main() -> None:
 	summary: str = assemble_summary(root_dir=root_dir, config=config)
 
 	# Write output
-	if args.output:
+	if config.output:
 		output_path: Path = Path(args.output)
 		output_path.parent.mkdir(parents=True, exist_ok=True)
 		output_path.write_text(summary, encoding="utf-8")
@@ -2121,7 +2116,7 @@ demo-tree:
 ``````{ path="pyproject.toml"  }
 [project]
 name = "lmcat"
-version = "0.1.1"
+version = "0.1.2"
 description = "concatenating files for tossing them into a language model"
 authors = [
 	{ name = "Michael Ivanitskiy", email = "mivanits@umich.edu" }
