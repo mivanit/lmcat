@@ -1,8 +1,8 @@
 # Stats
 - 14 files
-- 2200 (2.2K) lines
-- 62174 (62K) chars
-- 23251 (23K) `gpt2` tokens
+- 2217 (2.2K) lines
+- 63085 (63K) chars
+- 23615 (24K) `gpt2` tokens
 
 # File Tree
 
@@ -13,7 +13,7 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [458L 13,413C 4,980T]
+│   ├── lmcat.py                [464L 13,608C 5,040T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
 │   └── processors.py           [181L  4,458C 1,519T]
 ├── tests                       
@@ -21,9 +21,9 @@ lmcat
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
 │   ├── test_lmcat_2.py         [151L  4,331C 1,639T]
 │   └── test_lmcat_3.py         [184L  5,156C 1,764T]
-├── README.md                   [130L  3,315C 1,029T]
+├── README.md                   [140L  4,002C 1,324T]
 ├── makefile                    [691L 23,554C 8,387T]
-├── pyproject.toml              [ 89L  1,977C   817T]
+├── pyproject.toml              [ 90L  2,006C   827T]
 ```
 
 # File Contents
@@ -655,7 +655,7 @@ def main() -> None:
 		"--output",
 		action="store",
 		default=None,
-		help="Output file to write the tree and contents to.",
+		help="Output file to write the tree and contents to. set to 'STDOUT' to print to console if you want to override the config.",
 	)
 	arg_parser.add_argument(
 		"-h", "--help", action="help", help="Show this help message and exit."
@@ -678,7 +678,13 @@ def main() -> None:
 	config: LMCatConfig = LMCatConfig.read(root_dir)
 
 	# CLI overrides
-	config.output = args.output
+	if args.output is not None:
+		config.output = args.output
+	elif args.output == "STDOUT":
+		config.output = None
+	else:
+		assert args.output is None
+
 	config.tree_only = args.tree_only
 	config.allow_plugins = args.allow_plugins
 
@@ -692,7 +698,7 @@ def main() -> None:
 
 	# Write output
 	if config.output:
-		output_path: Path = Path(args.output)
+		output_path: Path = Path(config.output)
 		output_path.parent.mkdir(parents=True, exist_ok=True)
 		output_path.write_text(summary, encoding="utf-8")
 	else:
@@ -1774,6 +1780,16 @@ def test_error_files():
 ``````{ end_of_file="tests/test_lmcat_3.py" }
 
 ``````{ path="README.md"  }
+[![PyPI](https://img.shields.io/pypi/v/lmcat)](https://pypi.org/project/lmcat/)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/lmcat)
+[![docs](https://img.shields.io/badge/docs-latest-blue)](https://miv.name/lmcat)
+[![Checks](https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg)](https://github.com/mivanit/lmcat/actions/workflows/checks.yml)
+[![Coverage](docs/coverage/coverage.svg)](docs/coverage/html/)
+
+![GitHub commits](https://img.shields.io/github/commit-activity/t/mivanit/lmcat)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/mivanit/lmcat)
+![code size, bytes](https://img.shields.io/github/languages/code-size/mivanit/lmcat)
+
 # lmcat
 
 A Python tool for concatenating files and directory structures into a single document, perfect for sharing code with language models. It respects `.gitignore` and `.lmignore` patterns and provides configurable output formatting.
@@ -2116,7 +2132,7 @@ demo-tree:
 ``````{ path="pyproject.toml"  }
 [project]
 name = "lmcat"
-version = "0.1.2"
+version = "0.1.3"
 description = "concatenating files for tossing them into a language model"
 authors = [
 	{ name = "Michael Ivanitskiy", email = "mivanits@umich.edu" }
@@ -2198,6 +2214,7 @@ exports = [
 
 
 [tool.lmcat]
+output = "example_output.md"
 ignore_patterns_files = [".lmignore", ".gitignore"]
 
 [tool.lmcat.glob_process]

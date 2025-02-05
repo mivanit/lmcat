@@ -46,7 +46,7 @@
 </script></head>
 <body>
 <div class="package-version">
-    docs for <a href="https://github.com/mivanit/lmcat">lmcat</a> v0.1.2<br>
+    docs for <a href="https://github.com/mivanit/lmcat">lmcat</a> v0.1.3<br>
 </div>
     <nav class="pdoc">
         <label id="navtoggle" for="togglestate" class="pdoc-button">
@@ -185,7 +185,7 @@
     </nav>
     <main class="pdoc">
             <section class="module-info">
-                        <a class="pdoc-button git-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py">View Source on GitHub</a>
+                        <a class="pdoc-button git-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py">View Source on GitHub</a>
                     <h1 class="modulename">
 <a href="./../lmcat.html">lmcat</a><wbr>.lmcat    </h1>
 
@@ -195,7 +195,7 @@
                         <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="mod-lmcat-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L0-L457" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L0-L463" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -606,7 +606,7 @@
 </span><span id="L-402"><a href="#L-402"><span class="linenos">402</span></a>		<span class="s2">&quot;--output&quot;</span><span class="p">,</span>
 </span><span id="L-403"><a href="#L-403"><span class="linenos">403</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
 </span><span id="L-404"><a href="#L-404"><span class="linenos">404</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="L-405"><a href="#L-405"><span class="linenos">405</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to.&quot;</span><span class="p">,</span>
+</span><span id="L-405"><a href="#L-405"><span class="linenos">405</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to. set to &#39;STDOUT&#39; to print to console if you want to override the config.&quot;</span><span class="p">,</span>
 </span><span id="L-406"><a href="#L-406"><span class="linenos">406</span></a>	<span class="p">)</span>
 </span><span id="L-407"><a href="#L-407"><span class="linenos">407</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
 </span><span id="L-408"><a href="#L-408"><span class="linenos">408</span></a>		<span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show this help message and exit.&quot;</span>
@@ -629,37 +629,43 @@
 </span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a>	<span class="n">config</span><span class="p">:</span> <span class="n">LMCatConfig</span> <span class="o">=</span> <span class="n">LMCatConfig</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
 </span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a>
 </span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a>	<span class="c1"># CLI overrides</span>
-</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
-</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
-</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">allow_plugins</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_plugins</span>
-</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a>
-</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>	<span class="c1"># print cfg and exit if requested</span>
-</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_cfg</span><span class="p">:</span>
-</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
-</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a>		<span class="k">return</span>
-</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a>
-</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a>	<span class="c1"># assemble summary</span>
-</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a>	<span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">assemble_summary</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a>	<span class="c1"># Write output</span>
-</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>	<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>		<span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
-</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>	<span class="k">else</span><span class="p">:</span>
-</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
-</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>			<span class="p">)</span>
-</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a>			<span class="p">)</span>
-</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a>
-</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
-</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a>
-</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a>
-</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a>	<span class="n">main</span><span class="p">()</span>
+</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a>		<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
+</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a>	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;STDOUT&quot;</span><span class="p">:</span>
+</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a>		<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a>		<span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a>
+</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
+</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">allow_plugins</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_plugins</span>
+</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a>
+</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a>	<span class="c1"># print cfg and exit if requested</span>
+</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_cfg</span><span class="p">:</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>		<span class="k">return</span>
+</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>
+</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>	<span class="c1"># assemble summary</span>
+</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>	<span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">assemble_summary</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>
+</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>	<span class="c1"># Write output</span>
+</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a>	<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a>		<span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
+</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a>			<span class="p">)</span>
+</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a>			<span class="p">)</span>
+</span><span id="L-459"><a href="#L-459"><span class="linenos">459</span></a>
+</span><span id="L-460"><a href="#L-460"><span class="linenos">460</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+</span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a>
+</span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a>
+</span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a>	<span class="n">main</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -676,7 +682,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L35-L138" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L35-L138" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -983,7 +989,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.get_tokenizer_obj-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L86-L88" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L86-L88" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1012,7 +1018,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.get_processing_pipeline-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L90-L98" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L90-L98" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1048,7 +1054,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.read-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L100-L138" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L100-L138" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1113,7 +1119,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.serialize-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L703-L759" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L703-L759" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1197,7 +1203,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.load-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L766-L852" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L766-L852" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1310,7 +1316,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="LMCatConfig.validate_fields_types-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L303-L312" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L303-L312" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1358,7 +1364,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="IgnoreHandler-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L141-L166" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L141-L166" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1408,7 +1414,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="IgnoreHandler.__init__-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L144-L157" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L144-L157" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1479,7 +1485,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="IgnoreHandler.is_ignored-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L159-L166" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L159-L166" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1514,7 +1520,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="sorted_entries-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L169-L177" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L169-L177" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1549,7 +1555,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="walk_dir-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L180-L222" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L180-L222" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1618,7 +1624,7 @@
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="format_tree_with_stats-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L225-L276" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L225-L276" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1712,7 +1718,7 @@ Formatted tree lines with aligned stats</li>
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="walk_and_collect-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L279-L310" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L279-L310" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1770,7 +1776,7 @@ Formatted tree lines with aligned stats</li>
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="assemble_summary-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L313-L384" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L313-L384" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1868,7 +1874,7 @@ Formatted tree lines with aligned stats</li>
                 <div class="source-button-container">
             <label class="pdoc-button view-source-button" for="main-view-source"><span>View Source</span></label>
             <div class="github-button-wrapper">
-                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.2/lmcat.py#L387-L454" target="_blank">
+                <a class="pdoc-button github-link-button" href="https://github.com/mivanit/lmcat/blob/0.1.3/lmcat.py#L387-L460" target="_blank">
                     <span>View on GitHub</span>
                 </a>
             </div>
@@ -1894,7 +1900,7 @@ Formatted tree lines with aligned stats</li>
 </span><span id="main-403"><a href="#main-403"><span class="linenos">403</span></a>		<span class="s2">&quot;--output&quot;</span><span class="p">,</span>
 </span><span id="main-404"><a href="#main-404"><span class="linenos">404</span></a>		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span>
 </span><span id="main-405"><a href="#main-405"><span class="linenos">405</span></a>		<span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="main-406"><a href="#main-406"><span class="linenos">406</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to.&quot;</span><span class="p">,</span>
+</span><span id="main-406"><a href="#main-406"><span class="linenos">406</span></a>		<span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file to write the tree and contents to. set to &#39;STDOUT&#39; to print to console if you want to override the config.&quot;</span><span class="p">,</span>
 </span><span id="main-407"><a href="#main-407"><span class="linenos">407</span></a>	<span class="p">)</span>
 </span><span id="main-408"><a href="#main-408"><span class="linenos">408</span></a>	<span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
 </span><span id="main-409"><a href="#main-409"><span class="linenos">409</span></a>		<span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show this help message and exit.&quot;</span>
@@ -1917,33 +1923,39 @@ Formatted tree lines with aligned stats</li>
 </span><span id="main-426"><a href="#main-426"><span class="linenos">426</span></a>	<span class="n">config</span><span class="p">:</span> <span class="n">LMCatConfig</span> <span class="o">=</span> <span class="n">LMCatConfig</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span>
 </span><span id="main-427"><a href="#main-427"><span class="linenos">427</span></a>
 </span><span id="main-428"><a href="#main-428"><span class="linenos">428</span></a>	<span class="c1"># CLI overrides</span>
-</span><span id="main-429"><a href="#main-429"><span class="linenos">429</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
-</span><span id="main-430"><a href="#main-430"><span class="linenos">430</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
-</span><span id="main-431"><a href="#main-431"><span class="linenos">431</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">allow_plugins</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_plugins</span>
-</span><span id="main-432"><a href="#main-432"><span class="linenos">432</span></a>
-</span><span id="main-433"><a href="#main-433"><span class="linenos">433</span></a>	<span class="c1"># print cfg and exit if requested</span>
-</span><span id="main-434"><a href="#main-434"><span class="linenos">434</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_cfg</span><span class="p">:</span>
-</span><span id="main-435"><a href="#main-435"><span class="linenos">435</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
-</span><span id="main-436"><a href="#main-436"><span class="linenos">436</span></a>		<span class="k">return</span>
-</span><span id="main-437"><a href="#main-437"><span class="linenos">437</span></a>
-</span><span id="main-438"><a href="#main-438"><span class="linenos">438</span></a>	<span class="c1"># assemble summary</span>
-</span><span id="main-439"><a href="#main-439"><span class="linenos">439</span></a>	<span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">assemble_summary</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-</span><span id="main-440"><a href="#main-440"><span class="linenos">440</span></a>
-</span><span id="main-441"><a href="#main-441"><span class="linenos">441</span></a>	<span class="c1"># Write output</span>
-</span><span id="main-442"><a href="#main-442"><span class="linenos">442</span></a>	<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-</span><span id="main-443"><a href="#main-443"><span class="linenos">443</span></a>		<span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
-</span><span id="main-444"><a href="#main-444"><span class="linenos">444</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="main-445"><a href="#main-445"><span class="linenos">445</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-</span><span id="main-446"><a href="#main-446"><span class="linenos">446</span></a>	<span class="k">else</span><span class="p">:</span>
-</span><span id="main-447"><a href="#main-447"><span class="linenos">447</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
-</span><span id="main-448"><a href="#main-448"><span class="linenos">448</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="main-449"><a href="#main-449"><span class="linenos">449</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="main-450"><a href="#main-450"><span class="linenos">450</span></a>			<span class="p">)</span>
-</span><span id="main-451"><a href="#main-451"><span class="linenos">451</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
-</span><span id="main-452"><a href="#main-452"><span class="linenos">452</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
-</span><span id="main-453"><a href="#main-453"><span class="linenos">453</span></a>			<span class="p">)</span>
-</span><span id="main-454"><a href="#main-454"><span class="linenos">454</span></a>
-</span><span id="main-455"><a href="#main-455"><span class="linenos">455</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+</span><span id="main-429"><a href="#main-429"><span class="linenos">429</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="main-430"><a href="#main-430"><span class="linenos">430</span></a>		<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
+</span><span id="main-431"><a href="#main-431"><span class="linenos">431</span></a>	<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;STDOUT&quot;</span><span class="p">:</span>
+</span><span id="main-432"><a href="#main-432"><span class="linenos">432</span></a>		<span class="n">config</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="main-433"><a href="#main-433"><span class="linenos">433</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="main-434"><a href="#main-434"><span class="linenos">434</span></a>		<span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="main-435"><a href="#main-435"><span class="linenos">435</span></a>
+</span><span id="main-436"><a href="#main-436"><span class="linenos">436</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">tree_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tree_only</span>
+</span><span id="main-437"><a href="#main-437"><span class="linenos">437</span></a>	<span class="n">config</span><span class="o">.</span><span class="n">allow_plugins</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_plugins</span>
+</span><span id="main-438"><a href="#main-438"><span class="linenos">438</span></a>
+</span><span id="main-439"><a href="#main-439"><span class="linenos">439</span></a>	<span class="c1"># print cfg and exit if requested</span>
+</span><span id="main-440"><a href="#main-440"><span class="linenos">440</span></a>	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">print_cfg</span><span class="p">:</span>
+</span><span id="main-441"><a href="#main-441"><span class="linenos">441</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+</span><span id="main-442"><a href="#main-442"><span class="linenos">442</span></a>		<span class="k">return</span>
+</span><span id="main-443"><a href="#main-443"><span class="linenos">443</span></a>
+</span><span id="main-444"><a href="#main-444"><span class="linenos">444</span></a>	<span class="c1"># assemble summary</span>
+</span><span id="main-445"><a href="#main-445"><span class="linenos">445</span></a>	<span class="n">summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">assemble_summary</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span><span id="main-446"><a href="#main-446"><span class="linenos">446</span></a>
+</span><span id="main-447"><a href="#main-447"><span class="linenos">447</span></a>	<span class="c1"># Write output</span>
+</span><span id="main-448"><a href="#main-448"><span class="linenos">448</span></a>	<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+</span><span id="main-449"><a href="#main-449"><span class="linenos">449</span></a>		<span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</span><span id="main-450"><a href="#main-450"><span class="linenos">450</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="main-451"><a href="#main-451"><span class="linenos">451</span></a>		<span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</span><span id="main-452"><a href="#main-452"><span class="linenos">452</span></a>	<span class="k">else</span><span class="p">:</span>
+</span><span id="main-453"><a href="#main-453"><span class="linenos">453</span></a>		<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
+</span><span id="main-454"><a href="#main-454"><span class="linenos">454</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-455"><a href="#main-455"><span class="linenos">455</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-456"><a href="#main-456"><span class="linenos">456</span></a>			<span class="p">)</span>
+</span><span id="main-457"><a href="#main-457"><span class="linenos">457</span></a>			<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">TextIOWrapper</span><span class="p">(</span>
+</span><span id="main-458"><a href="#main-458"><span class="linenos">458</span></a>				<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+</span><span id="main-459"><a href="#main-459"><span class="linenos">459</span></a>			<span class="p">)</span>
+</span><span id="main-460"><a href="#main-460"><span class="linenos">460</span></a>
+</span><span id="main-461"><a href="#main-461"><span class="linenos">461</span></a>		<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
 </span></pre></div>
 
 

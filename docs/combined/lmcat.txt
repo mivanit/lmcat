@@ -1,6 +1,10 @@
-  docs for lmcat v0.1.2
+  docs for lmcat v0.1.3
 
 Contents
+
+[PyPI] [PyPI - Downloads] [docs] [Checks] [Coverage]
+
+[GitHub commits] [GitHub commit activity] [code size, bytes]
 
 lmcat
 
@@ -141,6 +145,10 @@ View Source on GitHub
 
 lmcat
 
+[PyPI] [PyPI - Downloads] [docs] [Checks] [Coverage]
+
+[GitHub commits] [GitHub commit activity] [code size, bytes]
+
 lmcat
 
 A Python tool for concatenating files and directory structures into a
@@ -275,7 +283,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.2
+  docs for lmcat v0.1.3
 
 API Documentation
 
@@ -383,7 +391,7 @@ Inherited Members
 -   index
 -   count
 
-  docs for lmcat v0.1.2
+  docs for lmcat v0.1.3
 
 API Documentation
 
@@ -617,7 +625,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.1.2
+  docs for lmcat v0.1.3
 
 API Documentation
 
@@ -712,7 +720,7 @@ Returns:
 -   tuple[str, str] Processed content and the processor name if no
     processor is found, will be (path.read_text(), None)
 
-  docs for lmcat v0.1.2
+  docs for lmcat v0.1.3
 
 API Documentation
 
