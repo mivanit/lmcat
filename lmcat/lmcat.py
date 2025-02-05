@@ -34,16 +34,7 @@ from lmcat.processing_pipeline import OnMultipleProcessors
 
 @serializable_dataclass(kw_only=True)
 class LMCatConfig(SerializableDataclass):
-	"""Configuration dataclass for lmcat
-
-	# Parameters:
-	 - `tree_divider: str`
-	 - `tree_indent: str`
-	 - `tree_file_divider: str`
-	 - `content_divider: str`
-	 - `include_gitignore: bool`  (default True)
-	 - `tree_only: bool`  (default False)
-	"""
+	"""Configuration dataclass for lmcat"""
 
 	content_divider: str = serializable_field(default="``````")
 	tree_only: bool = serializable_field(default=False)
@@ -88,6 +79,9 @@ class LMCatConfig(SerializableDataclass):
 	tree_divider: str = serializable_field(default="│   ")
 	tree_file_divider: str = serializable_field(default="├── ")
 	tree_indent: str = serializable_field(default=" ")
+
+	# output location
+	output: str | None = serializable_field(default=None)
 
 	def get_tokenizer_obj(self) -> TokenizerWrapper:
 		"""Get the tokenizer object"""
@@ -431,6 +425,7 @@ def main() -> None:
 	config: LMCatConfig = LMCatConfig.read(root_dir)
 
 	# CLI overrides
+	config.output = args.output
 	config.tree_only = args.tree_only
 	config.allow_plugins = args.allow_plugins
 
@@ -443,7 +438,7 @@ def main() -> None:
 	summary: str = assemble_summary(root_dir=root_dir, config=config)
 
 	# Write output
-	if args.output:
+	if config.output:
 		output_path: Path = Path(args.output)
 		output_path.parent.mkdir(parents=True, exist_ok=True)
 		output_path.write_text(summary, encoding="utf-8")
