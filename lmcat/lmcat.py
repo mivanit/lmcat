@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from lmcat.processing_pipeline import ProcessingPipeline
+from lmcat.processors import summarize_deciders, summarize_processors
 
 
 # Handle Python 3.11+ vs older Python for TOML parsing
@@ -414,6 +415,12 @@ def main() -> None:
 		help="Print the configuration as json and exit.",
 	)
 	arg_parser.add_argument(
+		"--print-processors",
+		action="store_true",
+		default=False,
+		help="Print the available processors and deciders and exit.",
+	)
+	arg_parser.add_argument(
 		"--allow-plugins",
 		action="store_true",
 		default=False,
@@ -438,6 +445,13 @@ def main() -> None:
 	# print cfg and exit if requested
 	if args.print_cfg:
 		print(json.dumps(config.serialize(), indent="\t"))
+		return
+
+	# print processors and exit if requested
+	if args.print_processors:
+		print(summarize_processors())
+		print("\n")
+		print(summarize_deciders())
 		return
 
 	# assemble summary

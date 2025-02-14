@@ -1,6 +1,7 @@
 import json
 from typing import Callable, Sequence
 from pathlib import Path
+import textwrap
 
 
 # type defs
@@ -19,6 +20,24 @@ DeciderFunc = Callable[[Path], bool]
 PROCESSORS: dict[ProcessorName, ProcessorFunc] = dict()
 
 DECIDERS: dict[DeciderName, DeciderFunc] = dict()
+
+
+def summarize_processors() -> str:
+	output: list[str] = list()
+	output.append("# Processors:")
+	for name, func in PROCESSORS.items():
+		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, "  ")}")
+
+	return "\n".join(output)
+
+
+def summarize_deciders() -> str:
+	output: list[str] = list()
+	output.append("# Deciders:")
+	for name, func in DECIDERS.items():
+		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, "  ")}")
+
+	return "\n".join(output)
 
 
 # register functions
@@ -42,12 +61,12 @@ def register_decider(func: DeciderFunc) -> DeciderFunc:
 @register_decider
 def is_over_10kb(path: Path) -> bool:
 	"""Check if file is over 10KB."""
-	return path.stat().st_size > 2**1
+	return path.stat().st_size > 10 * 2**10
 
 
 @register_decider
 def is_documentation(path: Path) -> bool:
-	"""Check if file is documentation."""
+	"""Check if file is documentation -- ends with md, rst, or txt"""
 	return path.suffix in {".md", ".rst", ".txt"}
 
 
