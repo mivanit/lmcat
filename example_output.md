@@ -1,8 +1,8 @@
 # Stats
 - 14 files
-- 2217 (2.2K) lines
-- 63085 (63K) chars
-- 23615 (24K) `gpt2` tokens
+- 2250 (2.2K) lines
+- 63977 (64K) chars
+- 23939 (24K) `gpt2` tokens
 
 # File Tree
 
@@ -13,9 +13,9 @@ lmcat
 │   ├── __main__.py             [  4L     59C    23T]
 │   ├── file_stats.py           [ 84L  2,032C   721T]
 │   ├── index.html              [104L  4,125C 2,152T]
-│   ├── lmcat.py                [464L 13,608C 5,040T]
+│   ├── lmcat.py                [478L 13,990C 5,167T]
 │   ├── processing_pipeline.py  [183L  5,120C 1,855T]
-│   └── processors.py           [181L  4,458C 1,519T]
+│   └── processors.py           [200L  4,968C 1,715T]
 ├── tests                       
 │   ├── demo_notebook.ipynb     [ 32L    477C   223T]
 │   ├── test_lmcat.py           [327L  9,778C 3,605T]
@@ -260,6 +260,7 @@ from pathlib import Path
 import sys
 
 from lmcat.processing_pipeline import ProcessingPipeline
+from lmcat.processors import summarize_deciders, summarize_processors
 
 
 # Handle Python 3.11+ vs older Python for TOML parsing
@@ -667,6 +668,12 @@ def main() -> None:
 		help="Print the configuration as json and exit.",
 	)
 	arg_parser.add_argument(
+		"--print-processors",
+		action="store_true",
+		default=False,
+		help="Print the available processors and deciders and exit.",
+	)
+	arg_parser.add_argument(
 		"--allow-plugins",
 		action="store_true",
 		default=False,
@@ -691,6 +698,13 @@ def main() -> None:
 	# print cfg and exit if requested
 	if args.print_cfg:
 		print(json.dumps(config.serialize(), indent="\t"))
+		return
+
+	# print processors and exit if requested
+	if args.print_processors:
+		print(summarize_processors())
+		print("\n")
+		print(summarize_deciders())
 		return
 
 	# assemble summary
@@ -909,6 +923,7 @@ class ProcessingPipeline:
 import json
 from typing import Callable, Sequence
 from pathlib import Path
+import textwrap
 
 
 # type defs
@@ -927,6 +942,24 @@ DeciderFunc = Callable[[Path], bool]
 PROCESSORS: dict[ProcessorName, ProcessorFunc] = dict()
 
 DECIDERS: dict[DeciderName, DeciderFunc] = dict()
+
+
+def summarize_processors() -> str:
+	output: list[str] = list()
+	output.append("# Processors:")
+	for name, func in PROCESSORS.items():
+		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, '  ')}")
+
+	return "\n".join(output)
+
+
+def summarize_deciders() -> str:
+	output: list[str] = list()
+	output.append("# Deciders:")
+	for name, func in DECIDERS.items():
+		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, '  ')}")
+
+	return "\n".join(output)
 
 
 # register functions
@@ -950,12 +983,12 @@ def register_decider(func: DeciderFunc) -> DeciderFunc:
 @register_decider
 def is_over_10kb(path: Path) -> bool:
 	"""Check if file is over 10KB."""
-	return path.stat().st_size > 2**1
+	return path.stat().st_size > 10 * 2**10
 
 
 @register_decider
 def is_documentation(path: Path) -> bool:
-	"""Check if file is documentation."""
+	"""Check if file is documentation -- ends with md, rst, or txt"""
 	return path.suffix in {".md", ".rst", ".txt"}
 
 
@@ -2132,7 +2165,7 @@ demo-tree:
 ``````{ path="pyproject.toml"  }
 [project]
 name = "lmcat"
-version = "0.2.0"
+version = "0.2.1"
 description = "concatenating files for tossing them into a language model"
 authors = [
 	{ name = "Michael Ivanitskiy", email = "mivanits@umich.edu" }

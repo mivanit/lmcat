@@ -1,4 +1,4 @@
-  docs for lmcat v0.2.0
+  docs for lmcat v0.2.1
 
 Contents
 
@@ -283,7 +283,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.2.0
+  docs for lmcat v0.2.1
 
 API Documentation
 
@@ -391,7 +391,7 @@ Inherited Members
 -   index
 -   count
 
-  docs for lmcat v0.2.0
+  docs for lmcat v0.2.1
 
 API Documentation
 
@@ -625,7 +625,7 @@ View Source on GitHub
 
 Main entry point for the script
 
-  docs for lmcat v0.2.0
+  docs for lmcat v0.2.1
 
 API Documentation
 
@@ -720,7 +720,7 @@ Returns:
 -   tuple[str, str] Processed content and the processor name if no
     processor is found, will be (path.read_text(), None)
 
-  docs for lmcat v0.2.0
+  docs for lmcat v0.2.1
 
 API Documentation
 
@@ -730,6 +730,8 @@ API Documentation
 -   DeciderFunc
 -   PROCESSORS
 -   DECIDERS
+-   summarize_processors
+-   summarize_deciders
 -   register_processor
 -   register_decider
 -   is_over_10kb
@@ -758,6 +760,18 @@ View Source on GitHub
 -   PROCESSORS: dict[str, typing.Callable[[pathlib.Path], str]] = {'remove_comments': <function remove_comments>, 'compress_whitespace': <function compress_whitespace>, 'to_relative_path': <function to_relative_path>, 'ipynb_to_md': <function ipynb_to_md>, 'makefile_recipes': <function makefile_recipes>, 'csv_preview_5_lines': <function csv_preview_5_lines>}
 
 -   DECIDERS: dict[str, typing.Callable[[pathlib.Path], bool]] = {'is_over_10kb': <function is_over_10kb>, 'is_documentation': <function is_documentation>}
+
+def summarize_processors
+
+    () -> str
+
+View Source on GitHub
+
+def summarize_deciders
+
+    () -> str
+
+View Source on GitHub
 
 def register_processor
 
@@ -789,7 +803,7 @@ def is_documentation
 
 View Source on GitHub
 
-Check if file is documentation.
+Check if file is documentation – ends with md, rst, or txt
 
 def remove_comments
 

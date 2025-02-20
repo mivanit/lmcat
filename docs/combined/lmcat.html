@@ -1,7 +1,7 @@
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.2.0</p>
+v0.2.1</p>
 </blockquote>
 <h2 id="contents">Contents</h2>
 <p><a href="https://pypi.org/project/lmcat/"><img
@@ -12,7 +12,7 @@ src="https://img.shields.io/badge/docs-latest-blue" alt="docs" /></a> <a
 href="https://github.com/mivanit/lmcat/actions/workflows/checks.yml"><img
 src="https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg"
 alt="Checks" /></a> <a href="docs/coverage/html/"><img
-src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzklPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc5JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg=="
+src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzclPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc3JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg=="
 alt="Coverage" /></a></p>
 <p><img
 src="https://img.shields.io/github/commit-activity/t/mivanit/lmcat"
@@ -155,7 +155,7 @@ href="#processing_pipeline"><code>processing_pipeline</code></a></li>
 <li><a href="#main"><code>main</code></a></li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py">View
 Source on GitHub</a></p>
 <h1 id="lmcat"><code>lmcat</code></h1>
 <p><a href="https://pypi.org/project/lmcat/"><img
@@ -166,7 +166,7 @@ src="https://img.shields.io/badge/docs-latest-blue" alt="docs" /></a> <a
 href="https://github.com/mivanit/lmcat/actions/workflows/checks.yml"><img
 src="https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg"
 alt="Checks" /></a> <a href="docs/coverage/html/"><img
-src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzklPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc5JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg=="
+src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzclPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc3JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg=="
 alt="Coverage" /></a></p>
 <p><img
 src="https://img.shields.io/github/commit-activity/t/mivanit/lmcat"
@@ -297,19 +297,19 @@ broken</li>
 <li>web interface</li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py#L0-L14">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py#L0-L14">View
 Source on GitHub</a></p>
 <h3 id="main"><code>def main</code></h3>
 <div class="sourceCode" id="cb17"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="va">None</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py#L387-L460">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py#L388-L474">View
 Source on GitHub</a></p>
 <p>Main entry point for the script</p>
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.2.0</p>
+v0.2.1</p>
 </blockquote>
 <h2 id="api-documentation-1">API Documentation</h2>
 <ul>
@@ -320,18 +320,18 @@ href="#TOKENIZERS_PRESENT"><code>TOKENIZERS_PRESENT</code></a></li>
 <li><a href="#TreeEntry"><code>TreeEntry</code></a></li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py">View
 Source on GitHub</a></p>
 <h1 id="lmcat.file_stats"><code>lmcat.file_stats</code></h1>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L0-L83">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L0-L83">View
 Source on GitHub</a></p>
 <ul>
 <li><code>TOKENIZERS_PRESENT: bool = True</code></li>
 </ul>
 <h3 id="TokenizerWrapper"><code>class TokenizerWrapper:</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L25-L43">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L25-L43">View
 Source on GitHub</a></p>
 <p>tokenizer wrapper. stores name and provides <code>n_tokens</code>
 method.</p>
@@ -341,7 +341,7 @@ method.</p>
 <div class="sourceCode" id="cb18"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>(name: <span class="bu">str</span> <span class="op">=</span> <span class="st">&#39;whitespace-split&#39;</span>)</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L30-L35">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L30-L35">View
 Source on GitHub</a></p>
 <ul>
 <li><p><code>name: str</code></p></li>
@@ -352,12 +352,12 @@ Source on GitHub</a></p>
 <div class="sourceCode" id="cb19"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>, text: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">int</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L37-L43">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L37-L43">View
 Source on GitHub</a></p>
 <p>Return number of tokens in text</p>
 <h3 id="FileStats"><code>class FileStats:</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L46-L77">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L46-L77">View
 Source on GitHub</a></p>
 <p>Statistics for a single file</p>
 <h3 id="FileStats.__init__"><code>FileStats</code></h3>
@@ -376,7 +376,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a h
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    tokenizer: lmcat.file_stats.TokenizerWrapper</span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> lmcat.file_stats.FileStats</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L54-L77">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L54-L77">View
 Source on GitHub</a></p>
 <p>Get statistics for a single file</p>
 <h3 id="parameters">Parameters:</h3>
@@ -391,7 +391,7 @@ use for counting tokens, if any</li>
 </ul>
 <h3 id="TreeEntry"><code>class TreeEntry(typing.NamedTuple):</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L80-L84">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L80-L84">View
 Source on GitHub</a></p>
 <p>Entry in the tree output with optional stats</p>
 <h3 id="TreeEntry.__init__"><code>TreeEntry</code></h3>
@@ -414,7 +414,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a h
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.2.0</p>
+v0.2.1</p>
 </blockquote>
 <h2 id="api-documentation-2">API Documentation</h2>
 <ul>
@@ -428,16 +428,16 @@ href="#format_tree_with_stats"><code>format_tree_with_stats</code></a></li>
 <li><a href="#assemble_summary"><code>assemble_summary</code></a></li>
 <li><a href="#main"><code>main</code></a></li>
 </ul>
-<p><a href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py">View
+<p><a href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py">View
 Source on GitHub</a></p>
 <h1 id="lmcat.lmcat"><code>lmcat.lmcat</code></h1>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L0-L463">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L0-L477">View
 Source on GitHub</a></p>
 <h3
 id="LMCatConfig"><code>class LMCatConfig(muutils.json_serialize.serializable_dataclass.SerializableDataclass):</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L35-L138">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L36-L139">View
 Source on GitHub</a></p>
 <p>Configuration dataclass for lmcat</p>
 <h3 id="LMCatConfig.__init__"><code>LMCatConfig</code></h3>
@@ -487,7 +487,7 @@ id="LMCatConfig.get_tokenizer_obj"><code>def get_tokenizer_obj</code></h3>
 <div class="sourceCode" id="cb24"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>) <span class="op">-&gt;</span> lmcat.file_stats.TokenizerWrapper</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L86-L88">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L87-L89">View
 Source on GitHub</a></p>
 <p>Get the tokenizer object</p>
 <h3
@@ -495,14 +495,14 @@ id="LMCatConfig.get_processing_pipeline"><code>def get_processing_pipeline</code
 <div class="sourceCode" id="cb25"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>) <span class="op">-&gt;</span> lmcat.processing_pipeline.ProcessingPipeline</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L90-L98">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L91-L99">View
 Source on GitHub</a></p>
 <p>Get the processing pipeline object</p>
 <h3 id="LMCatConfig.read"><code>def read</code></h3>
 <div class="sourceCode" id="cb26"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>(cls, root_dir: pathlib.Path) <span class="op">-&gt;</span> lmcat.lmcat.LMCatConfig</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L100-L138">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L101-L139">View
 Source on GitHub</a></p>
 <p>Attempt to read config from pyproject.toml, lmcat.toml, or
 lmcat.json.</p>
@@ -510,7 +510,7 @@ lmcat.json.</p>
 <div class="sourceCode" id="cb27"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">str</span>, typing.Any]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L703-L759">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L703-L759">View
 Source on GitHub</a></p>
 <p>returns the class as a dict, implemented by using
 <code>@serializable_dataclass</code> decorator</p>
@@ -518,7 +518,7 @@ Source on GitHub</a></p>
 <div class="sourceCode" id="cb28"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(cls, data: Union[<span class="bu">dict</span>[<span class="bu">str</span>, Any], <span class="op">~</span>T]) <span class="op">-&gt;</span> Type[<span class="op">~</span>T]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L766-L852">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L766-L852">View
 Source on GitHub</a></p>
 <p>takes in an appropriately structured dict and returns an instance of
 the class, implemented by using <code>@serializable_dataclass</code>
@@ -531,7 +531,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a h
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    on_typecheck_error: muutils.errormode.ErrorMode <span class="op">=</span> ErrorMode.Except</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L303-L312">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L303-L312">View
 Source on GitHub</a></p>
 <p>validate the types of all the fields on a
 <code>SerializableDataclass</code>. calls
@@ -547,14 +547,14 @@ href="#LMCatConfig.update_from_nested_dict"><code>update_from_nested_dict</code>
 </ul>
 <h3 id="IgnoreHandler"><code>class IgnoreHandler:</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L141-L166">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L142-L167">View
 Source on GitHub</a></p>
 <p>Handles all ignore pattern matching using igittigitt</p>
 <h3 id="IgnoreHandler.__init__"><code>IgnoreHandler</code></h3>
 <div class="sourceCode" id="cb30"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>(root_dir: pathlib.Path, config: lmcat.lmcat.LMCatConfig)</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L144-L157">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L145-L158">View
 Source on GitHub</a></p>
 <ul>
 <li><p><code>root_dir: pathlib.Path</code></p></li>
@@ -565,14 +565,14 @@ Source on GitHub</a></p>
 <div class="sourceCode" id="cb31"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>, path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L159-L166">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L160-L167">View
 Source on GitHub</a></p>
 <p>Check if a path should be ignored</p>
 <h3 id="sorted_entries"><code>def sorted_entries</code></h3>
 <div class="sourceCode" id="cb32"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(directory: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">list</span>[pathlib.Path]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L169-L177">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L170-L178">View
 Source on GitHub</a></p>
 <p>Return directory contents sorted: directories first, then files</p>
 <h3 id="walk_dir"><code>def walk_dir</code></h3>
@@ -585,7 +585,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a h
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    prefix: <span class="bu">str</span> <span class="op">=</span> <span class="st">&#39;&#39;</span></span>
 <span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">list</span>[lmcat.file_stats.TreeEntry], <span class="bu">list</span>[pathlib.Path]]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L180-L222">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L181-L223">View
 Source on GitHub</a></p>
 <p>Recursively walk a directory, building tree lines and collecting file
 paths</p>
@@ -597,7 +597,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a h
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    show_tokens: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L225-L276">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L226-L277">View
 Source on GitHub</a></p>
 <p>Format tree entries with aligned statistics</p>
 <h3 id="parameters-1">Parameters:</h3>
@@ -617,7 +617,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a h
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    config: lmcat.lmcat.LMCatConfig</span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">list</span>[<span class="bu">str</span>], <span class="bu">list</span>[pathlib.Path]]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L279-L310">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L280-L311">View
 Source on GitHub</a></p>
 <p>Walk filesystem from root_dir and gather tree listing plus file
 paths</p>
@@ -625,20 +625,20 @@ paths</p>
 <div class="sourceCode" id="cb36"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(root_dir: pathlib.Path, config: lmcat.lmcat.LMCatConfig) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L313-L384">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L314-L385">View
 Source on GitHub</a></p>
 <p>Assemble the summary output and return</p>
 <h3 id="main"><code>def main</code></h3>
 <div class="sourceCode" id="cb37"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="va">None</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L387-L460">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L388-L474">View
 Source on GitHub</a></p>
 <p>Main entry point for the script</p>
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.2.0</p>
+v0.2.1</p>
 </blockquote>
 <h2 id="api-documentation-3">API Documentation</h2>
 <ul>
@@ -649,12 +649,12 @@ href="#OnMultipleProcessors"><code>OnMultipleProcessors</code></a></li>
 href="#ProcessingPipeline"><code>ProcessingPipeline</code></a></li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py">View
 Source on GitHub</a></p>
 <h1
 id="lmcat.processing_pipeline"><code>lmcat.processing_pipeline</code></h1>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L0-L182">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L0-L182">View
 Source on GitHub</a></p>
 <ul>
 <li><code>OnMultipleProcessors = typing.Literal['warn', 'except', 'do_first', 'do_last', 'skip']</code></li>
@@ -663,7 +663,7 @@ Source on GitHub</a></p>
 <div class="sourceCode" id="cb38"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(plugins_file: pathlib.Path) <span class="op">-&gt;</span> <span class="va">None</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L35-L56">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L35-L56">View
 Source on GitHub</a></p>
 <p>Load plugins from a Python file.</p>
 <h3 id="parameters-2">Parameters:</h3>
@@ -672,7 +672,7 @@ Source on GitHub</a></p>
 </ul>
 <h3 id="ProcessingPipeline"><code>class ProcessingPipeline:</code></h3>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L59-L183">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L59-L183">View
 Source on GitHub</a></p>
 <p>Manages the processing pipeline for files.</p>
 <h3 id="attributes">Attributes:</h3>
@@ -694,7 +694,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a h
 <span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    on_multiple_processors: Literal[<span class="st">&#39;warn&#39;</span>, <span class="st">&#39;except&#39;</span>, <span class="st">&#39;do_first&#39;</span>, <span class="st">&#39;do_last&#39;</span>, <span class="st">&#39;skip&#39;</span>]</span>
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L71-L109">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L71-L109">View
 Source on GitHub</a></p>
 <ul>
 <li><p><code>plugins_file: pathlib.Path | None</code></p></li>
@@ -707,7 +707,7 @@ id="ProcessingPipeline.get_processors_for_path"><code>def get_processors_for_pat
 <div class="sourceCode" id="cb40"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>, path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">list</span>[typing.Callable[[pathlib.Path], <span class="bu">str</span>]]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L111-L134">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L111-L134">View
 Source on GitHub</a></p>
 <p>Get all applicable processors for a given path.</p>
 <h3 id="parameters-3">Parameters:</h3>
@@ -724,7 +724,7 @@ id="ProcessingPipeline.process_file"><code>def process_file</code></h3>
 <div class="sourceCode" id="cb41"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>(<span class="va">self</span>, path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">str</span>, <span class="bu">str</span> <span class="op">|</span> <span class="va">None</span>]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L136-L183">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L136-L183">View
 Source on GitHub</a></p>
 <p>Process a file through the pipeline.</p>
 <h3 id="parameters-4">Parameters:</h3>
@@ -740,7 +740,7 @@ name if no processor is found, will be
 <blockquote>
 <p>docs for <a
 href="https://github.com/mivanit/lmcat"><code>lmcat</code></a>
-v0.2.0</p>
+v0.2.1</p>
 </blockquote>
 <h2 id="api-documentation-4">API Documentation</h2>
 <ul>
@@ -750,6 +750,10 @@ v0.2.0</p>
 <li><a href="#DeciderFunc"><code>DeciderFunc</code></a></li>
 <li><a href="#PROCESSORS"><code>PROCESSORS</code></a></li>
 <li><a href="#DECIDERS"><code>DECIDERS</code></a></li>
+<li><a
+href="#summarize_processors"><code>summarize_processors</code></a></li>
+<li><a
+href="#summarize_deciders"><code>summarize_deciders</code></a></li>
 <li><a
 href="#register_processor"><code>register_processor</code></a></li>
 <li><a href="#register_decider"><code>register_decider</code></a></li>
@@ -765,11 +769,11 @@ href="#compress_whitespace"><code>compress_whitespace</code></a></li>
 href="#csv_preview_5_lines"><code>csv_preview_5_lines</code></a></li>
 </ul>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py">View
 Source on GitHub</a></p>
 <h1 id="lmcat.processors"><code>lmcat.processors</code></h1>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L0-L180">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L0-L199">View
 Source on GitHub</a></p>
 <ul>
 <li><p><code>ProcessorName = &lt;class 'str'&gt;</code></p></li>
@@ -779,67 +783,79 @@ Source on GitHub</a></p>
 <li><p><code>PROCESSORS: dict[str, typing.Callable[[pathlib.Path], str]] = {'remove_comments': &lt;function remove_comments&gt;, 'compress_whitespace': &lt;function compress_whitespace&gt;, 'to_relative_path': &lt;function to_relative_path&gt;, 'ipynb_to_md': &lt;function ipynb_to_md&gt;, 'makefile_recipes': &lt;function makefile_recipes&gt;, 'csv_preview_5_lines': &lt;function csv_preview_5_lines&gt;}</code></p></li>
 <li><p><code>DECIDERS: dict[str, typing.Callable[[pathlib.Path], bool]] = {'is_over_10kb': &lt;function is_over_10kb&gt;, 'is_documentation': &lt;function is_documentation&gt;}</code></p></li>
 </ul>
-<h3 id="register_processor"><code>def register_processor</code></h3>
+<h3 id="summarize_processors"><code>def summarize_processors</code></h3>
 <div class="sourceCode" id="cb42"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>(func: Callable[[pathlib.Path], <span class="bu">str</span>]) <span class="op">-&gt;</span> Callable[[pathlib.Path], <span class="bu">str</span>]</span></code></pre></div>
+class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L28-L31">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L25-L31">View
+Source on GitHub</a></p>
+<h3 id="summarize_deciders"><code>def summarize_deciders</code></h3>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>() <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
+<p><a
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L34-L40">View
+Source on GitHub</a></p>
+<h3 id="register_processor"><code>def register_processor</code></h3>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(func: Callable[[pathlib.Path], <span class="bu">str</span>]) <span class="op">-&gt;</span> Callable[[pathlib.Path], <span class="bu">str</span>]</span></code></pre></div>
+<p><a
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L47-L50">View
 Source on GitHub</a></p>
 <p>Register a function as a path processor</p>
 <h3 id="register_decider"><code>def register_decider</code></h3>
-<div class="sourceCode" id="cb43"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>(func: Callable[[pathlib.Path], <span class="bu">bool</span>]) <span class="op">-&gt;</span> Callable[[pathlib.Path], <span class="bu">bool</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>(func: Callable[[pathlib.Path], <span class="bu">bool</span>]) <span class="op">-&gt;</span> Callable[[pathlib.Path], <span class="bu">bool</span>]</span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L34-L37">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L53-L56">View
 Source on GitHub</a></p>
 <p>Register a function as a decider</p>
 <h3 id="is_over_10kb"><code>def is_over_10kb</code></h3>
-<div class="sourceCode" id="cb44"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L42-L45">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L61-L64">View
 Source on GitHub</a></p>
 <p>Check if file is over 10KB.</p>
 <h3 id="is_documentation"><code>def is_documentation</code></h3>
-<div class="sourceCode" id="cb45"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
-<p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L48-L51">View
-Source on GitHub</a></p>
-<p>Check if file is documentation.</p>
-<h3 id="remove_comments"><code>def remove_comments</code></h3>
-<div class="sourceCode" id="cb46"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
-<p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L58-L63">View
-Source on GitHub</a></p>
-<p>Remove single-line comments from code.</p>
-<h3 id="compress_whitespace"><code>def compress_whitespace</code></h3>
 <div class="sourceCode" id="cb47"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
+class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">bool</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L66-L69">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L67-L70">View
 Source on GitHub</a></p>
-<p>Compress multiple whitespace characters into single spaces.</p>
-<h3 id="to_relative_path"><code>def to_relative_path</code></h3>
+<p>Check if file is documentation – ends with md, rst, or txt</p>
+<h3 id="remove_comments"><code>def remove_comments</code></h3>
 <div class="sourceCode" id="cb48"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L72-L75">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L77-L82">View
 Source on GitHub</a></p>
-<p>return the path to the file as a string</p>
-<h3 id="ipynb_to_md"><code>def ipynb_to_md</code></h3>
+<p>Remove single-line comments from code.</p>
+<h3 id="compress_whitespace"><code>def compress_whitespace</code></h3>
 <div class="sourceCode" id="cb49"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L78-L94">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L85-L88">View
 Source on GitHub</a></p>
-<p>Convert an IPython notebook to markdown.</p>
-<h3 id="makefile_recipes"><code>def makefile_recipes</code></h3>
+<p>Compress multiple whitespace characters into single spaces.</p>
+<h3 id="to_relative_path"><code>def to_relative_path</code></h3>
 <div class="sourceCode" id="cb50"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L97-L154">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L91-L94">View
+Source on GitHub</a></p>
+<p>return the path to the file as a string</p>
+<h3 id="ipynb_to_md"><code>def ipynb_to_md</code></h3>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
+<p><a
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L97-L113">View
+Source on GitHub</a></p>
+<p>Convert an IPython notebook to markdown.</p>
+<h3 id="makefile_recipes"><code>def makefile_recipes</code></h3>
+<div class="sourceCode" id="cb52"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
+<p><a
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L116-L173">View
 Source on GitHub</a></p>
 <p>Process a Makefile to show only target descriptions and basic
 structure.</p>
@@ -855,10 +871,10 @@ with <span class="citation" data-cites="echo">@echo</span></p>
 <li><code>str</code> Processed Makefile content</li>
 </ul>
 <h3 id="csv_preview_5_lines"><code>def csv_preview_5_lines</code></h3>
-<div class="sourceCode" id="cb51"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>(path: pathlib.Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code></pre></div>
 <p><a
-href="https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L157-L181">View
+href="https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L176-L200">View
 Source on GitHub</a></p>
 <p>Preview first few lines of a CSV file (up to 5)</p>
 <p>Reads only first 1024 bytes and splits into lines. Does not attempt

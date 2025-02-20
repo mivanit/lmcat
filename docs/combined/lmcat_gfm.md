@@ -1,4 +1,4 @@
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.0
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.1
 
 ## Contents
 
@@ -6,7 +6,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/lmcat)
 [![docs](https://img.shields.io/badge/docs-latest-blue)](https://miv.name/lmcat)
 [![Checks](https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg)](https://github.com/mivanit/lmcat/actions/workflows/checks.yml)
-[![Coverage](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzklPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc5JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg==)](docs/coverage/html/)
+[![Coverage](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzclPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc3JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg==)](docs/coverage/html/)
 
 ![GitHub
 commits](https://img.shields.io/github/commit-activity/t/mivanit/lmcat)
@@ -167,7 +167,7 @@ VERBOSE=1 make test
 - [`main`](#main)
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py)
 
 # `lmcat`
 
@@ -175,7 +175,7 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/lmcat)
 [![docs](https://img.shields.io/badge/docs-latest-blue)](https://miv.name/lmcat)
 [![Checks](https://github.com/mivanit/lmcat/actions/workflows/checks.yml/badge.svg)](https://github.com/mivanit/lmcat/actions/workflows/checks.yml)
-[![Coverage](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzklPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc5JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg==)](docs/coverage/html/)
+[![Coverage](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iOTkiIGhlaWdodD0iMjAiPg0KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4NCiAgICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+DQogICAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPg0KICAgIDwvbGluZWFyR3JhZGllbnQ+DQogICAgPG1hc2sgaWQ9ImEiPg0KICAgICAgICA8cmVjdCB3aWR0aD0iOTkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+DQogICAgPC9tYXNrPg0KICAgIDxnIG1hc2s9InVybCgjYSkiPg0KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDYzdjIwSDB6Ii8+DQogICAgICAgIDxwYXRoIGZpbGw9IiNhNGE2MWQiIGQ9Ik02MyAwaDM2djIwSDYzeiIvPg0KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDk5djIwSDB6Ii8+DQogICAgPC9nPg0KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIj4NCiAgICAgICAgPHRleHQgeD0iMzEuNSIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPmNvdmVyYWdlPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSIzMS41IiB5PSIxNCI+Y292ZXJhZ2U8L3RleHQ+DQogICAgICAgIDx0ZXh0IHg9IjgwIiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+NzclPC90ZXh0Pg0KICAgICAgICA8dGV4dCB4PSI4MCIgeT0iMTQiPjc3JTwvdGV4dD4NCiAgICA8L2c+DQo8L3N2Zz4NCg==)](docs/coverage/html/)
 
 ![GitHub
 commits](https://img.shields.io/github/commit-activity/t/mivanit/lmcat)
@@ -325,7 +325,7 @@ VERBOSE=1 make test
 - web interface
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py#L0-L14)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py#L0-L14)
 
 ### `def main`
 
@@ -334,11 +334,11 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py#L0-L14)
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/__init__.py#L387-L460)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/__init__.py#L388-L474)
 
 Main entry point for the script
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.0
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.1
 
 ## API Documentation
 
@@ -348,19 +348,19 @@ Main entry point for the script
 - [`TreeEntry`](#TreeEntry)
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py)
 
 # `lmcat.file_stats`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L0-L83)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L0-L83)
 
 - `TOKENIZERS_PRESENT: bool = True`
 
 ### `class TokenizerWrapper:`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L25-L43)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L25-L43)
 
 tokenizer wrapper. stores name and provides `n_tokens` method.
 
@@ -373,7 +373,7 @@ uses splitting by whitespace as a fallback – `whitespace-split`
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L30-L35)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L30-L35)
 
 - `name: str`
 
@@ -388,14 +388,14 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L30-L35)
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L37-L43)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L37-L43)
 
 Return number of tokens in text
 
 ### `class FileStats:`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L46-L77)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L46-L77)
 
 Statistics for a single file
 
@@ -422,7 +422,7 @@ Statistics for a single file
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L54-L77)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L54-L77)
 
 Get statistics for a single file
 
@@ -439,7 +439,7 @@ Get statistics for a single file
 ### `class TreeEntry(typing.NamedTuple):`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/file_stats.py#L80-L84)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/file_stats.py#L80-L84)
 
 Entry in the tree output with optional stats
 
@@ -464,7 +464,7 @@ Alias for field number 1
 - [`index`](#TreeEntry.index)
 - [`count`](#TreeEntry.count)
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.0
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.1
 
 ## API Documentation
 
@@ -478,17 +478,17 @@ Alias for field number 1
 - [`main`](#main)
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py)
 
 # `lmcat.lmcat`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L0-L463)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L0-L477)
 
 ### `class LMCatConfig(muutils.json_serialize.serializable_dataclass.SerializableDataclass):`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L35-L138)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L36-L139)
 
 Configuration dataclass for lmcat
 
@@ -554,7 +554,7 @@ avoid exception when `tokenizers` not installed.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L86-L88)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L87-L89)
 
 Get the tokenizer object
 
@@ -565,7 +565,7 @@ Get the tokenizer object
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L90-L98)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L91-L99)
 
 Get the processing pipeline object
 
@@ -576,7 +576,7 @@ Get the processing pipeline object
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L100-L138)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L101-L139)
 
 Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
 
@@ -587,7 +587,7 @@ Attempt to read config from pyproject.toml, lmcat.toml, or lmcat.json.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L703-L759)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L703-L759)
 
 returns the class as a dict, implemented by using
 `@serializable_dataclass` decorator
@@ -599,7 +599,7 @@ returns the class as a dict, implemented by using
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L766-L852)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L766-L852)
 
 takes in an appropriately structured dict and returns an instance of the
 class, implemented by using `@serializable_dataclass` decorator
@@ -614,7 +614,7 @@ class, implemented by using `@serializable_dataclass` decorator
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L303-L312)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L303-L312)
 
 validate the types of all the fields on a `SerializableDataclass`. calls
 `SerializableDataclass__validate_field_type` for each field
@@ -628,7 +628,7 @@ validate the types of all the fields on a `SerializableDataclass`. calls
 ### `class IgnoreHandler:`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L141-L166)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L142-L167)
 
 Handles all ignore pattern matching using igittigitt
 
@@ -639,7 +639,7 @@ Handles all ignore pattern matching using igittigitt
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L144-L157)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L145-L158)
 
 - `root_dir: pathlib.Path`
 
@@ -654,7 +654,7 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L144-L157)
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L159-L166)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L160-L167)
 
 Check if a path should be ignored
 
@@ -665,7 +665,7 @@ Check if a path should be ignored
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L169-L177)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L170-L178)
 
 Return directory contents sorted: directories first, then files
 
@@ -682,7 +682,7 @@ Return directory contents sorted: directories first, then files
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L180-L222)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L181-L223)
 
 Recursively walk a directory, building tree lines and collecting file
 paths
@@ -697,7 +697,7 @@ paths
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L225-L276)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L226-L277)
 
 Format tree entries with aligned statistics
 
@@ -720,7 +720,7 @@ Format tree entries with aligned statistics
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L279-L310)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L280-L311)
 
 Walk filesystem from root_dir and gather tree listing plus file paths
 
@@ -731,7 +731,7 @@ Walk filesystem from root_dir and gather tree listing plus file paths
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L313-L384)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L314-L385)
 
 Assemble the summary output and return
 
@@ -742,11 +742,11 @@ Assemble the summary output and return
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/lmcat.py#L387-L460)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/lmcat.py#L388-L474)
 
 Main entry point for the script
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.0
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.1
 
 ## API Documentation
 
@@ -755,12 +755,12 @@ Main entry point for the script
 - [`ProcessingPipeline`](#ProcessingPipeline)
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py)
 
 # `lmcat.processing_pipeline`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L0-L182)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L0-L182)
 
 - `OnMultipleProcessors = typing.Literal['warn', 'except', 'do_first', 'do_last', 'skip']`
 
@@ -771,7 +771,7 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L0-L1
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L35-L56)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L35-L56)
 
 Load plugins from a Python file.
 
@@ -782,7 +782,7 @@ Load plugins from a Python file.
 ### `class ProcessingPipeline:`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L59-L183)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L59-L183)
 
 Manages the processing pipeline for files.
 
@@ -807,7 +807,7 @@ Manages the processing pipeline for files.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L71-L109)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L71-L109)
 
 - `plugins_file: pathlib.Path | None`
 
@@ -824,7 +824,7 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L71-L
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L111-L134)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L111-L134)
 
 Get all applicable processors for a given path.
 
@@ -843,7 +843,7 @@ Get all applicable processors for a given path.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processing_pipeline.py#L136-L183)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processing_pipeline.py#L136-L183)
 
 Process a file through the pipeline.
 
@@ -856,7 +856,7 @@ Process a file through the pipeline.
 - `tuple[str, str]` Processed content and the processor name if no
   processor is found, will be `(path.read_text(), None)`
 
-> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.0
+> docs for [`lmcat`](https://github.com/mivanit/lmcat) v0.2.1
 
 ## API Documentation
 
@@ -866,6 +866,8 @@ Process a file through the pipeline.
 - [`DeciderFunc`](#DeciderFunc)
 - [`PROCESSORS`](#PROCESSORS)
 - [`DECIDERS`](#DECIDERS)
+- [`summarize_processors`](#summarize_processors)
+- [`summarize_deciders`](#summarize_deciders)
 - [`register_processor`](#register_processor)
 - [`register_decider`](#register_decider)
 - [`is_over_10kb`](#is_over_10kb)
@@ -878,12 +880,12 @@ Process a file through the pipeline.
 - [`csv_preview_5_lines`](#csv_preview_5_lines)
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py)
 
 # `lmcat.processors`
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L0-L180)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L0-L199)
 
 - `ProcessorName = <class 'str'>`
 
@@ -897,6 +899,24 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L0-L180)
 
 - `DECIDERS: dict[str, typing.Callable[[pathlib.Path], bool]] = {'is_over_10kb': <function is_over_10kb>, 'is_documentation': <function is_documentation>}`
 
+### `def summarize_processors`
+
+``` python
+() -> str
+```
+
+[View Source on
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L25-L31)
+
+### `def summarize_deciders`
+
+``` python
+() -> str
+```
+
+[View Source on
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L34-L40)
+
 ### `def register_processor`
 
 ``` python
@@ -904,7 +924,7 @@ GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L0-L180)
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L28-L31)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L47-L50)
 
 Register a function as a path processor
 
@@ -915,7 +935,7 @@ Register a function as a path processor
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L34-L37)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L53-L56)
 
 Register a function as a decider
 
@@ -926,7 +946,7 @@ Register a function as a decider
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L42-L45)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L61-L64)
 
 Check if file is over 10KB.
 
@@ -937,9 +957,9 @@ Check if file is over 10KB.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L48-L51)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L67-L70)
 
-Check if file is documentation.
+Check if file is documentation – ends with md, rst, or txt
 
 ### `def remove_comments`
 
@@ -948,7 +968,7 @@ Check if file is documentation.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L58-L63)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L77-L82)
 
 Remove single-line comments from code.
 
@@ -959,7 +979,7 @@ Remove single-line comments from code.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L66-L69)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L85-L88)
 
 Compress multiple whitespace characters into single spaces.
 
@@ -970,7 +990,7 @@ Compress multiple whitespace characters into single spaces.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L72-L75)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L91-L94)
 
 return the path to the file as a string
 
@@ -981,7 +1001,7 @@ return the path to the file as a string
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L78-L94)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L97-L113)
 
 Convert an IPython notebook to markdown.
 
@@ -992,7 +1012,7 @@ Convert an IPython notebook to markdown.
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L97-L154)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L116-L173)
 
 Process a Makefile to show only target descriptions and basic structure.
 
@@ -1015,7 +1035,7 @@ Preserves: - Comments above .PHONY targets up to first empty line - The
 ```
 
 [View Source on
-GitHub](https://github.com/mivanit/lmcat/blob/0.2.0/processors.py#L157-L181)
+GitHub](https://github.com/mivanit/lmcat/blob/0.2.1/processors.py#L176-L200)
 
 Preview first few lines of a CSV file (up to 5)
 
