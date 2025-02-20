@@ -26,7 +26,7 @@ def summarize_processors() -> str:
 	output: list[str] = list()
 	output.append("# Processors:")
 	for name, func in PROCESSORS.items():
-		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, '  ')}")
+		output.append(f"- '{name}'\n{textwrap.indent(str(func.__doc__), '  ')}")
 
 	return "\n".join(output)
 
@@ -35,7 +35,7 @@ def summarize_deciders() -> str:
 	output: list[str] = list()
 	output.append("# Deciders:")
 	for name, func in DECIDERS.items():
-		output.append(f"- '{name}'\n{textwrap.indent(func.__doc__, '  ')}")
+		output.append(f"- '{name}'\n{textwrap.indent(str(func.__doc__), '  ')}")
 
 	return "\n".join(output)
 
